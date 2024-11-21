@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System.Collections.Generic;
 
 namespace Emma.Api.Model
@@ -7,5 +8,6 @@ namespace Emma.Api.Model
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+        public DbSet<Contacts> Contacts { get; set; }
     }
 }
