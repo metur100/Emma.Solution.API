@@ -15,5 +15,12 @@ namespace Emma.Api.Repositories.ContactRepository
         {
             return _context.Contacts.ToList();
         }
+
+        public async Task<int> CreateContact(Contact contact)
+        {
+            _context.Contacts.Add(contact);
+            await _context.SaveChangesAsync();
+            return contact.Id;
+        }
     }
 }

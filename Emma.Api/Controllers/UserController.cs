@@ -1,0 +1,37 @@
+﻿using Emma.Api.Handlers.UserHandler;
+using Emma.Api.Models.DTOs;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Emma.Api.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController : ControllerBase
+    {
+        private readonly IUserHandler _userHandler;
+
+        public UserController(IUserHandler userHandler)
+        {
+            _userHandler = userHandler;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = await _userHandler.CreateUser(
+                request.Name,
+                request.ProfilePicture,
+                request.StreetAndNumber,
+                request.PostalCode,
+                request.City,
+                request.Email,
+                request.PhoneNumber
+            );
+
+            return Ok(new { Message = "User created successfully", UserId = userId });
+        }
+    }
+}
