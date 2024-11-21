@@ -1,6 +1,6 @@
 ﻿namespace Emma.Api.Model
 {
-    public class Contacts
+    public class Contact
     {
         public int Id { get; set; }
         public required string Email { get; set; }

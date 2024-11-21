@@ -8,6 +8,6 @@ namespace Emma.Api.Model
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Contacts> Contacts { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
     }
 }
