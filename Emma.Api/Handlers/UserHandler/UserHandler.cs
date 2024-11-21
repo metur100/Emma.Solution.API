@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.UserRepository;
@@ -47,7 +48,7 @@ namespace Emma.Api.Handlers.UserHandler
             return await _userRepository.CreateUserAsync(user);
         }
 
-        public async Task<List<string>> GetUserNamesAsync()
+        public async Task<List<UserDto>> GetUserNamesAsync()
         {
             return await _userRepository.GetUserNamesAsync();
         }

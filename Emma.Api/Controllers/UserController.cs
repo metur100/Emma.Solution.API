@@ -34,7 +34,7 @@ namespace Emma.Api.Controllers
             return Ok(new { Message = "User created successfully", UserId = userId });
         }
 
-        [HttpGet("UserNames")]
+        [HttpGet("Names")]
         public async Task<IActionResult> GetUserNames()
         {
             try

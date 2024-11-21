@@ -1,4 +1,6 @@
-﻿namespace Emma.Api.Handlers.UserHandler
+﻿using Emma.Api.Models.DTOs;
+
+namespace Emma.Api.Handlers.UserHandler
 {
     public interface IUserHandler
     {
@@ -10,6 +12,6 @@
             string email, 
             string phoneNumber);
 
-        Task<List<string>> GetUserNamesAsync();
+        Task<List<UserDto>> GetUserNamesAsync();
     }
 }
