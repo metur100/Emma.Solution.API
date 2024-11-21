@@ -5,29 +5,41 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 Startup.ConfigureServices(builder);
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-var connectionString = builder.Configuration["ConnectionStrings"];
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+ConfigureDatabaseContext(builder);
+ConfigureApiExplorerAndSwagger(builder);
 
 var app = builder.Build();
+ConfigureMiddleware(app);
 
-if (app.Environment.IsDevelopment())
+app.Run();
+
+void ConfigureMiddleware(WebApplication app)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseCors(builder => builder
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
 }
 
-app.UseHttpsRedirection();
+void ConfigureDatabaseContext(WebApplicationBuilder builder)
+{
+    var connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+void ConfigureApiExplorerAndSwagger(WebApplicationBuilder builder)
+{
+    builder.Services.AddControllers();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
