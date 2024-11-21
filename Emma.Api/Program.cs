@@ -1,4 +1,4 @@
-using Emma.Api.Model;
+using Emma.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,7 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration["ConnectionStrings"];
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 var app = builder.Build();

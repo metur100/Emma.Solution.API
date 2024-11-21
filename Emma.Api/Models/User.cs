@@ -1,4 +1,4 @@
-﻿namespace Emma.Api.Model
+﻿namespace Emma.Api.Models
 {
     public class User
     {
