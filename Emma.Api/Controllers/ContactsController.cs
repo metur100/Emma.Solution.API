@@ -5,14 +5,10 @@ namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ContactsController : ControllerBase
+    public class ContactsController(ApplicationDbContext applicationDbContext) : ControllerBase
     {
-        private readonly ApplicationDbContext _applicationDbContext;
+        private readonly ApplicationDbContext _applicationDbContext = applicationDbContext;
 
-        public ContactsController(ILogger<ContactsController> logger, ApplicationDbContext applicationDbContext)
-        {
-            _applicationDbContext = applicationDbContext;
-        }
         [HttpGet]
         public IActionResult GetContacts()
         {
