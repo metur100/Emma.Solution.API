@@ -20,7 +20,7 @@ namespace Emma.Api.Handlers.UserHandler
             _contactRepository = contactRepository;
         }
 
-        public async Task<int> CreateUser(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
+        public async Task<int> CreateUserAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
         {
             var address = new Address
             {
@@ -44,7 +44,12 @@ namespace Emma.Api.Handlers.UserHandler
                 AddressId = addressId,
                 ContactId = contactId
             };
-            return await _userRepository.CreateUser(user);
+            return await _userRepository.CreateUserAsync(user);
+        }
+
+        public async Task<List<string>> GetUserNamesAsync()
+        {
+            return await _userRepository.GetUserNamesAsync();
         }
     }
 }

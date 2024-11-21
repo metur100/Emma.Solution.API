@@ -4,6 +4,7 @@ namespace Emma.Api.Repositories.UserRepository
 {
     public interface IUserRepository
     {
-        Task<int> CreateUser(User user);
+        Task<int> CreateUserAsync(User user);
+        Task<List<string>> GetUserNamesAsync();
     }
 }

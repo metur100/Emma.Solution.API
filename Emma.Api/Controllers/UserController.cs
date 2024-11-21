@@ -21,7 +21,7 @@ namespace Emma.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = await _userHandler.CreateUser(
+            var userId = await _userHandler.CreateUserAsync(
                 request.Name,
                 request.ProfilePicture,
                 request.StreetAndNumber,
@@ -32,6 +32,20 @@ namespace Emma.Api.Controllers
             );
 
             return Ok(new { Message = "User created successfully", UserId = userId });
+        }
+
+        [HttpGet("UserNames")]
+        public async Task<IActionResult> GetUserNames()
+        {
+            try
+            {
+                var userNames = await _userHandler.GetUserNamesAsync();
+                return Ok(userNames);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while retrieving user names.");
+            }
         }
     }
 }
