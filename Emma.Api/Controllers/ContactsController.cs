@@ -15,6 +15,5 @@ namespace Emma.Api.Controllers
             var result = _applicationDbContext.Contacts.ToList();
             return Ok(result);
         }
-
     }
 }
