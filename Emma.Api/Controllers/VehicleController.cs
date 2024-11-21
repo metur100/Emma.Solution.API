@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Emma.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class VehicleController : ControllerBase
     {
         private readonly IVehicleHandler _vehicleHandler;
@@ -20,7 +20,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userId= vehicle.Id;
+                var userId = vehicle.UserId;
                 await _vehicleHandler.CreateVehicleAsync(vehicle, userId);
                 return Ok("Vehicle created successfully");
             }
