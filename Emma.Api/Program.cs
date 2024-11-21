@@ -1,11 +1,15 @@
+using Emma.Api;
 using Emma.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Startup.ConfigureServices(builder);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var connectionString = builder.Configuration["ConnectionStrings"];
 
