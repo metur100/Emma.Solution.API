@@ -10,7 +10,7 @@ namespace Emma.Api.Controllers
         private readonly IContactHandler _contactHandler = contactHandler;
 
         [HttpGet]
-        public IActionResult GetContacts()
+        public IActionResult GetAllContacts()
         {
             var result = _contactHandler.GetAllContacts();
             return Ok(result);
