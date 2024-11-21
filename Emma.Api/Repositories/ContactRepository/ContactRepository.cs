@@ -13,7 +13,12 @@ namespace Emma.Api.Repositories.ContactRepository
 
         public List<Contact> GetAllContacts()
         {
-            return _context.Contacts.ToList();
+            var result = _context.Contacts.ToList();
+            if(result == null)
+            {
+                result = new List<Contact>();
+            }
+            return result;
         }
 
         public async Task<int> CreateContact(Contact contact)
