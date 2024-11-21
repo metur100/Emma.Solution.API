@@ -16,7 +16,7 @@ namespace Emma.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateVehicle([FromBody] Vehicle vehicle)
+        public async Task<IActionResult> CreateVehicleAsync([FromBody] Vehicle vehicle)
         {
             try
             {
