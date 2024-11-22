@@ -18,7 +18,7 @@ namespace Emma.Api.Controllers
                 return BadRequest(ModelState);
 
             var userId = await _userHandler.CreateUserAsync(
-                request.Name,
+                request.UserName,
                 request.ProfilePicture,
                 request.StreetAndNumber,
                 request.PostalCode,
@@ -44,7 +44,7 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("Profile/{userId}")]
+        [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserProfileInformations(int userId)
         {
             try

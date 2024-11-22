@@ -7,5 +7,6 @@ namespace Emma.Api.Handlers.FreightHandler
     {
         Task CreateFreightAsync(Freight freight, int userId);
         Task<List<FreightListDTO>> GetAllFreightsAsync();
+        Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int userId, int freigthId);
     }
 }

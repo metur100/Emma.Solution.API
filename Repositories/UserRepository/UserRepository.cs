@@ -18,7 +18,7 @@ namespace Emma.Api.Repositories.UserRepository
         public async Task<List<UserDto>> GetUserNamesAsync()
         {
             return await _context.Users
-                .Select(u => new UserDto { Id = u.Id, Name = u.Name })
+                .Select(u => new UserDto { Id = u.Id, UserName = u.Name })
                 .ToListAsync();
         }
 
@@ -55,7 +55,7 @@ namespace Emma.Api.Repositories.UserRepository
             var userProfile = new UserProfileDTO
             {
                 Id = user.User.Id,
-                Name = user.User.Name,
+                UserName = user.User.Name,
                 ProfilePicture = user.User.ProfilePicture,
                 StreetAndNumber = user.Address?.StreetAndNumber ?? string.Empty, 
                 PostalCode = user.Address?.PostalCode ?? string.Empty,
