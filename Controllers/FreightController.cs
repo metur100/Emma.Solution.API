@@ -24,5 +24,19 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllFreightsAsync()
+        {
+            try
+            {
+                var result = await _freightHandler.GetAllFreightsAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

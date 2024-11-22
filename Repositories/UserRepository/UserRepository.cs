@@ -30,5 +30,14 @@ namespace Emma.Api.Repositories.UserRepository
 
             return user == null ? throw new Exception("User not found") : user.Id;
         }
+
+        public async Task<string> GetUserNameById(string userName)
+        {
+            var user = await _context.Users
+                .Where(u => u.Name == userName)
+                .FirstOrDefaultAsync();
+
+            return user == null ? throw new Exception("User not found") : user.Name;
+        }
     }
 }

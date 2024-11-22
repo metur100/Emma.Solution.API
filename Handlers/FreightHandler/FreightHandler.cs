@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.FreightRepository;
 
 namespace Emma.Api.Handlers.FreightHandler
@@ -17,6 +18,12 @@ namespace Emma.Api.Handlers.FreightHandler
             {
                 throw new Exception($"Error in vehicle handler: {ex.Message}");
             }
+        }
+
+        public async Task<List<FreightListDTO>> GetAllFreightsAsync()
+        {
+            var allFreights = await _freightRepository.GetAllFreightsAsync();
+            return allFreights ?? throw new Exception("");
         }
     }
 }
