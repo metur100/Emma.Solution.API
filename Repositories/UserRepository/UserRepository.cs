@@ -39,5 +39,33 @@ namespace Emma.Api.Repositories.UserRepository
 
             return user == null ? throw new Exception("User not found") : user.Name;
         }
+
+        public async Task<UserProfileDTO> GetUserProfileInformations(int id)
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    User = u,
+                    Address = _context.Addresses.FirstOrDefault(a => a.Id == u.AddressId),
+                    Contact = _context.Contacts.FirstOrDefault(c => c.Id == u.ContactId)
+                })
+                .FirstOrDefaultAsync() ?? throw new Exception("User not found");
+
+            var userProfile = new UserProfileDTO
+            {
+                Id = user.User.Id,
+                Name = user.User.Name,
+                ProfilePicture = user.User.ProfilePicture,
+                StreetAndNumber = user.Address?.StreetAndNumber ?? string.Empty, 
+                PostalCode = user.Address?.PostalCode ?? string.Empty,
+                City = user.Address?.City ?? string.Empty,
+                Email = user.Contact?.Email ?? string.Empty,
+                PhoneNumber = user.Contact?.PhoneNumber ?? string.Empty,
+                Ratings = user.User.Ratings
+            };
+
+            return userProfile;
+        }
     }
 }

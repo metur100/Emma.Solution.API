@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Handlers.UserHandler;
+using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,20 @@ namespace Emma.Api.Controllers
             try
             {
                 var userNames = await _userHandler.GetUserNamesAsync();
+                return Ok(userNames);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while retrieving user names.");
+            }
+        }
+
+        [HttpGet("Profile/{userId}")]
+        public async Task<IActionResult> GetUserProfileInformations(int userId)
+        {
+            try
+            {
+                var userNames = await _userHandler.GetUserProfileInformations(userId);
                 return Ok(userNames);
             }
             catch

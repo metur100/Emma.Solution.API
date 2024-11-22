@@ -13,5 +13,6 @@ namespace Emma.Api.Handlers.UserHandler
             string phoneNumber);
 
         Task<List<UserDto>> GetUserNamesAsync();
+        Task<UserProfileDTO> GetUserProfileInformations(int id);
     }
 }

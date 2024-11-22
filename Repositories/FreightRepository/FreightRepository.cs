@@ -35,10 +35,15 @@ namespace Emma.Api.Repositories.FreightRepository
                     .Select(freight => new FreightListDTO
                     {
                         Id = freight.Id,
+                        UserId = freight.UserId,
                         UserName = _context.Users
                             .Where(user => user.Id == freight.UserId)
                             .Select(user => user.Name)
                             .FirstOrDefault() ?? "Unknown User",
+                        ProfilePicture = _context.Users
+                            .Where(user => user.Id == freight.UserId)
+                            .Select(user => user.ProfilePicture)
+                            .FirstOrDefault() ?? "Unknown Picture",
                         LoadingAddress = freight.LoadingAddress,
                         AvailabilityDate = freight.AvailabilityDate
                     })

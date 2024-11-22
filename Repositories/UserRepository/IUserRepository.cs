@@ -9,5 +9,6 @@ namespace Emma.Api.Repositories.UserRepository
         Task<List<UserDto>> GetUserNamesAsync();
         Task<int> GetUserById(int id);
         Task<string> GetUserNameById(string userName);
+        Task<UserProfileDTO> GetUserProfileInformations(int id);
     }
 }

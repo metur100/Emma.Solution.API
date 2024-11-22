@@ -45,5 +45,18 @@ namespace Emma.Api.Handlers.UserHandler
         {
             return await _userRepository.GetUserNamesAsync();
         }
+
+        public async Task<UserProfileDTO> GetUserProfileInformations(int id)
+        {
+            try
+            {
+                return await _userRepository.GetUserProfileInformations(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving the user profile for user ID {id}: {ex.Message}", ex);
+            }
+        }
+
     }
 }
