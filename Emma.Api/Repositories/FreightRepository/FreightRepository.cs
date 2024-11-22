@@ -3,16 +3,10 @@ using Emma.Api.Repositories.UserRepository;
 
 namespace Emma.Api.Repositories.FreightRepository
 {
-    public class FreightRepository : IFreightRepository
+    public class FreightRepository(AppDbContext context, IUserRepository userRepository) : IFreightRepository
     {
-        private readonly AppDbContext _context;
-        private readonly IUserRepository _userRepository;
-
-        public FreightRepository(AppDbContext context, IUserRepository userRepository)
-        {
-            _context = context;
-            _userRepository = userRepository;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task CreateFreightAsync(Freight freight, int userId)
         {

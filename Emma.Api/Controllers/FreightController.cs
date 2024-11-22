@@ -1,5 +1,4 @@
 ﻿using Emma.Api.Handlers.FreightHandler;
-using Emma.Api.Handlers.VehicleHandler;
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +6,9 @@ namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class FreightController : ControllerBase
+    public class FreightController(IFreightHandler freightHandler) : ControllerBase
     {
-        private readonly IFreightHandler _freightHandler;
-
-        public FreightController(IFreightHandler freightHandler)
-        {
-            _freightHandler = freightHandler;
-        }
+        private readonly IFreightHandler _freightHandler = freightHandler;
 
         [HttpPost]
         public async Task<IActionResult> CreateFreightAsync([FromBody] Freight freight)

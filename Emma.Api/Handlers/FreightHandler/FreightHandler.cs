@@ -3,14 +3,9 @@ using Emma.Api.Repositories.FreightRepository;
 
 namespace Emma.Api.Handlers.FreightHandler
 {
-    public class FreightHandler : IFreightHandler
+    public class FreightHandler(IFreightRepository freightRepository) : IFreightHandler
     {
-        private readonly IFreightRepository _freightRepository;
-
-        public FreightHandler(IFreightRepository freightRepository)
-        {
-            _freightRepository = freightRepository;
-        }
+        private readonly IFreightRepository _freightRepository = freightRepository;
 
         public async Task CreateFreightAsync(Freight freight, int userId)
         {

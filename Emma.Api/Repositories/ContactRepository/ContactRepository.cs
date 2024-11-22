@@ -2,22 +2,14 @@
 
 namespace Emma.Api.Repositories.ContactRepository
 {
-    public class ContactRepository : IContactRepository
+    public class ContactRepository(AppDbContext context) : IContactRepository
     {
-        private readonly AppDbContext _context;
-
-        public ContactRepository (AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public List<Contact> GetAllContacts()
         {
             var result = _context.Contacts.ToList();
-            if(result == null)
-            {
-                result = new List<Contact>();
-            }
+            result ??= [];
             return result;
         }
 

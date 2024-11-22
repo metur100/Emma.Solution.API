@@ -3,14 +3,9 @@ using Emma.Api.Repositories.VehicleRepository;
 
 namespace Emma.Api.Handlers.VehicleHandler
 {
-    public class VehicleHandler : IVehicleHandler
+    public class VehicleHandler(IVehicleRepository vehicleRepository) : IVehicleHandler
     {
-        private readonly IVehicleRepository _vehicleRepository;
-
-        public VehicleHandler(IVehicleRepository vehicleRepository)
-        {
-            _vehicleRepository = vehicleRepository;
-        }
+        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
 
         public async Task CreateVehicleAsync(Vehicle vehicle, int userId)
         {

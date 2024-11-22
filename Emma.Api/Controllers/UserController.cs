@@ -6,14 +6,9 @@ namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController : ControllerBase
+    public class UserController(IUserHandler userHandler) : ControllerBase
     {
-        private readonly IUserHandler _userHandler;
-
-        public UserController(IUserHandler userHandler)
-        {
-            _userHandler = userHandler;
-        }
+        private readonly IUserHandler _userHandler = userHandler;
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO request)

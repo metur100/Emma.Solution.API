@@ -6,14 +6,9 @@ namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class VehicleController : ControllerBase
+    public class VehicleController(IVehicleHandler vehicleHandler) : ControllerBase
     {
-        private readonly IVehicleHandler _vehicleHandler;
-
-        public VehicleController(IVehicleHandler vehicleHandler)
-        {
-            _vehicleHandler = vehicleHandler;
-        }
+        private readonly IVehicleHandler _vehicleHandler = vehicleHandler;
 
         [HttpPost]
         public async Task<IActionResult> CreateVehicleAsync([FromBody] Vehicle vehicle)

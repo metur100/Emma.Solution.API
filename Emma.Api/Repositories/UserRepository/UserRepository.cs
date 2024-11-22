@@ -4,14 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.UserRepository
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository(AppDbContext context) : IUserRepository
     {
-        private readonly AppDbContext _context;
-
-        public UserRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        private readonly AppDbContext _context = context;
 
         public async Task<int> CreateUserAsync(User user)
         {
@@ -33,12 +28,7 @@ namespace Emma.Api.Repositories.UserRepository
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
 
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-
-            return user.Id;
+            return user == null ? throw new Exception("User not found") : user.Id;
         }
     }
 }

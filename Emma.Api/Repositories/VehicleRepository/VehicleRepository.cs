@@ -1,20 +1,12 @@
-﻿using Emma.Api.Handlers.UserHandler;
-using Emma.Api.Models;
+﻿using Emma.Api.Models;
 using Emma.Api.Repositories.UserRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.VehicleRepository
 {
-    public class VehicleRepository : IVehicleRepository
+    public class VehicleRepository(AppDbContext context, IUserRepository userRepository) : IVehicleRepository
     {
-        private readonly AppDbContext _context;
-        private readonly IUserRepository _userRepository;  
-
-        public VehicleRepository(AppDbContext context, IUserRepository userRepository)
-        {
-            _context = context;
-            _userRepository = userRepository;
-        }
+        private readonly AppDbContext _context = context;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task CreateVehicleAsync(Vehicle vehicle, int userId)
         {
