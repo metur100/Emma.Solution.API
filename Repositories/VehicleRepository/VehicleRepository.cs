@@ -87,5 +87,21 @@ namespace Emma.Api.Repositories.VehicleRepository
             return vehicle ?? throw new Exception($"Vehicle with ID {vehicleId} for user {userId} not found.");
         }
 
+        public async Task<List<Vehicle>> GetVehiclesByUserIdAsync(int userId)
+        {
+            try
+            {
+                var vehicles = await _context.Vehicles
+                    .Where(vehicle => vehicle.UserId == userId)
+                    .ToListAsync();  
+
+                return vehicles;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching vehicles for user {userId}: {ex.Message}");
+            }
+        }
+
     }
 }

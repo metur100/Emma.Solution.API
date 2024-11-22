@@ -32,5 +32,9 @@ namespace Emma.Api.Handlers.VehicleHandler
                    ?? throw new Exception($"Vehicle with ID {vehicleId} for user {userId} not found.");
         }
 
+        public async Task<List<Vehicle>> GetVehiclesByUserIdAsync(int userId)
+        {
+            return await _vehicleRepository.GetVehiclesByUserIdAsync(userId);
+        }
     }
 }

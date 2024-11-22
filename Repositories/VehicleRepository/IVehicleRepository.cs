@@ -8,5 +8,6 @@ namespace Emma.Api.Repositories.VehicleRepository
         Task CreateVehicleAsync(Vehicle vehicle, int userId);
         Task<List<VehicleListDTO>> GetAllVehiclesAsync();
         Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int userId, int vehicleId);
+        Task<List<Vehicle>> GetVehiclesByUserIdAsync(int userId);
     }
 }

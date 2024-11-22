@@ -30,5 +30,10 @@ namespace Emma.Api.Handlers.FreightHandler
         {
             return await _freightRepository.GetFreightInformationByFreightIdAsync(userId, freigthId);
         }
+
+        public async Task<List<Freight>> GetFreightsByUserIdAsync(int userId)
+        {
+            return await _freightRepository.GetFreightsByUserIdAsync(userId);
+        }
     }
 }

@@ -53,5 +53,18 @@ namespace Emma.Api.Controllers
             }
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetVehiclesByUserIdAsync(int userId)
+        {
+            try
+            {
+                var result = await _vehicleHandler.GetVehiclesByUserIdAsync(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
