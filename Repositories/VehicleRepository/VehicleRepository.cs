@@ -35,6 +35,7 @@ namespace Emma.Api.Repositories.VehicleRepository
                     .Select(vehicle => new VehicleListDTO
                     {
                         Id = vehicle.Id,
+                        UserId  = vehicle.UserId,
                         UserName = _context.Users
                             .Where(user => user.Id == vehicle.UserId)
                             .Select(user => user.Name)
