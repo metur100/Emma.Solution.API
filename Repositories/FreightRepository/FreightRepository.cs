@@ -16,7 +16,7 @@ namespace Emma.Api.Repositories.FreightRepository
             {
                 var user = await _userRepository.GetUserById(userId);
 
-                freight.UserId = user;
+                freight.ProfileId = user;
 
                 _context.Freights.Add(freight);
                 await _context.SaveChangesAsync();
@@ -35,13 +35,13 @@ namespace Emma.Api.Repositories.FreightRepository
                     .Select(freight => new FreightListDTO
                     {
                         Id = freight.Id,
-                        UserId = freight.UserId,
+                        UserId = freight.ProfileId,
                         UserName = _context.Users
-                            .Where(user => user.Id == freight.UserId)
+                            .Where(user => user.Id == freight.ProfileId)
                             .Select(user => user.Name)
                             .FirstOrDefault() ?? "Unknown User",
                         ProfilePicture = _context.Users
-                            .Where(user => user.Id == freight.UserId)
+                            .Where(user => user.Id == freight.ProfileId)
                             .Select(user => user.ProfilePicture)
                             .FirstOrDefault() ?? "Unknown Picture",
                         LoadingAddress = freight.LoadingAddress,
@@ -60,13 +60,13 @@ namespace Emma.Api.Repositories.FreightRepository
         public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int userId, int freightId)
         {
             var freight = await _context.Freights
-                .Where(f => f.UserId == userId && f.Id == freightId)
-                .Join(_context.Users, freight => freight.UserId, user => user.Id, (freight, user) => new { freight, user })
+                .Where(f => f.ProfileId == userId && f.Id == freightId)
+                .Join(_context.Users, freight => freight.ProfileId, user => user.Id, (freight, user) => new { freight, user })
                 .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.freight, temp.user, address })
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new FreightInformationsDTO
                 {
                     Id = temp.freight.Id,
-                    UserId = temp.freight.UserId,
+                    UserId = temp.freight.ProfileId,
                     UserName = temp.user.Name,
                     StreetAndNumber = temp.address.StreetAndNumber,
                     PostalCode = temp.address.PostalCode,
@@ -95,7 +95,7 @@ namespace Emma.Api.Repositories.FreightRepository
             try
             {
                 var freights = await _context.Freights
-                    .Where(freight => freight.UserId == userId) 
+                    .Where(freight => freight.ProfileId == userId) 
                     .ToListAsync(); 
 
                 return freights;

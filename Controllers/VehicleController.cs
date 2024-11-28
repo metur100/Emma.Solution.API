@@ -15,7 +15,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userId = vehicle.UserId;
+                var userId = vehicle.ProfileId;
                 await _vehicleHandler.CreateVehicleAsync(vehicle, userId);
                 return Ok("Vehicle created successfully");
             }

@@ -3,7 +3,7 @@
     public class Vehicle
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int ProfileId { get; set; }
         public string? Brand { get; set; }
         public string? PlateNumber { get; set; }
         public string? Description { get; set; } 

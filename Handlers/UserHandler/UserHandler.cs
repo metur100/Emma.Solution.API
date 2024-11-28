@@ -31,7 +31,7 @@ namespace Emma.Api.Handlers.UserHandler
             };
             var contactId = await _contactRepository.CreateContact(contact);
 
-            var user = new User
+            var user = new Profile
             {
                 Name = name,
                 ProfilePicture = profilePicture,

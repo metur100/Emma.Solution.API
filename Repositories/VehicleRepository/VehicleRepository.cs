@@ -16,7 +16,7 @@ namespace Emma.Api.Repositories.VehicleRepository
             {
                 var user = await _userRepository.GetUserById(userId);  
 
-                vehicle.UserId = user;
+                vehicle.ProfileId = user;
 
                 _context.Vehicles.Add(vehicle);
                 await _context.SaveChangesAsync();
@@ -35,13 +35,13 @@ namespace Emma.Api.Repositories.VehicleRepository
                     .Select(vehicle => new VehicleListDTO
                     {
                         Id = vehicle.Id,
-                        UserId  = vehicle.UserId,
+                        UserId  = vehicle.ProfileId,
                         UserName = _context.Users
-                            .Where(user => user.Id == vehicle.UserId)
+                            .Where(user => user.Id == vehicle.ProfileId)
                             .Select(user => user.Name)
                             .FirstOrDefault() ?? "Unknown User",
                         ProfilePicture = _context.Users
-                            .Where(user => user.Id == vehicle.UserId)
+                            .Where(user => user.Id == vehicle.ProfileId)
                             .Select(user => user.ProfilePicture)
                             .FirstOrDefault() ?? "Unknown Picture",
                         BodyType = vehicle.BodyType,
@@ -60,13 +60,13 @@ namespace Emma.Api.Repositories.VehicleRepository
         public async Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int userId, int vehicleId)
         {
             var vehicle = await _context.Vehicles
-                .Where(v => v.UserId == userId && v.Id == vehicleId)
-                .Join(_context.Users, vehicle => vehicle.UserId, user => user.Id, (vehicle, user) => new { vehicle, user })
+                .Where(v => v.ProfileId == userId && v.Id == vehicleId)
+                .Join(_context.Users, vehicle => vehicle.ProfileId, user => user.Id, (vehicle, user) => new { vehicle, user })
                 .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.vehicle, temp.user, address })
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new VehicleInformationsDTO
                 {
                     Id = temp.vehicle.Id,
-                    UserId = temp.vehicle.UserId,
+                    UserId = temp.vehicle.ProfileId,
                     UserName = temp.user.Name,
                     StreetAndNumber = temp.address.StreetAndNumber,
                     PostalCode = temp.address.PostalCode,
@@ -92,7 +92,7 @@ namespace Emma.Api.Repositories.VehicleRepository
             try
             {
                 var vehicles = await _context.Vehicles
-                    .Where(vehicle => vehicle.UserId == userId)
+                    .Where(vehicle => vehicle.ProfileId == userId)
                     .ToListAsync();  
 
                 return vehicles;

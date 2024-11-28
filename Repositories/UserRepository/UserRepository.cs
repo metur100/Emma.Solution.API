@@ -8,7 +8,7 @@ namespace Emma.Api.Repositories.UserRepository
     {
         private readonly AppDbContext _context = context;
 
-        public async Task<int> CreateUserAsync(User user)
+        public async Task<int> CreateUserAsync(Profile user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

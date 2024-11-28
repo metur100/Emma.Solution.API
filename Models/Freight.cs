@@ -3,7 +3,7 @@
     public class Freight
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public int ProfileId { get; set; }
         public required string LoadingAddress { get; set; }
         public required string UnloadingAddress { get; set; }
         public required string TransportPrice { get; set; }

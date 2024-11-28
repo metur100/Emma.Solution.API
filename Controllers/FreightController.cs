@@ -15,7 +15,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userId = freight.UserId;
+                var userId = freight.ProfileId;
                 await _freightHandler.CreateFreightAsync(freight, userId);
                 return Ok("Freight created successfully");
             }
