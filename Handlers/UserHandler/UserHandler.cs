@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.UserRepository;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,19 +10,38 @@ namespace Emma.Api.Handlers.UserHandler
     {
         private readonly IUserRepository _userRepository = userRepository;
 
-        public async Task<string> RegisterAsync(User profile)
+        public async Task<string> RegisterAsync(RegisterUserDto dto)
         {
-            var existingProfile = await _userRepository.GetProfileByEmailAsync(profile.Email);
+            var existingProfile = await _userRepository.GetProfileByEmailAsync(dto.Email);
             if (existingProfile != null)
             {
-                return "Profile already exists.";
+                return "Profile already exists."; // Return a message string
             }
 
-            // Hash the password and save the profile
-            profile.Password = HashPassword(profile.Password);
-            await _userRepository.AddProfileAsync(profile);
+            var hashedPassword = HashPassword(dto.Password);
 
-            return "Profile registered successfully.";
+            var user = new User
+            {
+                Email = dto.Email,
+                Password = hashedPassword
+            };
+
+            var address = new Address
+            {
+                StreetAndNumber = dto.StreetAndNumber,
+                PostalCode = dto.PostalCode,
+                City = dto.City
+            };
+
+            var contact = new Contact
+            {
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber
+            };
+
+            await _userRepository.RegisterUserAsync(user, address, contact);
+
+            return "Profile registered successfully."; // Return success message
         }
 
         public async Task<string> LoginAsync(string email, string password)

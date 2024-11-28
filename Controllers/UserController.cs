@@ -1,11 +1,12 @@
 ﻿using Emma.Api.Handlers.UserHandler;
 using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly IUserHandler _userHandler;
@@ -16,21 +17,21 @@ namespace Emma.Api.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] User user)
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
-            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+            if (dto == null)
             {
-                return BadRequest("Email and password are required.");
+                return BadRequest("Invalid user data.");
             }
 
-            var result = await _userHandler.RegisterAsync(user);
+            var result = await _userHandler.RegisterAsync(dto);
 
-            if (result == "Profile registered successfully.")
+            if (result == "Profile already exists.")
             {
-                return Ok(result);
+                return Conflict(new { message = result }); 
             }
 
-            return BadRequest(result);
+            return Ok(new { message = result }); 
         }
 
         [HttpPost("Login")]
