@@ -1,18 +1,11 @@
-﻿using Emma.Api.Models.DTOs;
+﻿using Emma.Api.Models;
 
 namespace Emma.Api.Handlers.UserHandler
 {
     public interface IUserHandler
     {
-        Task<int> CreateUserAsync(string name, 
-            string? profilePicture, 
-            string streetAndNumber, 
-            string postalCode, 
-            string city, 
-            string email, 
-            string phoneNumber);
-
-        Task<List<UserDto>> GetUserNamesAsync();
-        Task<UserProfileDTO> GetUserProfileInformations(int id);
+        Task<string> RegisterAsync(User profile);
+        Task<string> LoginAsync(string email, string password);
+        string HashPassword(string password);
     }
 }

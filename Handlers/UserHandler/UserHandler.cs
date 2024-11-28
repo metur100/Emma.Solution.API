@@ -1,62 +1,47 @@
 ﻿using Emma.Api.Models;
-using Emma.Api.Models.DTOs;
-using Emma.Api.Repositories.AddressRepository;
-using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.UserRepository;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Emma.Api.Handlers.UserHandler
 {
-    public class UserHandler(IUserRepository userRepository,
-        IAddressRepository addressRepository,
-        IContactRepository contactRepository) : IUserHandler
+    public class UserHandler(IUserRepository userRepository) : IUserHandler
     {
         private readonly IUserRepository _userRepository = userRepository;
-        private readonly IAddressRepository _addressRepository = addressRepository;
-        private readonly IContactRepository _contactRepository = contactRepository;
 
-        public async Task<int> CreateUserAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
+        public async Task<string> RegisterAsync(User profile)
         {
-            var address = new Address
+            var existingProfile = await _userRepository.GetProfileByEmailAsync(profile.Email);
+            if (existingProfile != null)
             {
-                StreetAndNumber = streetAndNumber,
-                PostalCode = postalCode,
-                City = city
-            };
-            var addressId = await _addressRepository.CreateAddress(address);
-
-            var contact = new Contact
-            {
-                Email = email,
-                PhoneNumber = phoneNumber
-            };
-            var contactId = await _contactRepository.CreateContact(contact);
-
-            var user = new Profile
-            {
-                Name = name,
-                ProfilePicture = profilePicture,
-                AddressId = addressId,
-                ContactId = contactId
-            };
-            return await _userRepository.CreateUserAsync(user);
-        }
-
-        public async Task<List<UserDto>> GetUserNamesAsync()
-        {
-            return await _userRepository.GetUserNamesAsync();
-        }
-
-        public async Task<UserProfileDTO> GetUserProfileInformations(int id)
-        {
-            try
-            {
-                return await _userRepository.GetUserProfileInformations(id);
+                return "Profile already exists.";
             }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while retrieving the user profile for user ID {id}: {ex.Message}", ex);
-            }
+
+            // Hash the password and save the profile
+            profile.Password = HashPassword(profile.Password);
+            await _userRepository.AddProfileAsync(profile);
+
+            return "Profile registered successfully.";
         }
 
+        public async Task<string> LoginAsync(string email, string password)
+        {
+            var hashedPassword = HashPassword(password);
+
+            var profile = await _userRepository.GetProfileByEmailAndPasswordAsync(email, hashedPassword);
+            if (profile == null)
+            {
+                return "Invalid email or password.";
+            }
+
+            return "Login successful.";
+        }
+
+        public string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
+        }
     }
 }

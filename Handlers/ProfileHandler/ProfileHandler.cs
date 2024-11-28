@@ -1,50 +1,63 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
+using Emma.Api.Repositories.AddressRepository;
+using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Emma.Api.Handlers.ProfileHandler
 {
-    public class ProfileHandler(ProfileRepository profileRepository) : IProfileHandler
+    public class ProfileHandler(IProfileRepository userRepository,
+        IAddressRepository addressRepository,
+        IContactRepository contactRepository) : IProfileHandler
     {
-        private readonly ProfileRepository _profileRepository = profileRepository;
+        private readonly IProfileRepository _userRepository = userRepository;
+        private readonly IAddressRepository _addressRepository = addressRepository;
+        private readonly IContactRepository _contactRepository = contactRepository;
 
-        public async Task<string> RegisterAsync(User profile)
+        public async Task<int> CreateUserAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
         {
-            // Check if profile already exists
-            var existingProfile = await _profileRepository.GetProfileByEmailAsync(profile.Email);
-            if (existingProfile != null)
+            var address = new Address
             {
-                return "Profile already exists.";
-            }
+                StreetAndNumber = streetAndNumber,
+                PostalCode = postalCode,
+                City = city
+            };
+            var addressId = await _addressRepository.CreateAddress(address);
 
-            // Hash the password and save the profile
-            profile.Password = HashPassword(profile.Password);
-            await _profileRepository.AddProfileAsync(profile);
-
-            return "Profile registered successfully.";
-        }
-
-        public async Task<string> LoginAsync(string email, string password)
-        {
-            // Hash the password for comparison
-            var hashedPassword = HashPassword(password);
-
-            // Verify profile credentials
-            var profile = await _profileRepository.GetProfileByEmailAndPasswordAsync(email, hashedPassword);
-            if (profile == null)
+            var contact = new Contact
             {
-                return "Invalid email or password.";
-            }
+                Email = email,
+                PhoneNumber = phoneNumber
+            };
+            var contactId = await _contactRepository.CreateContact(contact);
 
-            return "Login successful.";
+            var user = new Profile
+            {
+                Name = name,
+                UserId = 1,
+                ProfilePicture = profilePicture,
+                AddressId = addressId,
+                ContactId = contactId
+            };
+            return await _userRepository.CreateUserAsync(user);
         }
 
-        public string HashPassword(string password)
+        public async Task<List<ProfileDto>> GetUserNamesAsync()
         {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
+            return await _userRepository.GetUserNamesAsync();
         }
+
+        public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
+        {
+            try
+            {
+                return await _userRepository.GetUserProfileInformations(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving the user profile for user ID {id}: {ex.Message}", ex);
+            }
+        }
+
     }
 }

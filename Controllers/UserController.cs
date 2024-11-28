@@ -1,61 +1,54 @@
 ﻿using Emma.Api.Handlers.UserHandler;
 using Emma.Api.Models;
-using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class UserController(IUserHandler userHandler) : ControllerBase
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
-        private readonly IUserHandler _userHandler = userHandler;
+        private readonly IUserHandler _userHandler;
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDTO request)
+        public UserController(IUserHandler userHandler)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var userId = await _userHandler.CreateUserAsync(
-                request.UserName,
-                request.ProfilePicture,
-                request.StreetAndNumber,
-                request.PostalCode,
-                request.City,
-                request.Email,
-                request.PhoneNumber
-            );
-
-            return Ok(new { Message = "User created successfully", UserId = userId });
+            _userHandler = userHandler;
         }
 
-        [HttpGet("Names")]
-        public async Task<IActionResult> GetUserNames()
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register([FromBody] User user)
         {
-            try
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
             {
-                var userNames = await _userHandler.GetUserNamesAsync();
-                return Ok(userNames);
+                return BadRequest("Email and password are required.");
             }
-            catch
+
+            var result = await _userHandler.RegisterAsync(user);
+
+            if (result == "Profile registered successfully.")
             {
-                return StatusCode(500, "An error occurred while retrieving user names.");
+                return Ok(result);
             }
+
+            return BadRequest(result);
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUserProfileInformations(int userId)
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] User user)
         {
-            try
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
             {
-                var userNames = await _userHandler.GetUserProfileInformations(userId);
-                return Ok(userNames);
+                return BadRequest("Email and password are required.");
             }
-            catch
+
+            var result = await _userHandler.LoginAsync(user.Email, user.Password);
+
+            if (result == "Login successful.")
             {
-                return StatusCode(500, "An error occurred while retrieving user names.");
+                return Ok(result);
             }
+
+            return Unauthorized(result);
         }
     }
 }

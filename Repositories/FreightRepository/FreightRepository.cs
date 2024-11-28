@@ -1,20 +1,20 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
-using Emma.Api.Repositories.UserRepository;
+using Emma.Api.Repositories.ProfileRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.FreightRepository
 {
-    public class FreightRepository(AppDbContext context, IUserRepository userRepository) : IFreightRepository
+    public class FreightRepository(AppDbContext context, IProfileRepository profileRepository) : IFreightRepository
     {
         private readonly AppDbContext _context = context;
-        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IProfileRepository _profileRepository = profileRepository;
 
         public async Task CreateFreightAsync(Freight freight, int userId)
         {
             try
             {
-                var user = await _userRepository.GetUserById(userId);
+                var user = await _profileRepository.GetUserById(userId);
 
                 freight.ProfileId = user;
 
@@ -36,11 +36,11 @@ namespace Emma.Api.Repositories.FreightRepository
                     {
                         Id = freight.Id,
                         UserId = freight.ProfileId,
-                        UserName = _context.Users
+                        UserName = _context.Profiles
                             .Where(user => user.Id == freight.ProfileId)
                             .Select(user => user.Name)
                             .FirstOrDefault() ?? "Unknown User",
-                        ProfilePicture = _context.Users
+                        ProfilePicture = _context.Profiles
                             .Where(user => user.Id == freight.ProfileId)
                             .Select(user => user.ProfilePicture)
                             .FirstOrDefault() ?? "Unknown Picture",
@@ -61,7 +61,7 @@ namespace Emma.Api.Repositories.FreightRepository
         {
             var freight = await _context.Freights
                 .Where(f => f.ProfileId == userId && f.Id == freightId)
-                .Join(_context.Users, freight => freight.ProfileId, user => user.Id, (freight, user) => new { freight, user })
+                .Join(_context.Profiles, freight => freight.ProfileId, user => user.Id, (freight, user) => new { freight, user })
                 .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.freight, temp.user, address })
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new FreightInformationsDTO
                 {
