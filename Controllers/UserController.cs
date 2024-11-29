@@ -1,6 +1,7 @@
 ﻿using Emma.Api.Handlers.UserHandler;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers
@@ -16,6 +17,7 @@ namespace Emma.Api.Controllers
             _userHandler = userHandler;
         }
 
+        [AllowAnonymous]
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
@@ -34,22 +36,25 @@ namespace Emma.Api.Controllers
             return Ok(new { message = result }); 
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] User user)
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO dto)
         {
-            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+            if (string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.Password))
             {
                 return BadRequest("Email and password are required.");
             }
 
-            var result = await _userHandler.LoginAsync(user.Email, user.Password);
+            var result = await _userHandler.LoginAsync(dto.Email, dto.Password);
 
-            if (result == "Login successful.")
+            if (result == "Invalid email or password.")
             {
-                return Ok(result);
+                return Unauthorized(new { message = result });
             }
 
-            return Unauthorized(result);
+            // Return the JWT token as part of the response
+            return Ok(new { Token = result });
         }
+
     }
 }

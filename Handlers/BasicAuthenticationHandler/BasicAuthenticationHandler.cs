@@ -1,72 +1,60 @@
-﻿//using Azure.Core;
-//using Microsoft.AspNetCore.Authentication;
-//using Microsoft.Extensions.Options;
-//using System.Security.Claims;
-//using System.Text.Encodings.Web;
-//using System.Text;
+﻿using Emma.Api.Handlers.UserHandler;
+using Emma.Api.Models;
+using Emma.Api.Repositories.UserRepository;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-//namespace Emma.Api.Handlers.BasicAuthenticationHandler
-//{
-//    public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-//    {
-//        public BasicAuthenticationHandler(
-//            IOptionsMonitor<AuthenticationSchemeOptions> options,
-//            ILoggerFactory logger,
-//            UrlEncoder encoder,
-//            ISystemClock clock)
-//            : base(options, logger, encoder, clock)
-//        {
-//        }
+namespace Emma.Api.Handlers.BasicAuthenticationHandler
+{
+    public class BasicAuthenticationHandler
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IUserHandler _userHandler;
 
-//        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
-//        {
-//            // Check for Authorization header
-//            if (!Request.Headers.ContainsKey("Authorization"))
-//            {
-//                return AuthenticateResult.Fail("Unauthorized");
-//            }
+        public BasicAuthenticationHandler (IUserRepository userRepository, IUserHandler userHandler)
+        {
+            _userRepository = userRepository;
+            _userHandler = userHandler;
+        }
 
-//            string authorizationHeader = Request.Headers["Authorization"];
-//            if (string.IsNullOrEmpty(authorizationHeader))
-//            {
-//                return AuthenticateResult.Fail("Unauthorized");
-//            }
+        public async Task<string> AuthenticateAsync(string email, string password)
+        {
+            var user = await _userRepository.GetProfileByEmailAsync(email);
+            if (user == null || !VerifyPassword(password, user.Password))
+            {
+                return "Invalid credentials."; 
+            }
 
-//            if (!authorizationHeader.StartsWith("basic ", StringComparison.OrdinalIgnoreCase))
-//            {
-//                return AuthenticateResult.Fail("Unauthorized");
-//            }
+            return GenerateJwtToken(user);
+        }
 
-//            var token = authorizationHeader.Substring(6);
-//            var credentialAsString = Encoding.UTF8.GetString(Convert.FromBase64String(token));
-//            var credentials = credentialAsString.Split(":");
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            return _userHandler.HashPassword(password) == hashedPassword;
+        }
 
-//            if (credentials?.Length != 2)
-//            {
-//                return AuthenticateResult.Fail("Unauthorized");
-//            }
+        public string GenerateJwtToken(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
 
-//            var username = credentials[0];
-//            var password = credentials[1];
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa")); 
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-//            // Validate user dynamically (e.g., against a database)
-//            var isValidUser = await ValidateUserAsync(username, password);
-//            if (!isValidUser)
-//            {
-//                return AuthenticateResult.Fail("Authentication failed");
-//            }
+            var token = new JwtSecurityToken(
+                issuer: "EmmaLogistics",
+                audience: "EmmaLogisticsUser",
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: creds
+            );
 
-//            var claims = new[] { new Claim(ClaimTypes.NameIdentifier, username) };
-//            var identity = new ClaimsIdentity(claims, "Basic");
-//            var claimsPrincipal = new ClaimsPrincipal(identity);
-
-//            return AuthenticateResult.Success(new AuthenticationTicket(claimsPrincipal, Scheme.Name));
-//        }
-
-//        private async Task<bool> ValidateUserAsync(string username, string password)
-//        {
-//            // Replace this logic with a database query or service call
-//            return username == "test@fake.com" && password == "subscribe";
-//        }
-//    }
-//}
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}

@@ -1,11 +1,13 @@
 ﻿using Emma.Api.Handlers.FreightHandler;
 using Emma.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class FreightController(IFreightHandler freightHandler) : ControllerBase
     {
         private readonly IFreightHandler _freightHandler = freightHandler;

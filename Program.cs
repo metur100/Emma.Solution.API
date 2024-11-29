@@ -1,8 +1,11 @@
 using Emma.Api;
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,37 +47,62 @@ void ConfigureDatabaseContext(WebApplicationBuilder builder)
 
 void ConfigureApiExplorerAndSwagger(WebApplicationBuilder builder)
 {
-    builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(setup =>
+    {
+        setup.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "Emma.API",
+            Version = "v1"
+        });
+
+        // Add JWT authentication scheme
+        setup.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. \nEnter your token in the text input below.\n\nExample: Bearer {your_token}",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey, // Use ApiKey to specify headers
+            Scheme = "Bearer",
+            BearerFormat = "JWT"
+        });
+
+        // Set the security requirements
+        setup.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>() // No specific scopes required
+            }
+        });
+    });
 }
+
 
 void ConfigureBasicAuthentication(WebApplicationBuilder builder)
 {
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-        c.AddSecurityDefinition("basic", new OpenApiSecurityScheme
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            Name = "Authorization",
-            Type = SecuritySchemeType.Http,
-            Scheme = "basic",
-            In = ParameterLocation.Header,
-            Description = "Basic Authorization header."
-        });
-        c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
+            options.TokenValidationParameters = new TokenValidationParameters
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "basic"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-    });
-}
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "EmmaLogistics",
+                ValidAudience = "EmmaLogisticsUser",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa"))
+            };
+        });
+
+        builder.Services.AddAuthorization();
+        builder.Services.AddControllers();
+ }
