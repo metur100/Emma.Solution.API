@@ -1,11 +1,13 @@
 ﻿using Emma.Api.Handlers.ProfileHandler;
 using Emma.Api.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class ProfileController(IProfileHandler profileHandler) : ControllerBase
     {
         private readonly IProfileHandler _profileHandler = profileHandler;
