@@ -4,7 +4,7 @@ namespace Emma.Api.Handlers.ProfileHandler
 {
     public interface IProfileHandler
     {
-        Task<int> CreateUserAsync(string name, 
+        Task<int> CreateProfileAsync(string name, 
             string? profilePicture, 
             string streetAndNumber, 
             string postalCode, 
@@ -12,7 +12,8 @@ namespace Emma.Api.Handlers.ProfileHandler
             string email, 
             string phoneNumber);
 
-        Task<List<ProfileDto>> GetUserNamesAsync();
+        Task<List<ProfileDto>> GetProfileNamesAsync();
         Task<ProfileInfoDTO> GetUserProfileInformations(int id);
+        Task<string> GetProfileNameAsync(int id);
     }
 }

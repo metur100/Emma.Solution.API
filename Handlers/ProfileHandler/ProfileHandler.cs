@@ -10,11 +10,11 @@ namespace Emma.Api.Handlers.ProfileHandler
         IAddressRepository addressRepository,
         IContactRepository contactRepository) : IProfileHandler
     {
-        private readonly IProfileRepository _userRepository = userRepository;
+        private readonly IProfileRepository _profileRepository = userRepository;
         private readonly IAddressRepository _addressRepository = addressRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
 
-        public async Task<int> CreateUserAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
+        public async Task<int> CreateProfileAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
         {
             var address = new Address
             {
@@ -39,24 +39,29 @@ namespace Emma.Api.Handlers.ProfileHandler
                 AddressId = addressId,
                 ContactId = contactId
             };
-            return await _userRepository.CreateUserAsync(user);
+            return await _profileRepository.CreateProfileAsync(user);
         }
 
-        public async Task<List<ProfileDto>> GetUserNamesAsync()
+        public async Task<List<ProfileDto>> GetProfileNamesAsync()
         {
-            return await _userRepository.GetUserNamesAsync();
+            return await _profileRepository.GetProfileNamesAsync();
         }
 
         public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
         {
             try
             {
-                return await _userRepository.GetUserProfileInformations(id);
+                return await _profileRepository.GetUserProfileInformations(id);
             }
             catch (Exception ex)
             {
                 throw new Exception($"An error occurred while retrieving the user profile for user ID {id}: {ex.Message}", ex);
             }
+        }
+
+        public async Task<string> GetProfileNameAsync(int id)
+        {
+            return await _profileRepository.GetProfileNameById(id);
         }
 
     }

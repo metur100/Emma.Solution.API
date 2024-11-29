@@ -8,21 +8,21 @@ namespace Emma.Api.Repositories.ProfileRepository
     {
         private readonly AppDbContext _context = context;
 
-        public async Task<int> CreateUserAsync(Profile user)
+        public async Task<int> CreateProfileAsync(Profile user)
         {
             _context.Profiles.Add(user);
             await _context.SaveChangesAsync();
             return user.Id;
         }
 
-        public async Task<List<ProfileDto>> GetUserNamesAsync()
+        public async Task<List<ProfileDto>> GetProfileNamesAsync()
         {
             return await _context.Profiles
                 .Select(u => new ProfileDto { Id = u.Id, UserName = u.Name })
                 .ToListAsync();
         }
 
-        public async Task<int> GetUserById(int id)
+        public async Task<int> GetProfileById(int id)
         {
             var user = await _context.Profiles
                 .Where(u => u.Id == id)
@@ -31,10 +31,10 @@ namespace Emma.Api.Repositories.ProfileRepository
             return user == null ? throw new Exception("User not found") : user.Id;
         }
 
-        public async Task<string> GetUserNameById(string userName)
+        public async Task<string> GetProfileNameById(int id)
         {
             var user = await _context.Profiles
-                .Where(u => u.Name == userName)
+                .Where(u => u.UserId == id) 
                 .FirstOrDefaultAsync();
 
             return user == null ? throw new Exception("User not found") : user.Name;

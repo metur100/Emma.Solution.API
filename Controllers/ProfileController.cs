@@ -18,7 +18,7 @@ namespace Emma.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = await _profileHandler.CreateUserAsync(
+            var userId = await _profileHandler.CreateProfileAsync(
                 request.UserName,
                 request.ProfilePicture,
                 request.StreetAndNumber,
@@ -36,7 +36,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userNames = await _profileHandler.GetUserNamesAsync();
+                var userNames = await _profileHandler.GetProfileNamesAsync();
                 return Ok(userNames);
             }
             catch
@@ -51,6 +51,20 @@ namespace Emma.Api.Controllers
             try
             {
                 var userNames = await _profileHandler.GetUserProfileInformations(userId);
+                return Ok(userNames);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while retrieving user names.");
+            }
+        }
+
+        [HttpGet("Name/{userId}")]
+        public async Task<IActionResult> GetProfileName(int userId)
+        {
+            try
+            {
+                var userNames = await _profileHandler.GetProfileNameAsync(userId);
                 return Ok(userNames);
             }
             catch

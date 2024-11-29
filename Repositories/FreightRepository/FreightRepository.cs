@@ -14,7 +14,7 @@ namespace Emma.Api.Repositories.FreightRepository
         {
             try
             {
-                var user = await _profileRepository.GetUserById(userId);
+                var user = await _profileRepository.GetProfileById(userId);
 
                 freight.ProfileId = user;
 
