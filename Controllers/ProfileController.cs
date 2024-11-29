@@ -13,7 +13,7 @@ namespace Emma.Api.Controllers
         private readonly IProfileHandler _profileHandler = profileHandler;
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto request)
+        public async Task<IActionResult> CreateProfile([FromBody] CreateProfileDTO request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

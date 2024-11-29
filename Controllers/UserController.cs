@@ -1,5 +1,4 @@
 ﻿using Emma.Api.Handlers.UserHandler;
-using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -52,7 +51,6 @@ namespace Emma.Api.Controllers
                 return Unauthorized(new { message = result });
             }
 
-            // Return the JWT token as part of the response
             return Ok(new { Token = result });
         }
 

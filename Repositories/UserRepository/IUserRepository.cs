@@ -7,6 +7,6 @@ namespace Emma.Api.Repositories.UserRepository
     {
         Task<User?> GetProfileByEmailAsync(string email);
         Task<User?> GetProfileByEmailAndPasswordAsync(string email, string hashedPassword);
-        Task RegisterUserAsync(User user, Address address, Contact contact);
+        Task RegisterUserAsync(User user, Address address, Contact contact, string userName);
     }
 }

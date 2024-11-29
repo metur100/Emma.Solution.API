@@ -18,7 +18,7 @@ namespace Emma.Api.Handlers.UserHandler
             var existingProfile = await _userRepository.GetProfileByEmailAsync(dto.Email);
             if (existingProfile != null)
             {
-                return "Profile already exists."; // Return a message string
+                return "Profile already exists."; 
             }
 
             var hashedPassword = HashPassword(dto.Password);
@@ -42,9 +42,9 @@ namespace Emma.Api.Handlers.UserHandler
                 PhoneNumber = dto.PhoneNumber
             };
 
-            await _userRepository.RegisterUserAsync(user, address, contact);
+            await _userRepository.RegisterUserAsync(user, address, contact, dto.UserName);
 
-            return "Profile registered successfully."; // Return success message
+            return "Profile registered successfully."; 
         }
 
         public async Task<string> LoginAsync(string email, string password)
@@ -57,7 +57,7 @@ namespace Emma.Api.Handlers.UserHandler
                 return "Invalid email or password.";
             }
 
-            return GenerateJwtToken(user); // Generates the JWT token for authenticated users
+            return GenerateJwtToken(user); 
         }
 
 

@@ -19,7 +19,7 @@ namespace Emma.Api.Repositories.UserRepository
                 .SingleOrDefaultAsync(p => p.Email == email && p.Password == hashedPassword);
         }
 
-        public async Task RegisterUserAsync(User user, Address address, Contact contact)
+        public async Task RegisterUserAsync(User user, Address address, Contact contact, string userName)
         {
             _dbContext.Addresses.Add(address);
             _dbContext.Contacts.Add(contact);
@@ -30,10 +30,11 @@ namespace Emma.Api.Repositories.UserRepository
 
             var profile = new Profile
             {
-                Name = user.Email, 
+                Name = userName, 
                 AddressId = address.Id,
                 ContactId = contact.Id,
-                UserId = user.Id
+                UserId = user.Id,
+                
             };
 
             _dbContext.Profiles.Add(profile);

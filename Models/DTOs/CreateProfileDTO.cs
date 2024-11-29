@@ -1,6 +1,6 @@
 ﻿namespace Emma.Api.Models.DTOs
 {
-    public class CreateUserWithProfileDTO
+    public class CreateProfileDTO
     {
         public required string UserName { get; set; }
         public string? ProfilePicture { get; set; }
