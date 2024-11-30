@@ -25,18 +25,19 @@ namespace Emma.Api.Controllers
                 request.PostalCode,
                 request.City,
                 request.Email,
-                request.PhoneNumber
+                request.PhoneNumber,
+                request.UserId
             );
 
             return Ok(new { Message = "User created successfully", UserId = userId });
         }
 
-        [HttpGet("Names")]
-        public async Task<IActionResult> GetProfileNames()
+        [HttpGet("Names/{userId}")]
+        public async Task<IActionResult> GetProfilesByUserIdAsync(int userId)
         {
             try
             {
-                var userNames = await _profileHandler.GetProfileNamesAsync();
+                var userNames = await _profileHandler.GetProfilesByUserIdAsync(userId);
                 return Ok(userNames);
             }
             catch
@@ -60,12 +61,12 @@ namespace Emma.Api.Controllers
         }
 
         [HttpGet("Name/{userId}")]
-        public async Task<IActionResult> GetProfileName(int userId)
+        public async Task<IActionResult> GetProfileNameByUserId(int userId)
         {
             try
             {
-                var userNames = await _profileHandler.GetProfileNameAsync(userId);
-                return Ok(userNames);
+                var userName = await _profileHandler.GetProfileNameByUserId(userId);
+                return Ok(userName);
             }
             catch
             {

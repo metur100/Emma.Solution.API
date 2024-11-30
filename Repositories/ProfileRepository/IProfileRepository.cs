@@ -5,10 +5,10 @@ namespace Emma.Api.Repositories.ProfileRepository
 {
     public interface IProfileRepository
     {
-        Task<int> CreateProfileAsync(Profile user);
-        Task<List<ProfileDto>> GetProfileNamesAsync();
+        Task<int> CreateProfileAsync(Profile profile, int userId);
+        Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId);
         Task<int> GetProfileById(int id);
-        Task<string> GetProfileNameById(int id);
         Task<ProfileInfoDTO> GetUserProfileInformations(int id);
+        Task<string> GetProfileNameByUserId(int userId);
     }
 }

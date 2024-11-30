@@ -3,6 +3,7 @@ using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.ProfileHandler
 {
@@ -14,8 +15,17 @@ namespace Emma.Api.Handlers.ProfileHandler
         private readonly IAddressRepository _addressRepository = addressRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
 
-        public async Task<int> CreateProfileAsync(string name, string? profilePicture, string streetAndNumber, string postalCode, string city, string email, string phoneNumber)
+        public async Task<int> CreateProfileAsync(
+            string name,
+            string? profilePicture,
+            string streetAndNumber,
+            string postalCode,
+            string city,
+            string email,
+            string phoneNumber,
+            int userId)
         {
+            // Create and save the address
             var address = new Address
             {
                 StreetAndNumber = streetAndNumber,
@@ -24,6 +34,7 @@ namespace Emma.Api.Handlers.ProfileHandler
             };
             var addressId = await _addressRepository.CreateAddress(address);
 
+            // Create and save the contact
             var contact = new Contact
             {
                 Email = email,
@@ -31,20 +42,30 @@ namespace Emma.Api.Handlers.ProfileHandler
             };
             var contactId = await _contactRepository.CreateContact(contact);
 
-            var user = new Profile
+            // Create the profile with the provided userId
+            var profile = new Profile
             {
                 Name = name,
-                UserId = 1,
                 ProfilePicture = profilePicture,
                 AddressId = addressId,
-                ContactId = contactId
+                ContactId = contactId,
+                UserId = userId
             };
-            return await _profileRepository.CreateProfileAsync(user);
+
+            // Call the repository method, passing the userId
+            return await _profileRepository.CreateProfileAsync(profile, userId);
         }
 
-        public async Task<List<ProfileDto>> GetProfileNamesAsync()
+        public async Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId)
         {
-            return await _profileRepository.GetProfileNamesAsync();
+            try
+            {
+                return await _profileRepository.GetProfilesByUserIdAsync(userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving the user profiles for user ID {userId}: {ex.Message}", ex);
+            }
         }
 
         public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
@@ -59,10 +80,16 @@ namespace Emma.Api.Handlers.ProfileHandler
             }
         }
 
-        public async Task<string> GetProfileNameAsync(int id)
+        public async Task<string> GetProfileNameByUserId(int userId)
         {
-            return await _profileRepository.GetProfileNameById(id);
+            try
+            {
+                return await _profileRepository.GetProfileNameByUserId(userId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving the user profile for user ID {userId}: {ex.Message}", ex);
+            }
         }
-
     }
 }

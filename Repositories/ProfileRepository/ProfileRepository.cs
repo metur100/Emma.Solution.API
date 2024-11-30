@@ -8,17 +8,27 @@ namespace Emma.Api.Repositories.ProfileRepository
     {
         private readonly AppDbContext _context = context;
 
-        public async Task<int> CreateProfileAsync(Profile user)
+        public async Task<int> CreateProfileAsync(Profile profile, int userId)
         {
-            _context.Profiles.Add(user);
+            profile.UserId = userId;
+            _context.Profiles.Add(profile);
+
             await _context.SaveChangesAsync();
-            return user.Id;
+            return profile.Id;
         }
 
-        public async Task<List<ProfileDto>> GetProfileNamesAsync()
+        public async Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId)
         {
+            if (userId <= 0)
+                throw new ArgumentException("Invalid User ID.");
+
             return await _context.Profiles
-                .Select(u => new ProfileDto { Id = u.Id, UserName = u.Name })
+                .Where(p => p.UserId == userId)
+                .Select(p => new ProfileDto
+                {
+                    Id = p.Id,
+                    UserName = p.Name
+                })
                 .ToListAsync();
         }
 
@@ -29,15 +39,6 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .FirstOrDefaultAsync();
 
             return user == null ? throw new Exception("User not found") : user.Id;
-        }
-
-        public async Task<string> GetProfileNameById(int id)
-        {
-            var user = await _context.Profiles
-                .Where(u => u.UserId == id) 
-                .FirstOrDefaultAsync();
-
-            return user == null ? throw new Exception("User not found") : user.Name;
         }
 
         public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
@@ -66,6 +67,19 @@ namespace Emma.Api.Repositories.ProfileRepository
             };
 
             return userProfile;
+        }
+
+        public async Task<string> GetProfileNameByUserId(int userId)
+        {
+            var profile = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Name) 
+                .FirstOrDefaultAsync();
+
+            if (profile == null)
+                throw new Exception($"Profile not found for UserId: {userId}");
+
+            return profile;
         }
     }
 }
