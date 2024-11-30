@@ -47,7 +47,7 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .Where(u => u.Id == id)
                 .Select(u => new
                 {
-                    User = u,
+                    Profile = u,
                     Address = _context.Addresses.FirstOrDefault(a => a.Id == u.AddressId),
                     Contact = _context.Contacts.FirstOrDefault(c => c.Id == u.ContactId)
                 })
@@ -55,15 +55,15 @@ namespace Emma.Api.Repositories.ProfileRepository
 
             var userProfile = new ProfileInfoDTO
             {
-                Id = profile.User.Id,
-                UserName = profile.User.Name,
-                ProfilePicture = profile.User.ProfilePicture,
+                Id = profile.Profile.Id,
+                UserName = profile.Profile.Name,
+                ProfilePicture = profile.Profile.ProfilePicture,
                 StreetAndNumber = profile.Address?.StreetAndNumber ?? string.Empty, 
                 PostalCode = profile.Address?.PostalCode ?? string.Empty,
                 City = profile.Address?.City ?? string.Empty,
                 Email = profile.Contact?.Email ?? string.Empty,
                 PhoneNumber = profile.Contact?.PhoneNumber ?? string.Empty,
-                Ratings = profile.User.Ratings
+                Ratings = profile.Profile.Ratings
             };
 
             return userProfile;

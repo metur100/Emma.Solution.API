@@ -46,12 +46,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUserProfileInformations(int userId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserProfileInformations(int id)
         {
             try
             {
-                var userNames = await _profileHandler.GetUserProfileInformations(userId);
+                var userNames = await _profileHandler.GetUserProfileInformations(id);
                 return Ok(userNames);
             }
             catch
