@@ -17,8 +17,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userId = freight.ProfileId;
-                await _freightHandler.CreateFreightAsync(freight, userId);
+                var profileId = freight.ProfileId;
+                await _freightHandler.CreateFreightAsync(freight, profileId);
                 return Ok("Freight created successfully");
             }
             catch (Exception ex)
@@ -41,12 +41,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{userId}/{freightId}")]
-        public async Task<IActionResult> GetFreightInformations(int userId, int freightId)
+        [HttpGet("{profileId}/{freightId}")]
+        public async Task<IActionResult> GetFreightInformations(int profileId, int freightId)
         {
             try
             {
-                var result = await _freightHandler.GetFreightInformationByFreightIdAsync(userId, freightId);
+                var result = await _freightHandler.GetFreightInformationByFreightIdAsync(profileId, freightId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -55,12 +55,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetFreightsByUserIdAsync(int userId)
+        [HttpGet("{profileId}")]
+        public async Task<IActionResult> GetFreightsByUserIdAsync(int profileId)
         {
             try
             {
-                var result = await _freightHandler.GetFreightsByUserIdAsync(userId);
+                var result = await _freightHandler.GetFreightsByProfileIdAsync(profileId);
                 return Ok(result);
             }
             catch (Exception ex)

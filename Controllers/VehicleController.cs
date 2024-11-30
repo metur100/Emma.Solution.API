@@ -17,8 +17,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userId = vehicle.ProfileId;
-                await _vehicleHandler.CreateVehicleAsync(vehicle, userId);
+                var profileId = vehicle.ProfileId;
+                await _vehicleHandler.CreateVehicleAsync(vehicle, profileId);
                 return Ok("Vehicle created successfully");
             }
             catch (Exception ex)
@@ -41,12 +41,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{userId}/{vehicleId}")]
-        public async Task<IActionResult> GetVehicleInformation(int userId, int vehicleId)
+        [HttpGet("{profileId}/{vehicleId}")]
+        public async Task<IActionResult> GetVehicleInformation(int profileId, int vehicleId)
         {
             try
             {
-                var result = await _vehicleHandler.GetVehicleInformationByVehicleIdAsync(userId, vehicleId);
+                var result = await _vehicleHandler.GetVehicleInformationByVehicleIdAsync(profileId, vehicleId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -55,12 +55,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetVehiclesByUserIdAsync(int userId)
+        [HttpGet("{profileId}")]
+        public async Task<IActionResult> GetVehiclesByUserIdAsync(int profileId)
         {
             try
             {
-                var result = await _vehicleHandler.GetVehiclesByUserIdAsync(userId);
+                var result = await _vehicleHandler.GetVehiclesByProfileIdAsync(profileId);
                 return Ok(result);
             }
             catch (Exception ex)

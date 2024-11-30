@@ -10,11 +10,11 @@ namespace Emma.Api.Repositories.VehicleRepository
         private readonly AppDbContext _context = context;
         private readonly IProfileRepository _profileRepository = profileRepository;
 
-        public async Task CreateVehicleAsync(Vehicle vehicle, int userId)
+        public async Task CreateVehicleAsync(Vehicle vehicle, int profileId)
         {
             try
             {
-                var user = await _profileRepository.GetProfileById(userId);  
+                var user = await _profileRepository.GetProfileById(profileId);  
 
                 vehicle.ProfileId = user;
 
@@ -57,10 +57,10 @@ namespace Emma.Api.Repositories.VehicleRepository
             }
         }
 
-        public async Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int userId, int vehicleId)
+        public async Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int profileId, int vehicleId)
         {
             var vehicle = await _context.Vehicles
-                .Where(v => v.ProfileId == userId && v.Id == vehicleId)
+                .Where(v => v.ProfileId == profileId && v.Id == vehicleId)
                 .Join(_context.Profiles, vehicle => vehicle.ProfileId, user => user.Id, (vehicle, user) => new { vehicle, user })
                 .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.vehicle, temp.user, address })
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new VehicleInformationsDTO
@@ -84,22 +84,22 @@ namespace Emma.Api.Repositories.VehicleRepository
                 })
                 .FirstOrDefaultAsync();
 
-            return vehicle ?? throw new Exception($"Vehicle with ID {vehicleId} for user {userId} not found.");
+            return vehicle ?? throw new Exception($"Vehicle with ID {vehicleId} for user {profileId} not found.");
         }
 
-        public async Task<List<Vehicle>> GetVehiclesByUserIdAsync(int userId)
+        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
         {
             try
             {
                 var vehicles = await _context.Vehicles
-                    .Where(vehicle => vehicle.ProfileId == userId)
+                    .Where(vehicle => vehicle.ProfileId == profileId)
                     .ToListAsync();  
 
                 return vehicles;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching vehicles for user {userId}: {ex.Message}");
+                throw new Exception($"Error fetching vehicles for user {profileId}: {ex.Message}");
             }
         }
 

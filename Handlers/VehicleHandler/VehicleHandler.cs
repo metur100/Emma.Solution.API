@@ -8,11 +8,11 @@ namespace Emma.Api.Handlers.VehicleHandler
     {
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
 
-        public async Task CreateVehicleAsync(Vehicle vehicle, int userId)
+        public async Task CreateVehicleAsync(Vehicle vehicle, int profileId)
         {
             try
             {
-                await _vehicleRepository.CreateVehicleAsync(vehicle, userId);
+                await _vehicleRepository.CreateVehicleAsync(vehicle, profileId);
             }
             catch (Exception ex)
             {
@@ -26,15 +26,15 @@ namespace Emma.Api.Handlers.VehicleHandler
             return allVehicles ?? throw new Exception("No vehicles found.");
         }
 
-        public async Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int userId, int vehicleId)
+        public async Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int profileId, int vehicleId)
         {
-            return await _vehicleRepository.GetVehicleInformationByVehicleIdAsync(userId, vehicleId)
-                   ?? throw new Exception($"Vehicle with ID {vehicleId} for user {userId} not found.");
+            return await _vehicleRepository.GetVehicleInformationByVehicleIdAsync(profileId, vehicleId)
+                   ?? throw new Exception($"Vehicle with ID {vehicleId} for user {profileId} not found.");
         }
 
-        public async Task<List<Vehicle>> GetVehiclesByUserIdAsync(int userId)
+        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
         {
-            return await _vehicleRepository.GetVehiclesByUserIdAsync(userId);
+            return await _vehicleRepository.GetVehiclesByProfileIdAsync(profileId);
         }
     }
 }

@@ -8,11 +8,11 @@ namespace Emma.Api.Handlers.FreightHandler
     {
         private readonly IFreightRepository _freightRepository = freightRepository;
 
-        public async Task CreateFreightAsync(Freight freight, int userId)
+        public async Task CreateFreightAsync(Freight freight, int profileId)
         {
             try
             {
-                await _freightRepository.CreateFreightAsync(freight, userId);
+                await _freightRepository.CreateFreightAsync(freight, profileId);
             }
             catch (Exception ex)
             {
@@ -26,14 +26,14 @@ namespace Emma.Api.Handlers.FreightHandler
             return allFreights ?? throw new Exception("");
         }
 
-        public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int userId, int freigthId)
+        public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freigthId)
         {
-            return await _freightRepository.GetFreightInformationByFreightIdAsync(userId, freigthId);
+            return await _freightRepository.GetFreightInformationByFreightIdAsync(profileId, freigthId);
         }
 
-        public async Task<List<Freight>> GetFreightsByUserIdAsync(int userId)
+        public async Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId)
         {
-            return await _freightRepository.GetFreightsByUserIdAsync(userId);
+            return await _freightRepository.GetFreightsByProfileIdAsync(profileId);
         }
     }
 }

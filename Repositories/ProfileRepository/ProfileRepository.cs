@@ -34,16 +34,16 @@ namespace Emma.Api.Repositories.ProfileRepository
 
         public async Task<int> GetProfileById(int id)
         {
-            var user = await _context.Profiles
+            var profile = await _context.Profiles
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
 
-            return user == null ? throw new Exception("User not found") : user.Id;
+            return profile == null ? throw new Exception("User not found") : profile.Id;
         }
 
         public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
         {
-            var user = await _context.Profiles
+            var profile = await _context.Profiles
                 .Where(u => u.Id == id)
                 .Select(u => new
                 {
@@ -55,15 +55,15 @@ namespace Emma.Api.Repositories.ProfileRepository
 
             var userProfile = new ProfileInfoDTO
             {
-                Id = user.User.Id,
-                UserName = user.User.Name,
-                ProfilePicture = user.User.ProfilePicture,
-                StreetAndNumber = user.Address?.StreetAndNumber ?? string.Empty, 
-                PostalCode = user.Address?.PostalCode ?? string.Empty,
-                City = user.Address?.City ?? string.Empty,
-                Email = user.Contact?.Email ?? string.Empty,
-                PhoneNumber = user.Contact?.PhoneNumber ?? string.Empty,
-                Ratings = user.User.Ratings
+                Id = profile.User.Id,
+                UserName = profile.User.Name,
+                ProfilePicture = profile.User.ProfilePicture,
+                StreetAndNumber = profile.Address?.StreetAndNumber ?? string.Empty, 
+                PostalCode = profile.Address?.PostalCode ?? string.Empty,
+                City = profile.Address?.City ?? string.Empty,
+                Email = profile.Contact?.Email ?? string.Empty,
+                PhoneNumber = profile.Contact?.PhoneNumber ?? string.Empty,
+                Ratings = profile.User.Ratings
             };
 
             return userProfile;
