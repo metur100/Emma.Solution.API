@@ -3,7 +3,6 @@ using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.ProfileHandler
 {

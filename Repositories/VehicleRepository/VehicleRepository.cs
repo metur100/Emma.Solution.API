@@ -35,7 +35,7 @@ namespace Emma.Api.Repositories.VehicleRepository
                     .Select(vehicle => new VehicleListDTO
                     {
                         Id = vehicle.Id,
-                        UserId  = vehicle.ProfileId,
+                        ProfileId  = vehicle.ProfileId,
                         UserName = _context.Profiles
                             .Where(user => user.Id == vehicle.ProfileId)
                             .Select(user => user.Name)
@@ -61,12 +61,12 @@ namespace Emma.Api.Repositories.VehicleRepository
         {
             var vehicle = await _context.Vehicles
                 .Where(v => v.ProfileId == profileId && v.Id == vehicleId)
-                .Join(_context.Profiles, vehicle => vehicle.ProfileId, user => user.Id, (vehicle, user) => new { vehicle, user })
+                .Join(_context.Profiles, vehicle => vehicle.ProfileId, profile => profile.Id, (vehicle, user) => new { vehicle, user })
                 .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.vehicle, temp.user, address })
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new VehicleInformationsDTO
                 {
                     Id = temp.vehicle.Id,
-                    UserId = temp.vehicle.ProfileId,
+                    ProfileId = temp.vehicle.ProfileId,
                     UserName = temp.user.Name,
                     StreetAndNumber = temp.address.StreetAndNumber,
                     PostalCode = temp.address.PostalCode,
@@ -84,7 +84,7 @@ namespace Emma.Api.Repositories.VehicleRepository
                 })
                 .FirstOrDefaultAsync();
 
-            return vehicle ?? throw new Exception($"Vehicle with ID {vehicleId} for user {profileId} not found.");
+            return vehicle ?? throw new Exception($"Vehicle with ID {vehicleId} for profile {profileId} not found.");
         }
 
         public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
