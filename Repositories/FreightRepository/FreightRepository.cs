@@ -35,7 +35,7 @@ namespace Emma.Api.Repositories.FreightRepository
                     .Select(freight => new FreightListDTO
                     {
                         Id = freight.Id,
-                        UserId = freight.ProfileId,
+                        ProfileId = freight.ProfileId,
                         UserName = _context.Profiles
                             .Where(user => user.Id == freight.ProfileId)
                             .Select(user => user.Name)
@@ -66,7 +66,7 @@ namespace Emma.Api.Repositories.FreightRepository
                 .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new FreightInformationsDTO
                 {
                     Id = temp.freight.Id,
-                    UserId = temp.freight.ProfileId,
+                    ProfileId = temp.freight.ProfileId,
                     UserName = temp.user.Name,
                     StreetAndNumber = temp.address.StreetAndNumber,
                     PostalCode = temp.address.PostalCode,
