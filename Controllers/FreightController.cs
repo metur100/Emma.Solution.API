@@ -56,11 +56,11 @@ namespace Emma.Api.Controllers
         }
 
         [HttpGet("{profileId}")]
-        public async Task<IActionResult> GetFreightsByUserIdAsync(int profileId)
+        public async Task<IActionResult> GetFreightsByProfileIdAsync(int profileId)
         {
             try
             {
-                var result = await _freightHandler.GetFreightsByProfileIdAsync(profileId);
+                var result = await _freightHandler.GetFreightByProfileIdAsync(profileId);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -8,6 +8,6 @@ namespace Emma.Api.Repositories.FreightRepository
         Task CreateFreightAsync(Freight freight, int profileId);
         Task<List<FreightListDTO>> GetAllFreightsAsync();
         Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freightId);
-        Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId);
+        Task<Freight> GetFreightByProfileIdAsync(int profileId);
     }
 }

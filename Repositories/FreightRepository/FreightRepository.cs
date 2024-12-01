@@ -90,19 +90,19 @@ namespace Emma.Api.Repositories.FreightRepository
             return freight ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
         }
 
-        public async Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId)
+        public async Task<Freight> GetFreightByProfileIdAsync(int profileId)
         {
             try
             {
-                var freights = await _context.Freights
+                var freight = await _context.Freights
                     .Where(freight => freight.ProfileId == profileId) 
-                    .ToListAsync(); 
+                    .FirstOrDefaultAsync() ?? throw new Exception("");
 
-                return freights;
+                return freight;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching freights for user {profileId}: {ex.Message}");
+                throw new Exception($"Error fetching freight for user {profileId}: {ex.Message}");
             }
         }
     }
