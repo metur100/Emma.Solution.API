@@ -56,12 +56,47 @@ namespace Emma.Api.Controllers
         }
 
         [HttpGet("{profileId}")]
-        public async Task<IActionResult> GetFreightsByProfileIdAsync(int profileId)
+        public async Task<IActionResult> GetFreightByProfileIdAsync(int profileId)
         {
             try
             {
                 var result = await _freightHandler.GetFreightByProfileIdAsync(profileId);
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/Freights/{userIds}")]
+        public async Task<IActionResult> GetFreightsByUser(int userId)
+        {
+            try
+            {
+                var result = await _freightHandler.GetFreightsByUserAsync(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateFreightAsync(int id, [FromBody] Freight freight)
+        {
+            try
+            {
+                if (id != freight.Id)
+                    return BadRequest("Freight ID mismatch.");
+
+                await _freightHandler.UpdateFreightAsync(freight);
+                return Ok("Freight updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

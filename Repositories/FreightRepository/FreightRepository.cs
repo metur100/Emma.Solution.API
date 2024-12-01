@@ -92,18 +92,46 @@ namespace Emma.Api.Repositories.FreightRepository
 
         public async Task<Freight> GetFreightByProfileIdAsync(int profileId)
         {
-            try
-            {
-                var freight = await _context.Freights
-                    .Where(freight => freight.ProfileId == profileId) 
-                    .FirstOrDefaultAsync() ?? throw new Exception("");
+            return await _context.Freights
+                .Where(freight => freight.ProfileId == profileId)
+                .FirstOrDefaultAsync() ?? throw new Exception("");
+        }
 
-                return freight;
-            }
-            catch (Exception ex)
+        public async Task<IEnumerable<FreightSummaryDto>> GetFreightsByUserIdAsync(int userId)
+        {
+            var userProfileIds = await _context.Set<Profile>()
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (!userProfileIds.Any())
             {
-                throw new Exception($"Error fetching freight for user {profileId}: {ex.Message}");
+                return Enumerable.Empty<FreightSummaryDto>();
             }
+
+            return await _context.Set<Freight>()
+                .Where(f => userProfileIds.Contains(f.ProfileId))
+                .Select(f => new FreightSummaryDto
+                {
+                    Id = f.Id,
+                    GoodsDescription = f.GoodsDescription,
+                    GoodsWeight = f.GoodsWeight,
+                    Distance = f.Distance
+                })
+                .ToListAsync();
+        }
+
+        public async Task UpdateFreightAsync(Freight freight)
+        {
+            _context.Set<Freight>().Update(freight);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Freight> GetFreightByIdAsync(int id)
+        {
+            return await _context.Freights
+                .Where(freight => freight.Id == id)
+                .FirstOrDefaultAsync() ?? throw new Exception("");
         }
     }
 }

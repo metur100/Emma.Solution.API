@@ -35,5 +35,31 @@ namespace Emma.Api.Handlers.FreightHandler
         {
             return await _freightRepository.GetFreightByProfileIdAsync(profileId);
         }
+
+        public async Task<IEnumerable<FreightSummaryDto>> GetFreightsByUserAsync(int profileId)
+        {
+            return await _freightRepository.GetFreightsByUserIdAsync(profileId);
+        }
+
+        public async Task UpdateFreightAsync(Freight freight)
+        {
+            var existingFreight = await _freightRepository.GetFreightByIdAsync(freight.Id);
+            if (existingFreight == null)
+                throw new KeyNotFoundException($"Freight with ID {freight.Id} not found.");
+
+            existingFreight.LoadingAddress = freight.LoadingAddress;
+            existingFreight.UnloadingAddress = freight.UnloadingAddress;
+            existingFreight.TransportPrice = freight.TransportPrice;
+            existingFreight.Status = freight.Status;
+            existingFreight.Distance = freight.Distance;
+            existingFreight.GoodsDescription = freight.GoodsDescription;
+            existingFreight.GoodsType = freight.GoodsType;
+            existingFreight.GoodsWeight = freight.GoodsWeight;
+            existingFreight.GoodsLength = freight.GoodsLength;
+            existingFreight.GoodsPrice = freight.GoodsPrice;
+            existingFreight.AvailabilityDate = freight.AvailabilityDate;
+
+            await _freightRepository.UpdateFreightAsync(existingFreight);
+        }
     }
 }
