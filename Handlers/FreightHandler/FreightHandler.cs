@@ -1,6 +1,7 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.FreightRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.FreightHandler
 {
@@ -60,6 +61,11 @@ namespace Emma.Api.Handlers.FreightHandler
             existingFreight.AvailabilityDate = freight.AvailabilityDate;
 
             await _freightRepository.UpdateFreightAsync(existingFreight);
+        }
+
+        public async Task DeleteFreightAsync(int profileId, int freightId)
+        {
+            await _freightRepository.DeleteFreightAsync(profileId, freightId);
         }
     }
 }

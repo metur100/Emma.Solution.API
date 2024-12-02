@@ -103,5 +103,23 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpDelete("{profileId}/{freightId}")]
+        public async Task<IActionResult> DeleteFreightAsync(int profileId, int freightId)
+        {
+            try
+            {
+                await _freightHandler.DeleteFreightAsync(profileId, freightId);
+                return Ok("Freight deleted successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

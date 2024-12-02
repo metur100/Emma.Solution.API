@@ -133,5 +133,27 @@ namespace Emma.Api.Repositories.FreightRepository
                 .Where(freight => freight.Id == id)
                 .FirstOrDefaultAsync() ?? throw new Exception("");
         }
+
+        public async Task DeleteFreightAsync(int profileId, int freightId)
+        {
+            try
+            {
+                var freight = await _context.Freights
+                    .FirstOrDefaultAsync(f => f.ProfileId == profileId && f.Id == freightId);
+
+                if (freight == null)
+                {
+                    throw new Exception($"Freight with ID {freightId} for profile {profileId} not found.");
+                }
+
+                _context.Freights.Remove(freight);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting freight: {ex.Message}");
+            }
+        }
+
     }
 }
