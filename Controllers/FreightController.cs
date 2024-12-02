@@ -69,7 +69,7 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("/Freights/{userIds}")]
+        [HttpGet("/Freights/{userId}")]
         public async Task<IActionResult> GetFreightsByUser(int userId)
         {
             try
