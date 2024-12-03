@@ -103,5 +103,62 @@ namespace Emma.Api.Repositories.VehicleRepository
             }
         }
 
+        public async Task<IEnumerable<VehicleSummaryDTO>> GetVehiclesByUserIdAsync(int userId)
+        {
+            var userProfileIds = await _context.Set<Profile>()
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (!userProfileIds.Any())
+            {
+                return Enumerable.Empty<VehicleSummaryDTO>();
+            }
+
+            return await _context.Set<Vehicle>()
+                .Where(f => userProfileIds.Contains(f.ProfileId))
+                .Select(f => new VehicleSummaryDTO
+                {
+                    Id = f.Id,
+                    Brand = f.Brand,
+                    BodyType = f.BodyType,
+                    PayloadCapacity = f.PayloadCapacity
+                })
+                .ToListAsync();
+        }
+
+        public async Task UpdateVehicleAsync(Vehicle vehicle)
+        {
+            _context.Set<Vehicle>().Update(vehicle);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Vehicle> GetVehicleByIdAsync(int id)
+        {
+            return await _context.Vehicles
+                .Where(freight => freight.Id == id)
+                .FirstOrDefaultAsync() ?? throw new Exception("");
+        }
+
+        public async Task DeleteVehicleByIdAsync(int id)
+        {
+            try
+            {
+                var vehicle = await _context.Vehicles
+                    .FirstOrDefaultAsync(f => f.Id == id);
+
+                if (vehicle == null)
+                {
+                    throw new Exception($"Vehicle with ID {id} not found.");
+                }
+
+                _context.Vehicles.Remove(vehicle);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting vehicle: {ex.Message}");
+            }
+        }
     }
 }

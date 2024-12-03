@@ -55,13 +55,66 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{profileId}")]
-        public async Task<IActionResult> GetVehiclesByUserIdAsync(int profileId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetVehicleByIdAsync(int id)
         {
             try
             {
-                var result = await _vehicleHandler.GetVehiclesByProfileIdAsync(profileId);
+                var result = await _vehicleHandler.GetVehicleByIdAsync(id);
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/Vehicles/{userId}")]
+        public async Task<IActionResult> GetVehiclesByUserIdAsync(int userId)
+        {
+            try
+            {
+                var result = await _vehicleHandler.GetVehiclesByUserIdAsync(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVehicleAsync(int id, [FromBody] Vehicle vehicle)
+        {
+            try
+            {
+                if (id != vehicle.Id)
+                    return BadRequest("Vehicle ID mismatch.");
+
+                await _vehicleHandler.UpdateVehicleAsync(vehicle);
+                return Ok("Vehicle updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteVehicleByIdAsync(int id)
+        {
+            try
+            {
+                await _vehicleHandler.DeleteVehicleByIdAsync(id);
+                return Ok("Vehicle deleted successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

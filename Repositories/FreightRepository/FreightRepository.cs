@@ -147,6 +147,5 @@ namespace Emma.Api.Repositories.FreightRepository
                 throw new Exception($"Error deleting freight: {ex.Message}");
             }
         }
-
     }
 }

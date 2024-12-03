@@ -104,12 +104,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpDelete("{freightId}")]
-        public async Task<IActionResult> DeleteFreightAsync(int freightId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFreightAsync(int id)
         {
             try
             {
-                await _freightHandler.DeleteFreightByIdAsync(freightId);
+                await _freightHandler.DeleteFreightByIdAsync(id);
                 return Ok("Freight deleted successfully.");
             }
             catch (KeyNotFoundException ex)

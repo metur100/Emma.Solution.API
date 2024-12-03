@@ -36,5 +36,39 @@ namespace Emma.Api.Handlers.VehicleHandler
         {
             return await _vehicleRepository.GetVehiclesByProfileIdAsync(profileId);
         }
+
+        public async Task<Vehicle> GetVehicleByIdAsync(int id)
+        {
+            return await _vehicleRepository.GetVehicleByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<VehicleSummaryDTO>> GetVehiclesByUserIdAsync(int userId)
+        {
+            return await _vehicleRepository.GetVehiclesByUserIdAsync(userId);
+        }
+
+        public async Task UpdateVehicleAsync(Vehicle vehicle)
+        {
+            var existingVehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicle.Id);
+            if (existingVehicle == null)
+                throw new KeyNotFoundException($"Vehicle with ID {vehicle.Id} not found.");
+
+            existingVehicle.Brand = vehicle.Brand;
+            existingVehicle.PlateNumber = vehicle.PlateNumber;
+            existingVehicle.Description = vehicle.Description;
+            existingVehicle.BodyType = vehicle.BodyType;
+            existingVehicle.PayloadCapacity = vehicle.PayloadCapacity;
+            existingVehicle.CargoSpaceVolume = vehicle.CargoSpaceVolume;
+            existingVehicle.Length = vehicle.Length;
+            existingVehicle.Weight = vehicle.Weight;
+
+
+            await _vehicleRepository.UpdateVehicleAsync(existingVehicle);
+        }
+
+        public async Task DeleteVehicleByIdAsync(int id)
+        {
+            await _vehicleRepository.DeleteVehicleByIdAsync(id);
+        }
     }
 }
