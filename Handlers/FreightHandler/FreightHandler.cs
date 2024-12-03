@@ -32,9 +32,9 @@ namespace Emma.Api.Handlers.FreightHandler
             return await _freightRepository.GetFreightInformationByFreightIdAsync(profileId, freigthId);
         }
 
-        public async Task<Freight> GetFreightByProfileIdAsync(int profileId)
+        public async Task<Freight> GetFreightByIdAsync(int id)
         {
-            return await _freightRepository.GetFreightByProfileIdAsync(profileId);
+            return await _freightRepository.GetFreightByIdAsync(id);
         }
 
         public async Task<IEnumerable<FreightSummaryDto>> GetFreightsByUserAsync(int profileId)
@@ -63,9 +63,9 @@ namespace Emma.Api.Handlers.FreightHandler
             await _freightRepository.UpdateFreightAsync(existingFreight);
         }
 
-        public async Task DeleteFreightAsync(int profileId, int freightId)
+        public async Task DeleteFreightByIdAsync(int freightId)
         {
-            await _freightRepository.DeleteFreightAsync(profileId, freightId);
+            await _freightRepository.DeleteFreightByIdAsync(freightId);
         }
     }
 }

@@ -55,12 +55,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("{profileId}")]
-        public async Task<IActionResult> GetFreightByProfileIdAsync(int profileId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFreightByIdAsync(int id)
         {
             try
             {
-                var result = await _freightHandler.GetFreightByProfileIdAsync(profileId);
+                var result = await _freightHandler.GetFreightByIdAsync(id);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -104,12 +104,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpDelete("{profileId}/{freightId}")]
-        public async Task<IActionResult> DeleteFreightAsync(int profileId, int freightId)
+        [HttpDelete("{freightId}")]
+        public async Task<IActionResult> DeleteFreightAsync(int freightId)
         {
             try
             {
-                await _freightHandler.DeleteFreightAsync(profileId, freightId);
+                await _freightHandler.DeleteFreightByIdAsync(freightId);
                 return Ok("Freight deleted successfully.");
             }
             catch (KeyNotFoundException ex)

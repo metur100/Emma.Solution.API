@@ -90,13 +90,6 @@ namespace Emma.Api.Repositories.FreightRepository
             return freight ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
         }
 
-        public async Task<Freight> GetFreightByProfileIdAsync(int profileId)
-        {
-            return await _context.Freights
-                .Where(freight => freight.ProfileId == profileId)
-                .FirstOrDefaultAsync() ?? throw new Exception("");
-        }
-
         public async Task<IEnumerable<FreightSummaryDto>> GetFreightsByUserIdAsync(int userId)
         {
             var userProfileIds = await _context.Set<Profile>()
@@ -134,16 +127,16 @@ namespace Emma.Api.Repositories.FreightRepository
                 .FirstOrDefaultAsync() ?? throw new Exception("");
         }
 
-        public async Task DeleteFreightAsync(int profileId, int freightId)
+        public async Task DeleteFreightByIdAsync(int freightId)
         {
             try
             {
                 var freight = await _context.Freights
-                    .FirstOrDefaultAsync(f => f.ProfileId == profileId && f.Id == freightId);
+                    .FirstOrDefaultAsync(f => f.Id == freightId);
 
                 if (freight == null)
                 {
-                    throw new Exception($"Freight with ID {freightId} for profile {profileId} not found.");
+                    throw new Exception($"Freight with ID {freightId} not found.");
                 }
 
                 _context.Freights.Remove(freight);
