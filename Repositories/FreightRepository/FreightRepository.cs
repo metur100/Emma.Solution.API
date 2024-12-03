@@ -90,7 +90,7 @@ namespace Emma.Api.Repositories.FreightRepository
             return freight ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
         }
 
-        public async Task<IEnumerable<FreightSummaryDto>> GetFreightsByUserIdAsync(int userId)
+        public async Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId)
         {
             var userProfileIds = await _context.Set<Profile>()
                 .Where(p => p.UserId == userId)
@@ -99,12 +99,12 @@ namespace Emma.Api.Repositories.FreightRepository
 
             if (!userProfileIds.Any())
             {
-                return Enumerable.Empty<FreightSummaryDto>();
+                return Enumerable.Empty<FreightManagementDTO>();
             }
 
             return await _context.Set<Freight>()
                 .Where(f => userProfileIds.Contains(f.ProfileId))
-                .Select(f => new FreightSummaryDto
+                .Select(f => new FreightManagementDTO
                 {
                     Id = f.Id,
                     GoodsDescription = f.GoodsDescription,

@@ -55,11 +55,11 @@ namespace Emma.Api.Handlers.ProfileHandler
             return await _profileRepository.CreateProfileAsync(profile, userId);
         }
 
-        public async Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId)
+        public async Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId)
         {
             try
             {
-                return await _profileRepository.GetProfilesByUserIdAsync(userId);
+                return await _profileRepository.GetProfileNamesByUserIdAsync(userId);
             }
             catch (Exception ex)
             {
@@ -89,6 +89,26 @@ namespace Emma.Api.Handlers.ProfileHandler
             {
                 throw new Exception($"An error occurred while retrieving the user profile for user ID {userId}: {ex.Message}", ex);
             }
+        }
+
+        public async Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId)
+        {
+            return await _profileRepository.GetProfilesByUserIdAsync(userId);
+        }
+
+        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO)
+        {
+            await _profileRepository.UpdateProfileAsync(profileId, updateProfileDTO);
+        }
+
+        public async Task<UpdateProfileDTO> HandleGetProfileByIdAsync(int id)
+        {
+            return await _profileRepository.GetProfileByIdAsync(id);
+        }
+
+        public async Task HandleDeleteProfileByIdAsync(int id)
+        {
+            await _profileRepository.DeleteProfileByIdAsync(id);
         }
     }
 }

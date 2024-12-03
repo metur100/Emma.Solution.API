@@ -10,7 +10,7 @@ namespace Emma.Api.Handlers.VehicleHandler
         Task<VehicleInformationsDTO> GetVehicleInformationByVehicleIdAsync(int userId, int vehicleId);
         Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int userId);
         Task<Vehicle> GetVehicleByIdAsync(int id);
-        Task<IEnumerable<VehicleSummaryDTO>> GetVehiclesByUserIdAsync(int userId);
+        Task<IEnumerable<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId);
         Task UpdateVehicleAsync(Vehicle vehicle);
         Task DeleteVehicleByIdAsync(int id);
     }

@@ -42,7 +42,7 @@ namespace Emma.Api.Handlers.VehicleHandler
             return await _vehicleRepository.GetVehicleByIdAsync(id);
         }
 
-        public async Task<IEnumerable<VehicleSummaryDTO>> GetVehiclesByUserIdAsync(int userId)
+        public async Task<IEnumerable<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId)
         {
             return await _vehicleRepository.GetVehiclesByUserIdAsync(userId);
         }

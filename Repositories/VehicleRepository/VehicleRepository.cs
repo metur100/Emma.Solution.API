@@ -103,7 +103,7 @@ namespace Emma.Api.Repositories.VehicleRepository
             }
         }
 
-        public async Task<IEnumerable<VehicleSummaryDTO>> GetVehiclesByUserIdAsync(int userId)
+        public async Task<IEnumerable<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId)
         {
             var userProfileIds = await _context.Set<Profile>()
                 .Where(p => p.UserId == userId)
@@ -112,12 +112,12 @@ namespace Emma.Api.Repositories.VehicleRepository
 
             if (!userProfileIds.Any())
             {
-                return Enumerable.Empty<VehicleSummaryDTO>();
+                return Enumerable.Empty<VehicleManagementDTO>();
             }
 
             return await _context.Set<Vehicle>()
                 .Where(f => userProfileIds.Contains(f.ProfileId))
-                .Select(f => new VehicleSummaryDTO
+                .Select(f => new VehicleManagementDTO
                 {
                     Id = f.Id,
                     Brand = f.Brand,

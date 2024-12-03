@@ -33,11 +33,11 @@ namespace Emma.Api.Controllers
         }
 
         [HttpGet("Names/{userId}")]
-        public async Task<IActionResult> GetProfilesByUserIdAsync(int userId)
+        public async Task<IActionResult> GetProfileNamesByUserIdAsync(int userId)
         {
             try
             {
-                var userNames = await _profileHandler.GetProfilesByUserIdAsync(userId);
+                var userNames = await _profileHandler.GetProfileNamesByUserIdAsync(userId);
                 return Ok(userNames);
             }
             catch
@@ -71,6 +71,79 @@ namespace Emma.Api.Controllers
             catch
             {
                 return StatusCode(500, "An error occurred while retrieving user names.");
+            }
+        }
+
+        [HttpGet("/Profiles/{userId}")]
+        public async Task<IActionResult> GetProfilesByUserIdAsync(int userId)
+        {
+            try
+            {
+                var profiles = await _profileHandler.GetProfilesByUserIdAsync(userId);
+                return Ok(profiles);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while retrieving user names.");
+            }
+        }
+
+        [HttpPut("{profileId}")]
+        public async Task<IActionResult> UpdateProfile(int profileId, [FromBody] UpdateProfileDTO updateProfileDTO)
+        {
+            if (updateProfileDTO == null)
+            {
+                return BadRequest("Profile data is required.");
+            }
+
+            try
+            {
+                await _profileHandler.UpdateProfileAsync(profileId, updateProfileDTO);
+                return Ok("Profile updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Management/{id}")]
+        public async Task<IActionResult> GetProfileById(int id)
+        {
+            try
+            {
+                var profile = await _profileHandler.HandleGetProfileByIdAsync(id);
+                return Ok(profile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error fetching profile: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProfileById(int id)
+        {
+            try
+            {
+                await _profileHandler.HandleDeleteProfileByIdAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting profile: {ex.Message}");
             }
         }
     }

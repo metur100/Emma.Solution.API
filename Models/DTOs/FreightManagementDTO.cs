@@ -1,6 +1,6 @@
 ﻿namespace Emma.Api.Models.DTOs
 {
-    public class FreightSummaryDto
+    public class FreightManagementDTO
     {
         public int Id { get; set; }
         public string? GoodsDescription { get; set; }

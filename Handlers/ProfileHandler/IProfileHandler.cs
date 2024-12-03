@@ -14,8 +14,12 @@ namespace Emma.Api.Handlers.ProfileHandler
             string phoneNumber,
             int userId);
 
-        Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId);
+        Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId);
         Task<ProfileInfoDTO> GetUserProfileInformations(int id);
         Task<string> GetProfileNameByUserId(int userId);
+        Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId);
+        Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO);
+        Task<UpdateProfileDTO> HandleGetProfileByIdAsync(int id);
+        Task HandleDeleteProfileByIdAsync(int id);
     }
 }

@@ -17,7 +17,7 @@ namespace Emma.Api.Repositories.ProfileRepository
             return profile.Id;
         }
 
-        public async Task<List<ProfileDto>> GetProfilesByUserIdAsync(int userId)
+        public async Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId)
         {
             if (userId <= 0)
                 throw new ArgumentException("Invalid User ID.");
@@ -80,6 +80,139 @@ namespace Emma.Api.Repositories.ProfileRepository
                 throw new Exception($"Profile not found for UserId: {userId}");
 
             return profile;
+        }
+
+        public async Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId)
+        {
+            var userProfileIds = await _context.Set<Profile>()
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (!userProfileIds.Any())
+            {
+                return Enumerable.Empty<ProfileManagementDTO>();
+            }
+
+            return await _context.Set<Profile>()
+                .Where(p => userProfileIds.Contains(p.Id))
+                .Join(_context.Set<Address>(),
+                      p => p.AddressId, 
+                      a => a.Id, 
+                      (profile, address) => new ProfileManagementDTO
+                      {
+                          Id = profile.Id,
+                          Name = profile.Name,
+                          City = address.City 
+                      })
+                .ToListAsync();
+        }
+
+        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO)
+        {
+            // Retrieve the profile by profileId
+            var profile = await _context.Set<Profile>()
+                .FirstOrDefaultAsync(p => p.Id == profileId);
+
+            if (profile == null)
+            {
+                throw new KeyNotFoundException("Profile not found.");
+            }
+
+            // Update the profile name
+            profile.Name = updateProfileDTO.Name;
+
+            // Retrieve and update the address based on the AddressId in the profile
+            var address = await _context.Set<Address>()
+                .FirstOrDefaultAsync(a => a.Id == profile.AddressId);
+
+            if (address != null)
+            {
+                address.StreetAndNumber = updateProfileDTO.StreetAndNumber;
+                address.City = updateProfileDTO.City;
+                address.PostalCode = updateProfileDTO.PostalCode;
+            }
+            else
+            {
+                throw new KeyNotFoundException("Address not found.");
+            }
+
+            // Retrieve and update the contact based on the ContactId in the profile
+            var contact = await _context.Set<Contact>()
+                .FirstOrDefaultAsync(c => c.Id == profile.ContactId);
+
+            if (contact != null)
+            {
+                contact.Email = updateProfileDTO.Email;
+                contact.PhoneNumber = updateProfileDTO.PhoneNumber;
+            }
+            else
+            {
+                throw new KeyNotFoundException("Contact not found.");
+            }
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task<UpdateProfileDTO> GetProfileByIdAsync(int id)
+        {
+            var profile = await _context.Profiles
+                .Where(p => p.Id == id)
+                .Join(_context.Addresses, p => p.AddressId, a => a.Id, (p, a) => new { p, a }) 
+                .Join(_context.Contacts, pa => pa.p.ContactId, c => c.Id, (pa, c) => new { pa.p, pa.a, c })  
+                .Select(x => new UpdateProfileDTO
+                {
+                    Id = x.p.Id,
+                    Name = x.p.Name,
+                    StreetAndNumber = x.a.StreetAndNumber,
+                    City = x.a.City,
+                    PostalCode = x.a.PostalCode,
+                    Email = x.c.Email,
+                    PhoneNumber = x.c.PhoneNumber
+                })
+                .FirstOrDefaultAsync();
+
+            if (profile == null)
+            {
+                throw new KeyNotFoundException("Profile not found");
+            }
+            return profile;
+        }
+
+        public async Task DeleteProfileByIdAsync(int id)
+        {
+            try
+            {
+                var profile = await _context.Profiles
+                    .Where(p => p.Id == id)
+                    .Join(_context.Addresses, p => p.AddressId, a => a.Id, (p, a) => new { p, a })
+                    .Join(_context.Contacts, pa => pa.p.ContactId, c => c.Id, (pa, c) => new { pa.p, pa.a, c })
+                    .FirstOrDefaultAsync();
+
+                if (profile == null)
+                {
+                    throw new KeyNotFoundException($"Profile with ID {id} not found.");
+                }
+
+                if (profile.a != null)
+                {
+                    _context.Addresses.Remove(profile.a); 
+                }
+
+                if (profile.c != null)
+                {
+                    _context.Contacts.Remove(profile.c);
+                }
+
+                _context.Profiles.Remove(profile.p);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting Profile: {ex.Message}");
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Emma.Api.Models.DTOs
 {
-    public class VehicleSummaryDTO
+    public class VehicleManagementDTO
     {
         public int Id { get; set; }
         public string? Brand { get; set; }
