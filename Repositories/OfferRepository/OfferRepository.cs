@@ -52,12 +52,57 @@ namespace Emma.Api.Repositories.OfferRepository
         }
 
 
-        public async Task CreateOfferAsync(Offer offer)
+        public async Task CreateOfferAsync(Offer offer, int userId)
         {
-            // Ensure the initial status is set
+            // Ensure the user is not creating an invalid offer
+            if (await IsInvalidOfferAsync(userId, offer.VehicleId, offer.FreightId))
+            {
+                throw new InvalidOperationException("You cannot create an offer with both your vehicle and your freight.");
+            }
+
+            // Set the initial status and save the offer
             offer.Status = "Ponuda u obradi";
             await _context.Offers.AddAsync(offer);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsInvalidOfferAsync(int userId, int vehicleId, int freightId)
+        {
+            // Retrieve the profile IDs for the vehicle and freight
+            var vehicleProfileId = await _context.Vehicles
+                .Where(v => v.Id == vehicleId)
+                .Select(v => v.ProfileId)
+                .FirstOrDefaultAsync();
+
+            if (vehicleProfileId == 0)
+                throw new Exception("Vehicle not found.");
+
+            var freightProfileId = await _context.Freights
+                .Where(f => f.Id == freightId)
+                .Select(f => f.ProfileId)
+                .FirstOrDefaultAsync();
+
+            if (freightProfileId == 0)
+                throw new Exception("Freight not found.");
+
+            // Retrieve the user IDs for the vehicle and freight owners
+            var owners = await _context.Profiles
+                .Where(p => p.Id == vehicleProfileId || p.Id == freightProfileId)
+                .Select(p => new { p.Id, p.UserId })
+                .ToListAsync();
+
+            var vehicleOwner = owners.FirstOrDefault(o => o.Id == vehicleProfileId);
+            var freightOwner = owners.FirstOrDefault(o => o.Id == freightProfileId);
+
+            if (vehicleOwner == null || freightOwner == null)
+                throw new Exception("Profiles for the vehicle or freight not found.");
+
+            // Check ownership
+            bool isVehicleOwnedByCurrentUser = vehicleOwner.UserId == userId;
+            bool isFreightOwnedByCurrentUser = freightOwner.UserId == userId;
+
+            // Return true if the same user owns both
+            return isVehicleOwnedByCurrentUser && isFreightOwnedByCurrentUser;
         }
     }
 }

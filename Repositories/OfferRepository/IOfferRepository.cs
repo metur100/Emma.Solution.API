@@ -7,6 +7,6 @@ namespace Emma.Api.Repositories.OfferRepository
     {
         Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId);
         Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId);
-        Task CreateOfferAsync(Offer offer);
+        Task CreateOfferAsync(Offer offer, int userId);
     }
 }

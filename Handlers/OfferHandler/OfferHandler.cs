@@ -6,42 +6,26 @@ using Emma.Api.Repositories.VehicleRepository;
 
 namespace Emma.Api.Handlers.OfferHandler
 {
-    public class OfferHandler : IOfferHandler
+    public class OfferHandler(IOfferRepository repository, 
+        IVehicleRepository vehicleRepository, 
+        IFreightRepository freightRepository) : IOfferHandler
     {
-        private readonly IOfferRepository _repository;
-        private readonly IVehicleRepository _vehicleRepository;
-        private readonly IFreightRepository _freightRepository;
-
-        public OfferHandler(IOfferRepository repository, IVehicleRepository vehicleRepository, IFreightRepository freightRepository)
-        {
-            _repository = repository;
-            _vehicleRepository = vehicleRepository;
-            _freightRepository = freightRepository;
-        }
+        private readonly IOfferRepository _offerRepository = repository;
+        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
+        private readonly IFreightRepository _freightRepository = freightRepository;
 
         public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId)
         {
-            return await _repository.GetOffersForUserAsync(userId);
+            return await _offerRepository.GetOffersForUserAsync(userId);
         }
 
         public async Task<OfferDetailsDTO?> GetOfferDetailsAsync(int offerId)
         {
-            return await _repository.GetOfferByIdAsync(offerId);
+            return await _offerRepository.GetOfferByIdAsync(offerId);
         }
 
-        public async Task CreateOfferAsync(int freightId, int vehicleId, string newTransportPrice, string? comment, int profileId)
+        public async Task CreateOfferAsync(int freightId, int vehicleId, string newTransportPrice, string? comment, int userId)
         {
-            var vehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicleId);
-            if (vehicle == null || vehicle.ProfileId != profileId)
-            {
-                throw new UnauthorizedAccessException("Vehicle does not belong to the user.");
-            }
-
-            var freight = await _freightRepository.GetFreightByIdAsync(freightId);
-            if (freight == null)
-            {
-                throw new ArgumentException("Freight not found.");
-            }
 
             var offer = new Offer
             {
@@ -52,7 +36,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 Comment = comment
             };
 
-            await _repository.CreateOfferAsync(offer);
+            await _offerRepository.CreateOfferAsync(offer, userId);
         }
     }
 }
