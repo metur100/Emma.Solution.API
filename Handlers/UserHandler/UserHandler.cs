@@ -1,17 +1,14 @@
-﻿using Emma.Api.Models;
+﻿using Emma.Api.Helpers.UserClaimHelper;
+using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.UserRepository;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Emma.Api.Handlers.UserHandler
 {
-    public class UserHandler(IUserRepository userRepository) : IUserHandler
+    public class UserHandler(IUserRepository userRepository, IJWTHelper jWTHelper) : IUserHandler
     {
         private readonly IUserRepository _userRepository = userRepository;
+        private readonly IJWTHelper _jWTHelper = jWTHelper;
 
         public async Task<string> RegisterAsync(RegisterUserDto dto)
         {
@@ -21,7 +18,7 @@ namespace Emma.Api.Handlers.UserHandler
                 return "Profile already exists."; 
             }
 
-            var hashedPassword = HashPassword(dto.Password);
+            var hashedPassword = _jWTHelper.HashPassword(dto.Password);
 
             var user = new User
             {
@@ -49,7 +46,7 @@ namespace Emma.Api.Handlers.UserHandler
 
         public async Task<string> LoginAsync(string email, string password)
         {
-            var hashedPassword = HashPassword(password);
+            var hashedPassword = _jWTHelper.HashPassword(password);
 
             var user = await _userRepository.GetProfileByEmailAndPasswordAsync(email, hashedPassword);
             if (user == null)
@@ -57,37 +54,7 @@ namespace Emma.Api.Handlers.UserHandler
                 return "Invalid email or password.";
             }
 
-            return GenerateJwtToken(user); 
-        }
-
-
-        private string GenerateJwtToken(User profile)
-        {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, profile.Email),
-                new Claim(ClaimTypes.NameIdentifier, profile.Id.ToString())
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa"));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: "EmmaLogistics",  // Use your own issuer
-                audience: "EmmaLogisticsUser",  // Use your own audience
-                claims: claims,
-                expires: DateTime.Now.AddDays(1), // Set token expiration
-                signingCredentials: creds
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token); // Return the JWT token as a string
-        }
-
-        public string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
+            return _jWTHelper.GenerateJwtToken(user); 
         }
     }
 }

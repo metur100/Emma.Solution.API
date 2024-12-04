@@ -9,6 +9,9 @@ using Emma.Api.Repositories.FreightRepository;
 using Emma.Api.Repositories.UserRepository;
 using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.VehicleRepository;
+using Emma.Api.Handlers.OfferHandler;
+using Emma.Api.Repositories.OfferRepository;
+using Emma.Api.Helpers.UserClaimHelper;
 
 namespace Emma.Api
 {
@@ -23,6 +26,9 @@ namespace Emma.Api
             builder.Services.AddScoped<IVehicleHandler, VehicleHandler>();
             builder.Services.AddScoped<IFreightHandler, FreightHandler>();
             builder.Services.AddScoped<IUserHandler, UserHandler>();
+            builder.Services.AddScoped<IOfferHandler, OfferHandler>();
+
+            builder.Services.AddScoped<IJWTHelper, JWTHelper>();
 
             #endregion
 
@@ -34,6 +40,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
             builder.Services.AddScoped<IFreightRepository, FreightRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IOfferRepository, OfferRepository>();
 
             #endregion
 

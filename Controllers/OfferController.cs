@@ -1,23 +1,23 @@
-﻿using Emma.Api.Handlers.ContactHandler;
-using Emma.Api.Handlers.OfferHandler;
+﻿using Emma.Api.Handlers.OfferHandler;
+using Emma.Api.Helpers.UserClaimHelper;
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata;
 
 namespace Emma.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class OfferController(IOfferHandler offerHandler) : ControllerBase
+    public class OfferController(IOfferHandler offerHandler, IJWTHelper userClaimHelper) : ControllerBase
     {
         private readonly IOfferHandler _offerHandler = offerHandler;
+        private readonly IJWTHelper _userClaimHelper = userClaimHelper;
 
         [HttpGet]
         public async Task<IActionResult> GetOffers()
         {
-            var userId = GetUserId(); // Implement user ID retrieval from JWT or session
+            var userId = _userClaimHelper.GetUserId(); 
             var offers = await _offerHandler.GetOffersForUserAsync(userId);
             return Ok(offers);
         }
@@ -35,7 +35,7 @@ namespace Emma.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOffer([FromBody] Offer request)
         {
-            var userId = GetUserId(); 
+            var userId = _userClaimHelper.GetUserId(); 
 
             try
             {
@@ -54,15 +54,5 @@ namespace Emma.Api.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-        private int GetUserId()
-        {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                throw new Exception("User ID claim is missing or invalid.");
-
-            return int.Parse(userIdClaim);
-        }
-
     }
 }
