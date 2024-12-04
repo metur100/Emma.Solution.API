@@ -5,15 +5,22 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Emma.Api.Helpers.UserClaimHelper
+namespace Emma.Api.Helpers.JWTHelper
 {
-    public class JWTHelper(ClaimsPrincipal user) : IJWTHelper
+    public class JWTHelper : IJWTHelper
     {
-        private readonly ClaimsPrincipal _user = user;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public JWTHelper(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        private ClaimsPrincipal User => _httpContextAccessor.HttpContext!.User;
 
         public int GetUserId()
         {
-            var userIdClaim = _user.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 throw new Exception("User ID claim is missing or invalid.");
 

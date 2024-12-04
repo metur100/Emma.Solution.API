@@ -11,7 +11,7 @@ using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.VehicleRepository;
 using Emma.Api.Handlers.OfferHandler;
 using Emma.Api.Repositories.OfferRepository;
-using Emma.Api.Helpers.UserClaimHelper;
+using Emma.Api.Helpers.JWTHelper;
 
 namespace Emma.Api
 {
@@ -29,6 +29,8 @@ namespace Emma.Api
             builder.Services.AddScoped<IOfferHandler, OfferHandler>();
 
             builder.Services.AddScoped<IJWTHelper, JWTHelper>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<Func<IJWTHelper>>(sp => () => sp.GetRequiredService<IJWTHelper>());
 
             #endregion
 

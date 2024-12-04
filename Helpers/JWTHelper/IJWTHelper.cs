@@ -1,6 +1,6 @@
 ﻿using Emma.Api.Models;
 
-namespace Emma.Api.Helpers.UserClaimHelper
+namespace Emma.Api.Helpers.JWTHelper
 {
     public interface IJWTHelper
     {

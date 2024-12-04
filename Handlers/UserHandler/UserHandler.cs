@@ -1,4 +1,4 @@
-﻿using Emma.Api.Helpers.UserClaimHelper;
+﻿using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.UserRepository;

@@ -1,5 +1,5 @@
 ﻿using Emma.Api.Handlers.OfferHandler;
-using Emma.Api.Helpers.UserClaimHelper;
+using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
