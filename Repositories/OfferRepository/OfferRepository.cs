@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.OfferRepository
 {
-    public class OfferRepository(AppDbContext context)
+    public class OfferRepository(AppDbContext context) : IOfferRepository
     {
         private readonly AppDbContext _context = context;
 
@@ -59,6 +59,5 @@ namespace Emma.Api.Repositories.OfferRepository
             await _context.Offers.AddAsync(offer);
             await _context.SaveChangesAsync();
         }
-
     }
 }

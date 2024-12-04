@@ -35,11 +35,19 @@ namespace Emma.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOffer([FromBody] Offer request)
         {
-            var userId = GetUserId(); // Implement user ID retrieval from JWT or session
+            var userId = GetUserId(); 
+
             try
             {
-                await _offerHandler.CreateOfferAsync(request.FreightId, request.VehicleId, request.NewTransportPrice, request.Comment, userId);
-                return CreatedAtAction(nameof(GetOfferDetails), new { id = request.FreightId }, null);
+                await _offerHandler.CreateOfferAsync(
+                    request.FreightId,
+                    request.VehicleId,
+                    request.NewTransportPrice!,
+                    request.Comment,
+                    userId
+                );
+
+                return CreatedAtAction(nameof(GetOfferDetails), new { id = request.Id }, null);
             }
             catch (Exception ex)
             {
@@ -49,8 +57,12 @@ namespace Emma.Api.Controllers
 
         private int GetUserId()
         {
-            // Extract user ID from JWT or session
-            return int.Parse(User.Claims.First(c => c.Type == "id").Value);
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                throw new Exception("User ID claim is missing or invalid.");
+
+            return int.Parse(userIdClaim);
         }
+
     }
 }
