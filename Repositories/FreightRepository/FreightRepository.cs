@@ -147,5 +147,11 @@ namespace Emma.Api.Repositories.FreightRepository
                 throw new Exception($"Error deleting freight: {ex.Message}");
             }
         }
+
+        public async Task<Freight?> GetFreightByIdAsync(int freightId, int userId)
+        {
+            return await _context.Freights
+                .FirstOrDefaultAsync(f => f.Id == freightId && f.ProfileId != userId);
+        }
     }
 }
