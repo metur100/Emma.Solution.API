@@ -181,38 +181,59 @@ namespace Emma.Api.Repositories.ProfileRepository
             return profile;
         }
 
-        public async Task DeleteProfileByIdAsync(int id)
+        public async Task DeleteProfileByIdAsync(int profileId)
         {
             try
             {
                 var profile = await _context.Profiles
-                    .Where(p => p.Id == id)
-                    .Join(_context.Addresses, p => p.AddressId, a => a.Id, (p, a) => new { p, a })
-                    .Join(_context.Contacts, pa => pa.p.ContactId, c => c.Id, (pa, c) => new { pa.p, pa.a, c })
-                    .FirstOrDefaultAsync();
+                    .Where(p => p.Id == profileId)
+                    .Select(p => new
+                    {
+                        Profile = p,
+                        p.UserId,
+                        AddressId = p.AddressId,
+                        ContactId = p.ContactId
+                    })
+                    .FirstOrDefaultAsync() ?? throw new KeyNotFoundException($"Profile with ID {profileId} not found.");
 
-                if (profile == null)
+                var userProfileCount = await _context.Profiles.CountAsync(p => p.UserId == profile.UserId);
+
+                if (userProfileCount <= 1)
                 {
-                    throw new KeyNotFoundException($"Profile with ID {id} not found.");
+                    throw new InvalidOperationException("Cannot delete the only profile for the user.");
                 }
 
-                if (profile.a != null)
-                {
-                    _context.Addresses.Remove(profile.a); 
-                }
-
-                if (profile.c != null)
-                {
-                    _context.Contacts.Remove(profile.c);
-                }
-
-                _context.Profiles.Remove(profile.p);
+                _context.Profiles.Remove(profile.Profile);
                 await _context.SaveChangesAsync();
+
+                var address = await _context.Addresses.FirstOrDefaultAsync(a => a.Id == profile.AddressId);
+                var contact = await _context.Contacts.FirstOrDefaultAsync(c => c.Id == profile.ContactId);
+
+                if (address != null)
+                {
+                    _context.Addresses.Remove(address);
+                }
+
+                if (contact != null)
+                {
+                    _context.Contacts.Remove(contact);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new Exception($"Operation failed: {ex.Message}");
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new Exception($"Database update error: {dbEx.InnerException?.Message ?? dbEx.Message}");
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error deleting Profile: {ex.Message}");
+                throw new Exception($"Error deleting profile: {ex.Message}");
             }
         }
+
     }
 }
