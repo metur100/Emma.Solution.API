@@ -1,5 +1,4 @@
 ﻿using Emma.Api.Models;
-using Emma.Api.Models.DTOs;
 
 namespace Emma.Api.Repositories.UserRepository
 {
@@ -8,5 +7,6 @@ namespace Emma.Api.Repositories.UserRepository
         Task<User?> GetProfileByEmailAsync(string email);
         Task<User?> GetProfileByEmailAndPasswordAsync(string email, string hashedPassword);
         Task RegisterUserAsync(User user, Address address, Contact contact, string userName);
+        Task<int?> GetProfileIdByUserIdAsync(int userId);
     }
 }

@@ -54,7 +54,7 @@ namespace Emma.Api.Handlers.UserHandler
                 return "Invalid email or password.";
             }
 
-            return _jWTHelper.GenerateJwtToken(user); 
+            return await _jWTHelper.GenerateJwtTokenAsync(user); 
         }
     }
 }

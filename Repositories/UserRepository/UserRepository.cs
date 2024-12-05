@@ -40,5 +40,13 @@ namespace Emma.Api.Repositories.UserRepository
             _dbContext.Profiles.Add(profile);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<int?> GetProfileIdByUserIdAsync(int userId)
+        {
+            var profile = await _dbContext.Profiles
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+
+            return profile?.Id; 
+        }
     }
 }

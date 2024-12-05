@@ -5,7 +5,7 @@ namespace Emma.Api.Helpers.JWTHelper
     public interface IJWTHelper
     {
         int GetUserId();
-        string GenerateJwtToken(User profile);
+        Task<string> GenerateJwtTokenAsync(User user);
         string HashPassword(string password);
     }
 }

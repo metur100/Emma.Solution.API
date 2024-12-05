@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Repositories.UserRepository;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,14 +8,10 @@ using System.Text;
 
 namespace Emma.Api.Helpers.JWTHelper
 {
-    public class JWTHelper : IJWTHelper
+    public class JWTHelper(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository) : IJWTHelper
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public JWTHelper(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly IUserRepository _userRepository = userRepository;
 
         private ClaimsPrincipal User => _httpContextAccessor.HttpContext!.User;
 
@@ -27,12 +24,15 @@ namespace Emma.Api.Helpers.JWTHelper
             return int.Parse(userIdClaim);
         }
 
-        public string GenerateJwtToken(User profile)
+        public async Task<string> GenerateJwtTokenAsync(User user)
         {
+            var profileId = await _userRepository.GetProfileIdByUserIdAsync(user.Id);
+
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, profile.Email),
-                new Claim(ClaimTypes.NameIdentifier, profile.Id.ToString())
+                new Claim("email", user.Email),
+                new Claim("userId", user.Id.ToString()),
+                new Claim("profileId", profileId.Value.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa"));
