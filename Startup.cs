@@ -1,5 +1,4 @@
-﻿using Emma.Api.Handlers.ContactHandler;
-using Emma.Api.Handlers.FreightHandler;
+﻿using Emma.Api.Handlers.FreightHandler;
 using Emma.Api.Handlers.UserHandler;
 using Emma.Api.Handlers.ProfileHandler;
 using Emma.Api.Handlers.VehicleHandler;
@@ -21,7 +20,6 @@ namespace Emma.Api
         {
             #region Handler
 
-            builder.Services.AddScoped<IContactHandler, ContactHandler>();
             builder.Services.AddScoped<IProfileHandler, ProfileHandler>();
             builder.Services.AddScoped<IVehicleHandler, VehicleHandler>();
             builder.Services.AddScoped<IFreightHandler, FreightHandler>();
