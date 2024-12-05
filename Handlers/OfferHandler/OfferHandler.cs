@@ -16,7 +16,7 @@ namespace Emma.Api.Handlers.OfferHandler
 
         public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId)
         {
-            return await _offerRepository.GetOffersForUserAsync(userId);
+            return await _offerRepository.GetOffersAsync(userId);
         }
 
         public async Task<OfferDetailsDTO?> GetOfferDetailsAsync(int offerId)
@@ -24,13 +24,15 @@ namespace Emma.Api.Handlers.OfferHandler
             return await _offerRepository.GetOfferByIdAsync(offerId);
         }
 
-        public async Task CreateOfferAsync(int freightId, int vehicleId, string newTransportPrice, string? comment, int userId)
+        public async Task CreateOfferAsync(int freightId, int vehicleId, string newTransportPrice, string? comment, string offerSent, string offerReceived, int userId)
         {
 
             var offer = new Offer
             {
                 FreightId = freightId,
                 VehicleId = vehicleId,
+                OfferReceived = offerReceived,
+                OfferSent = offerSent,
                 Status = "Pending",
                 NewTransportPrice = newTransportPrice,
                 Comment = comment

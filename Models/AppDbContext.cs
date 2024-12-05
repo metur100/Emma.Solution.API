@@ -1,19 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using System.Collections.Generic;
 
 namespace Emma.Api.Models
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
-        public DbSet<User> Users { get; set; }
-        public DbSet<Address> Addresses { get; set; }
-        public DbSet<Contact> Contacts { get; set; }
-        public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<Freight> Freights { get; set; }
-        public DbSet<Offer> Offers { get; set; }
-        public DbSet<Profile> Profiles { get; set; }
+        public required DbSet<User> Users { get; set; }
+        public required DbSet<Address> Addresses { get; set; }
+        public required DbSet<Contact> Contacts { get; set; }
+        public required DbSet<Vehicle> Vehicles { get; set; }
+        public required DbSet<Freight> Freights { get; set; }
+        public required DbSet<Offer> Offers { get; set; }
+        public required DbSet<Profile> Profiles { get; set; }
     }
 }

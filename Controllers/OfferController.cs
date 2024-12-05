@@ -42,8 +42,10 @@ namespace Emma.Api.Controllers
                 await _offerHandler.CreateOfferAsync(
                     request.FreightId,
                     request.VehicleId,
+                    request.OfferSent,
+                    request.OfferReceived,
                     request.NewTransportPrice!,
-                    request.Comment,
+                    request.Comment!,
                     userId
                 );
 

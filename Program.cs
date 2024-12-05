@@ -40,7 +40,7 @@ void ConfigureMiddleware(WebApplication app)
 
 void ConfigureDatabaseContext(WebApplicationBuilder builder)
 {
-    var connectionString = builder.Configuration["ConnectionStrings"];
+    var connectionString = builder.Configuration["ConnectionString"];
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(connectionString));
 }

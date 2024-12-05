@@ -10,12 +10,28 @@ namespace Emma.Api.Repositories.OfferRepository
         private readonly AppDbContext _context = context;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
 
-        public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int profileId)
+        public async Task<IEnumerable<Offer>> GetOffersAsync(int userId)
         {
-            return await _context.Offers
-                .Where(o => _context.Freights.Any(f => f.Id == o.FreightId && f.ProfileId == profileId) ||
-                            _context.Vehicles.Any(v => v.Id == o.VehicleId && v.ProfileId == profileId))
+            var userProfiles = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
                 .ToListAsync();
+
+            var userVehicles = await _context.Vehicles
+                .Where(v => userProfiles.Contains(v.ProfileId))
+                .Select(v => v.Id)
+                .ToListAsync();
+
+            var userFreights = await _context.Freights
+                .Where(f => userProfiles.Contains(f.ProfileId))
+                .Select(f => f.Id)
+                .ToListAsync();
+
+            var receivedOffers = await _context.Offers
+                .Where(o => userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId))
+                .ToListAsync();
+
+            return receivedOffers;
         }
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
@@ -31,9 +47,8 @@ namespace Emma.Api.Repositories.OfferRepository
                           select new OfferDetailsDTO
                           {
                               Id = o.Id,
-                              // Correcting the logic:
-                              OfferFor = (userId == p1.UserId) ? p1.Name : p2.Name, // If userId matches vehicle profile's user, OfferFor is vehicle's profile name
-                              OfferFrom = (userId == p1.UserId) ? p2.Name : p1.Name, // If userId matches vehicle profile's user, OfferFrom is freight's profile name
+                              OfferFor = (userId == p1.UserId) ? (f.GoodsType ?? "Unknown Freight") : (v.Brand ?? "Unknown Vehicle"),
+                              OfferFrom = (userId == p1.UserId) ? p1.Name : p2.Name,
                               Status = o.Status,
                               FirstOfferPrice = f.TransportPrice,
                               SecondOfferPrice = o.NewTransportPrice,
@@ -75,7 +90,6 @@ namespace Emma.Api.Repositories.OfferRepository
 
         public async Task<bool> IsInvalidOfferAsync(int userId, int vehicleId, int freightId)
         {
-            // Retrieve the profile IDs for the vehicle and freight
             var vehicleProfileId = await _context.Vehicles
                 .Where(v => v.Id == vehicleId)
                 .Select(v => v.ProfileId)
@@ -92,7 +106,6 @@ namespace Emma.Api.Repositories.OfferRepository
             if (freightProfileId == 0)
                 throw new Exception("Freight not found.");
 
-            // Retrieve the user IDs for the vehicle and freight owners
             var owners = await _context.Profiles
                 .Where(p => p.Id == vehicleProfileId || p.Id == freightProfileId)
                 .Select(p => new { p.Id, p.UserId })
@@ -104,11 +117,9 @@ namespace Emma.Api.Repositories.OfferRepository
             if (vehicleOwner == null || freightOwner == null)
                 throw new Exception("Profiles for the vehicle or freight not found.");
 
-            // Check ownership
             bool isVehicleOwnedByCurrentUser = vehicleOwner.UserId == userId;
             bool isFreightOwnedByCurrentUser = freightOwner.UserId == userId;
 
-            // Return true if the same user owns both
             return isVehicleOwnedByCurrentUser && isFreightOwnedByCurrentUser;
         }
     }
