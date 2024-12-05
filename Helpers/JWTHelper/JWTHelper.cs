@@ -17,7 +17,7 @@ namespace Emma.Api.Helpers.JWTHelper
 
         public int GetUserId()
         {
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 throw new Exception("User ID claim is missing or invalid.");
 
