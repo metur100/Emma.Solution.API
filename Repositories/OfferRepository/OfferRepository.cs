@@ -1,12 +1,14 @@
-﻿using Emma.Api.Models;
+﻿using Emma.Api.Helpers.JWTHelper;
+using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.OfferRepository
 {
-    public class OfferRepository(AppDbContext context) : IOfferRepository
+    public class OfferRepository(AppDbContext context, IJWTHelper jWTHelper) : IOfferRepository
     {
         private readonly AppDbContext _context = context;
+        private readonly IJWTHelper _jWTHelper = jWTHelper;
 
         public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int profileId)
         {
@@ -18,14 +20,20 @@ namespace Emma.Api.Repositories.OfferRepository
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
+            var userId = _jWTHelper.GetUserId();
             return await (from o in _context.Offers
                           join v in _context.Vehicles on o.VehicleId equals v.Id
                           join f in _context.Freights on o.FreightId equals f.Id
+                          join p1 in _context.Profiles on v.ProfileId equals p1.Id
+                          join p2 in _context.Profiles on f.ProfileId equals p2.Id
+                          join u1 in _context.Users on p1.UserId equals u1.Id
+                          join u2 in _context.Users on p2.UserId equals u2.Id
                           select new OfferDetailsDTO
                           {
                               Id = o.Id,
-                              OfferFor = "v.UserId.ToString()", 
-                              OfferFrom = "f.UserId.ToString()", 
+                              // Correcting the logic:
+                              OfferFor = (userId == p1.UserId) ? p1.Name : p2.Name, // If userId matches vehicle profile's user, OfferFor is vehicle's profile name
+                              OfferFrom = (userId == p1.UserId) ? p2.Name : p1.Name, // If userId matches vehicle profile's user, OfferFrom is freight's profile name
                               Status = o.Status,
                               FirstOfferPrice = f.TransportPrice,
                               SecondOfferPrice = o.NewTransportPrice,
@@ -50,7 +58,6 @@ namespace Emma.Api.Repositories.OfferRepository
                               AvailabilityDate = f.AvailabilityDate
                           }).FirstOrDefaultAsync(o => o.Id == offerId);
         }
-
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
