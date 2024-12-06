@@ -160,5 +160,23 @@ namespace Emma.Api.Repositories.VehicleRepository
                 throw new Exception($"Error deleting vehicle: {ex.Message}");
             }
         }
+
+        public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
+        {
+            try
+            {
+                var profileId = await _context.Vehicles
+                    .Where(vehicle => vehicle.Id == vehicleId)
+                    .Select(vehicle => vehicle.ProfileId)
+                    .FirstOrDefaultAsync(); 
+
+                return profileId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching ProfileId for VehicleId {vehicleId}: {ex.Message}");
+            }
+        }
+
     }
 }

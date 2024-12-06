@@ -1,6 +1,7 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.VehicleRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.VehicleHandler
 {
@@ -69,6 +70,11 @@ namespace Emma.Api.Handlers.VehicleHandler
         public async Task DeleteVehicleByIdAsync(int id)
         {
             await _vehicleRepository.DeleteVehicleByIdAsync(id);
+        }
+
+        public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
+        {
+            return await _vehicleRepository.GetProfileIdByVehicleIdAsync(vehicleId);
         }
     }
 }
