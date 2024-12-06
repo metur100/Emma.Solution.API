@@ -44,15 +44,11 @@ namespace Emma.Api.Repositories.OfferRepository
             return await (from o in _context.Offers
                           join v in _context.Vehicles on o.VehicleId equals v.Id
                           join f in _context.Freights on o.FreightId equals f.Id
-                          join p1 in _context.Profiles on v.ProfileId equals p1.Id
-                          join p2 in _context.Profiles on f.ProfileId equals p2.Id
-                          join u1 in _context.Users on p1.UserId equals u1.Id
-                          join u2 in _context.Users on p2.UserId equals u2.Id
                           select new OfferDetailsDTO
                           {
                               Id = o.Id,
-                              OfferFor = (userId == p1.UserId) ? (f.GoodsType ?? "Unknown Freight") : (v.Brand ?? "Unknown Vehicle"),
-                              OfferFrom = (userId == p1.UserId) ? p1.Name : p2.Name,
+                              OfferFor = o.OfferFor,
+                              OfferFrom = o.OfferFrom,
                               Status = o.Status,
                               FirstOfferPrice = f.TransportPrice,
                               SecondOfferPrice = o.NewTransportPrice,
