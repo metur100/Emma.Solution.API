@@ -161,22 +161,22 @@ namespace Emma.Api.Repositories.VehicleRepository
             }
         }
 
-        public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
+        public async Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId)
         {
             try
             {
-                var profileId = await _context.Vehicles
-                    .Where(vehicle => vehicle.Id == vehicleId)
-                    .Select(vehicle => vehicle.ProfileId)
-                    .FirstOrDefaultAsync(); 
+                var profileName = await (from vehicle in _context.Vehicles
+                                         join profile in _context.Profiles on vehicle.ProfileId equals profile.Id
+                                         where vehicle.Id == vehicleId
+                                         select profile.Name)
+                                     .FirstOrDefaultAsync();
 
-                return profileId;
+                return profileName;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching ProfileId for VehicleId {vehicleId}: {ex.Message}");
+                throw new Exception($"Error fetching Profile Name for VehicleId {vehicleId}: {ex.Message}");
             }
         }
-
     }
 }

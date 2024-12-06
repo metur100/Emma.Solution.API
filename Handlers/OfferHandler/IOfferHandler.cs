@@ -7,12 +7,6 @@ namespace Emma.Api.Handlers.OfferHandler
     {
         Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId);
         Task<OfferDetailsDTO?> GetOfferDetailsAsync(int offerId);
-        Task CreateOfferAsync(int freightId,
-            int vehicleId,
-            string newTransportPrice,
-            string? comment,
-            string offerSent,
-            string offerReceived,
-            int userId);
+        Task CreateOfferAsync(Offer offer, int userId);
     }
 }

@@ -122,12 +122,12 @@ namespace Emma.Api.Controllers
             }
         }
 
-        [HttpGet("Profile/{vehicleId}")]
-        public async Task<IActionResult> GetProfileIdByVehicleIdAsync(int vehicleId)
+        [HttpGet("Profile/Name/{vehicleId}")]
+        public async Task<IActionResult> GetProfileNameByVehicleIdAsync(int vehicleId)
         {
             try
             {
-                var result = await _vehicleHandler.GetProfileIdByVehicleIdAsync(vehicleId);
+                var result = await _vehicleHandler.GetProfileNameByVehicleIdAsync(vehicleId);
                 return Ok(result);
             }
             catch (Exception ex)

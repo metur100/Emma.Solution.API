@@ -3,6 +3,7 @@ using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace Emma.Api.Controllers
 {
@@ -35,26 +36,11 @@ namespace Emma.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOffer([FromBody] Offer request)
         {
-            var userId = _userClaimHelper.GetUserId(); 
+            var userId = _userClaimHelper.GetUserId();
 
-            try
-            {
-                await _offerHandler.CreateOfferAsync(
-                    request.FreightId,
-                    request.VehicleId,
-                    request.NewTransportPrice!,
-                    request.OfferSent!,
-                    request.OfferReceived!,
-                    request.Comment!,
-                    userId
-                );
+            await _offerHandler.CreateOfferAsync(request, userId);
 
-                return CreatedAtAction(nameof(GetOfferDetails), new { id = request.Id }, null);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            return Ok();
         }
     }
 }

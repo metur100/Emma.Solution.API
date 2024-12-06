@@ -72,9 +72,9 @@ namespace Emma.Api.Handlers.VehicleHandler
             await _vehicleRepository.DeleteVehicleByIdAsync(id);
         }
 
-        public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
+        public async Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId)
         {
-            return await _vehicleRepository.GetProfileIdByVehicleIdAsync(vehicleId);
+            return await _vehicleRepository.GetProfileNameByVehicleIdAsync(vehicleId);
         }
     }
 }
