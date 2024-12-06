@@ -1,18 +1,12 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
-using Emma.Api.Repositories.FreightRepository;
 using Emma.Api.Repositories.OfferRepository;
-using Emma.Api.Repositories.VehicleRepository;
 
 namespace Emma.Api.Handlers.OfferHandler
 {
-    public class OfferHandler(IOfferRepository repository, 
-        IVehicleRepository vehicleRepository, 
-        IFreightRepository freightRepository) : IOfferHandler
+    public class OfferHandler(IOfferRepository repository) : IOfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
-        private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
-        private readonly IFreightRepository _freightRepository = freightRepository;
 
         public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId)
         {
