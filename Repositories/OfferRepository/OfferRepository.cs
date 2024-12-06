@@ -37,7 +37,6 @@ namespace Emma.Api.Repositories.OfferRepository
             return receivedOffers;
         }
 
-
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
             var userId = _jWTHelper.GetUserId();
