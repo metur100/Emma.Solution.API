@@ -8,11 +8,6 @@ namespace Emma.Api.Handlers.OfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
 
-        public async Task<IEnumerable<Offer>> GetOffersForUserAsync(int userId)
-        {
-            return await _offerRepository.GetOffersAsync(userId);
-        }
-
         public async Task<OfferDetailsDTO?> GetOfferDetailsAsync(int offerId)
         {
             return await _offerRepository.GetOfferByIdAsync(offerId);
@@ -21,6 +16,15 @@ namespace Emma.Api.Handlers.OfferHandler
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
             await _offerRepository.CreateOfferAsync(offer, userId);
+        }
+        public async Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId)
+        {
+           return await _offerRepository.GetReceivedOffersAsync(userId);
+        }
+
+        public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
+        {
+            return await _offerRepository.GetSentOffersAsync(userId);
         }
     }
 }

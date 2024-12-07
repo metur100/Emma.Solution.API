@@ -15,14 +15,6 @@ namespace Emma.Api.Controllers
         private readonly IOfferHandler _offerHandler = offerHandler;
         private readonly IJWTHelper _userClaimHelper = userClaimHelper;
 
-        [HttpGet]
-        public async Task<IActionResult> GetOffers()
-        {
-            var userId = _userClaimHelper.GetUserId(); 
-            var offers = await _offerHandler.GetOffersForUserAsync(userId);
-            return Ok(offers);
-        }
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOfferDetails(int id)
         {
@@ -41,6 +33,22 @@ namespace Emma.Api.Controllers
             await _offerHandler.CreateOfferAsync(request, userId);
 
             return Ok();
+        }
+
+        [HttpGet("Received")]
+        public async Task<IActionResult> GetReceivedOffersAsync()
+        {
+            var userId = _userClaimHelper.GetUserId();
+            var offers = await _offerHandler.GetReceivedOffersAsync(userId);
+            return Ok(offers);
+        }
+
+        [HttpGet("Sent")]
+        public async Task<IActionResult> GetSentOffersAsync()
+        {
+            var userId = _userClaimHelper.GetUserId();
+            var offers = await _offerHandler.GetSentOffersAsync(userId);
+            return Ok(offers);
         }
     }
 }

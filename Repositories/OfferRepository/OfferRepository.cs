@@ -10,15 +10,18 @@ namespace Emma.Api.Repositories.OfferRepository
         private readonly AppDbContext _context = context;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
 
-        public async Task<IEnumerable<Offer>> GetOffersAsync(int userId)
+        public async Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId)
         {
-            // Step 1: Get all profiles for the user
+            var userProfileNames = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Name)
+                .ToListAsync();
+
             var userProfiles = await _context.Profiles
                 .Where(p => p.UserId == userId)
                 .Select(p => p.Id)
                 .ToListAsync();
 
-            // Step 2: Get all vehicles and freights linked to these profiles
             var userVehicles = await _context.Vehicles
                 .Where(v => userProfiles.Contains(v.ProfileId))
                 .Select(v => v.Id)
@@ -29,13 +32,28 @@ namespace Emma.Api.Repositories.OfferRepository
                 .Select(f => f.Id)
                 .ToListAsync();
 
-            // Step 3: Find received offers
             var receivedOffers = await _context.Offers
+                .Where(o => !userProfileNames.Contains(o.OfferFrom))
                 .Where(o => userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId))
                 .ToListAsync();
 
             return receivedOffers;
         }
+
+        public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
+        {
+            var userProfileNames = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            var sentOffers = await _context.Offers
+                .Where(o => userProfileNames.Contains(o.OfferFrom))
+                .ToListAsync();
+
+            return sentOffers;
+        }
+
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
