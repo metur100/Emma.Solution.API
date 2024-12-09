@@ -148,10 +148,22 @@ namespace Emma.Api.Repositories.FreightRepository
             }
         }
 
-        public async Task<Freight?> GetFreightByIdAsync(int freightId, int userId)
+        public async Task<string?> GetProfileNameByFreightIdAsync(int freightId)
         {
-            return await _context.Freights
-                .FirstOrDefaultAsync(f => f.Id == freightId && f.ProfileId != userId);
+            try
+            {
+                var profileName = await (from vehicle in _context.Freights
+                                         join profile in _context.Profiles on vehicle.ProfileId equals profile.Id
+                                         where vehicle.Id == freightId
+                                         select profile.Name)
+                                     .FirstOrDefaultAsync();
+
+                return profileName;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching Profile Name for FreightId {freightId}: {ex.Message}");
+            }
         }
     }
 }

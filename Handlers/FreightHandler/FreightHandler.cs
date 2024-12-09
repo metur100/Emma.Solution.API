@@ -67,5 +67,10 @@ namespace Emma.Api.Handlers.FreightHandler
         {
             await _freightRepository.DeleteFreightByIdAsync(id);
         }
+
+        public async Task<string?> GetProfileNameByFreightIdAsync(int freightId)
+        {
+            return await _freightRepository.GetProfileNameByFreightIdAsync(freightId);
+        }
     }
 }

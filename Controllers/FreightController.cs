@@ -2,6 +2,7 @@
 using Emma.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Controllers
 {
@@ -115,6 +116,20 @@ namespace Emma.Api.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("Profile/Name/{freightId}")]
+        public async Task<IActionResult> GetProfileNameByVehicleIdAsync(int freightId)
+        {
+            try
+            {
+                var result = await _freightHandler.GetProfileNameByFreightIdAsync(freightId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
