@@ -1,6 +1,7 @@
 ﻿using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Emma.Api.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.OfferRepository
@@ -53,6 +54,42 @@ namespace Emma.Api.Repositories.OfferRepository
 
             return sentOffers;
         }
+
+        public async Task<IEnumerable<Offer>> GetTransitOffersAsync(int userId)
+        {
+            var userProfileNames = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            var userProfiles = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            var userVehicles = await _context.Vehicles
+                .Where(v => userProfiles.Contains(v.ProfileId))
+                .Select(v => v.Id)
+                .ToListAsync();
+
+            var userFreights = await _context.Freights
+                .Where(f => userProfiles.Contains(f.ProfileId))
+                .Select(f => f.Id)
+                .ToListAsync();
+
+            var transitOffers = await _context.Offers
+                .Where(o =>
+                    (userProfileNames.Contains(o.OfferFrom) &&
+                     _context.Statuses.Any(s => s.OfferId == o.Id && s.StatusType >= (int)StatusType.PreperingForTransit)) ||
+
+                    (!userProfileNames.Contains(o.OfferFrom) &&
+                     (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
+                     _context.Statuses.Any(s => s.OfferId == o.Id && s.StatusType >= (int)StatusType.PreperingForTransit)))
+                .ToListAsync();
+
+            return transitOffers;
+        }
+
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {

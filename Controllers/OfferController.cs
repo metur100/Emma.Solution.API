@@ -50,5 +50,13 @@ namespace Emma.Api.Controllers
             var offers = await _offerHandler.GetSentOffersAsync(userId);
             return Ok(offers);
         }
+
+        [HttpGet("PreparingTransit")]
+        public async Task<IActionResult> GetTransitOffersAsync()
+        {
+            var userId = _userClaimHelper.GetUserId();
+            var offers = await _offerHandler.GetTransitOffersAsync(userId);
+            return Ok(offers);
+        }
     }
 }
