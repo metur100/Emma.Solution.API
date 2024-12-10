@@ -54,7 +54,6 @@ namespace Emma.Api.Repositories.OfferRepository
             return sentOffers;
         }
 
-
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
             var userId = _jWTHelper.GetUserId();
@@ -66,7 +65,6 @@ namespace Emma.Api.Repositories.OfferRepository
                               Id = o.Id,
                               OfferFor = o.OfferFor,
                               OfferFrom = o.OfferFrom,
-                              Status = o.Status,
                               FirstOfferPrice = f.TransportPrice,
                               SecondOfferPrice = o.NewTransportPrice,
                               Comment = o.Comment,
@@ -93,14 +91,11 @@ namespace Emma.Api.Repositories.OfferRepository
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
-            // Ensure the user is not creating an invalid offer
             if (await IsInvalidOfferAsync(userId, offer.VehicleId, offer.FreightId))
             {
                 throw new InvalidOperationException("You cannot create an offer with both your vehicle and your freight.");
             }
 
-            // Set the initial status and save the offer
-            offer.Status = "Ponuda u obradi";
             await _context.Offers.AddAsync(offer);
             await _context.SaveChangesAsync();
         }

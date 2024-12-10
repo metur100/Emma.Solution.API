@@ -7,7 +7,6 @@
         public int FreightId { get; set; }
         public required string OfferFor { get; set; }
         public required string OfferFrom { get; set; }
-        public required string Status { get; set; }
         public string? NewTransportPrice { get; set; } 
         public string? Comment { get; set; } 
     }

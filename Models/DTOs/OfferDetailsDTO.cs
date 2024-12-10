@@ -7,7 +7,6 @@ namespace Emma.Api.Models.DTOs
         public int Id { get; set; }
         public required string OfferFor { get; set; }
         public required string OfferFrom { get; set; }
-        public required string Status { get; set; }
         public required string FirstOfferPrice { get; set; }
         public string? SecondOfferPrice { get; set; }
         public string? Comment { get; set; }

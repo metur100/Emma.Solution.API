@@ -11,6 +11,8 @@ using Emma.Api.Repositories.VehicleRepository;
 using Emma.Api.Handlers.OfferHandler;
 using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Helpers.JWTHelper;
+using Emma.Api.Handlers.StatusHandler;
+using Emma.Api.Repositories.StatusRepository;
 
 namespace Emma.Api
 {
@@ -25,6 +27,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IFreightHandler, FreightHandler>();
             builder.Services.AddScoped<IUserHandler, UserHandler>();
             builder.Services.AddScoped<IOfferHandler, OfferHandler>();
+            builder.Services.AddScoped<IStatusHandler, StatusHandler>();
 
             builder.Services.AddScoped<IJWTHelper, JWTHelper>();
             builder.Services.AddHttpContextAccessor();
@@ -41,6 +44,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IFreightRepository, FreightRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IOfferRepository, OfferRepository>();
+            builder.Services.AddScoped<IStatusRepository, StatusRepository>();
 
             #endregion
 
