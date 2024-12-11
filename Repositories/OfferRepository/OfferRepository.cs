@@ -102,6 +102,8 @@ namespace Emma.Api.Repositories.OfferRepository
                               Id = o.Id,
                               OfferFor = o.OfferFor,
                               OfferFrom = o.OfferFrom,
+                              Transporter = o.Transporter,
+                              FreightForTransport = o.FreightForTransport,
                               FirstOfferPrice = f.TransportPrice,
                               SecondOfferPrice = o.NewTransportPrice,
                               Comment = o.Comment,
