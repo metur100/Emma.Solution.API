@@ -16,5 +16,6 @@ namespace Emma.Api.Repositories.ProfileRepository
         Task DeleteProfileByIdAsync(int id);
         Task<Profile?> GetProfileByIdAsync(int profileId);
         Task<List<int>> GetUserProfileIdsByUserIdAsync(int userId);
+        Task<int> GetProfileIdByIdAsync(int profileId);
     }
 }

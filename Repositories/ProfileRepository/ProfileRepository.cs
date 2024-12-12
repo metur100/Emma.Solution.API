@@ -56,6 +56,16 @@ namespace Emma.Api.Repositories.ProfileRepository
             return profile == null ? throw new Exception("User not found") : profile.Id;
         }
 
+        public async Task<int> GetProfileIdByIdAsync(int profileId)
+        {
+            var user = await _context.Profiles
+                .Where(p => p.Id == profileId)
+                .Select(p => p.Id)
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
+
         public async Task<ProfileInfoDTO> GetUserProfileInformations(int id)
         {
             var profile = await _context.Profiles
