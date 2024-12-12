@@ -33,5 +33,12 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
+        [HttpGet("{offerId}")]
+        public async Task<IActionResult> GetStatusTypeByOfferId(int offerId)
+        {
+            var result = await _statusHandler.GetStatusTypeByOfferId(offerId);
+            return Ok(result);
+        }
     }
 }

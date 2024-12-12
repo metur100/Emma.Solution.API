@@ -19,5 +19,10 @@ namespace Emma.Api.Handlers.StatusHandler
 
             await _statusRepository.CreateStatusAsync(newStatus);
         }
+
+        public async Task<int> GetStatusTypeByOfferId(int offerId)
+        {
+            return await _statusRepository.GetStatusTypeByOfferId(offerId);
+        }
     }
 }

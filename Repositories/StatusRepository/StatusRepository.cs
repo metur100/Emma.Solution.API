@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.StatusRepository
 {
@@ -11,6 +12,18 @@ namespace Emma.Api.Repositories.StatusRepository
             _context.Statuses.Add(status);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetStatusTypeByOfferId(int offerId)
+        {
+            var statusType = await _context.Statuses
+                .Where(s => s.OfferId == offerId)
+                .OrderByDescending(s => s.CreatedAt) 
+                .Select(s => s.StatusType)
+                .FirstOrDefaultAsync();
+
+            return statusType;
+        }
+
     }
 }
 
