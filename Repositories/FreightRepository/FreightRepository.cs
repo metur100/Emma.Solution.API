@@ -15,42 +15,16 @@ namespace Emma.Api.Repositories.FreightRepository
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Freight?> GetFreightByProfileAndIdAsync(int profileId, int freightId)
+        {
+            return await _context.Freights
+                .Where(f => f.ProfileId == profileId && f.Id == freightId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<Freight>> GetAllFreightsAsync()
         {
             return await _context.Freights.ToListAsync();
-        }
-
-        public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freightId)
-        {
-            var freight = await _context.Freights
-                .Where(f => f.ProfileId == profileId && f.Id == freightId)
-                .Join(_context.Profiles, freight => freight.ProfileId, user => user.Id, (freight, user) => new { freight, user })
-                .Join(_context.Addresses, temp => temp.user.AddressId, address => address.Id, (temp, address) => new { temp.freight, temp.user, address })
-                .Join(_context.Contacts, temp => temp.user.ContactId, contact => contact.Id, (temp, contact) => new FreightInformationsDTO
-                {
-                    Id = temp.freight.Id,
-                    ProfileId = temp.freight.ProfileId,
-                    UserName = temp.user.Name,
-                    StreetAndNumber = temp.address.StreetAndNumber,
-                    PostalCode = temp.address.PostalCode,
-                    City = temp.address.City,
-                    Email = contact.Email,
-                    PhoneNumber = contact.PhoneNumber,
-                    LoadingAddress = temp.freight.LoadingAddress,
-                    UnloadingAddress = temp.freight.UnloadingAddress,
-                    TransportPrice = temp.freight.TransportPrice,
-                    Status = temp.freight.Status,
-                    Distance = temp.freight.Distance,
-                    GoodsDescription = temp.freight.GoodsDescription,
-                    GoodsType = temp.freight.GoodsType,
-                    GoodsWeight = temp.freight.GoodsWeight,
-                    GoodsLength = temp.freight.GoodsLength,
-                    GoodsPrice = temp.freight.GoodsPrice,
-                    AvailabilityDate = temp.freight.AvailabilityDate
-                })
-                .FirstOrDefaultAsync();
-
-            return freight ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
         }
 
         public async Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId)

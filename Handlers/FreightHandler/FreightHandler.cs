@@ -1,14 +1,21 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Emma.Api.Repositories.AddressRepository;
+using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.FreightRepository;
 using Emma.Api.Repositories.ProfileRepository;
 
 namespace Emma.Api.Handlers.FreightHandler
 {
-    public class FreightHandler(IFreightRepository freightRepository, IProfileRepository profileRepository) : IFreightHandler
+    public class FreightHandler(IFreightRepository freightRepository, 
+        IProfileRepository profileRepository,
+        IContactRepository contactRepository,
+        IAddressRepository addressRepository) : IFreightHandler
     {
         private readonly IFreightRepository _freightRepository = freightRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
+        private readonly IContactRepository _contactRepository = contactRepository;
+        private readonly IAddressRepository _addressRepository = addressRepository;
 
         public async Task CreateFreightAsync(Freight freight, int profileId)
         {
@@ -56,10 +63,44 @@ namespace Emma.Api.Handlers.FreightHandler
             }
         }
 
-        public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freigthId)
+        public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freightId)
         {
-            return await _freightRepository.GetFreightInformationByFreightIdAsync(profileId, freigthId);
+            try
+            {
+                var freight = await _freightRepository.GetFreightByProfileAndIdAsync(profileId, freightId) ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
+                var user = await _profileRepository.GetProfileByIdAsync(profileId) ?? throw new Exception($"User with ID {profileId} not found.");
+                var address = await _addressRepository.GetAddressByIdAsync(user.AddressId);
+                var contact = await _contactRepository.GetContactByIdAsync(user.ContactId);
+
+                return new FreightInformationsDTO
+                {
+                    Id = freight.Id,
+                    ProfileId = freight.ProfileId,
+                    UserName = user.Name,
+                    StreetAndNumber = address?.StreetAndNumber ?? "Unknown Address",
+                    PostalCode = address?.PostalCode ?? "Unknown Postal Code",
+                    City = address?.City ?? "Unknown City",
+                    Email = contact?.Email ?? "Unknown Email",
+                    PhoneNumber = contact?.PhoneNumber ?? "Unknown Phone Number",
+                    LoadingAddress = freight.LoadingAddress,
+                    UnloadingAddress = freight.UnloadingAddress,
+                    TransportPrice = freight.TransportPrice,
+                    Status = freight.Status,
+                    Distance = freight.Distance,
+                    GoodsDescription = freight.GoodsDescription,
+                    GoodsType = freight.GoodsType,
+                    GoodsWeight = freight.GoodsWeight,
+                    GoodsLength = freight.GoodsLength,
+                    GoodsPrice = freight.GoodsPrice,
+                    AvailabilityDate = freight.AvailabilityDate
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching freight information: {ex.Message}");
+            }
         }
+
 
         public async Task<Freight> GetFreightByIdAsync(int id)
         {

@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.ContactRepository
 {
@@ -11,6 +12,13 @@ namespace Emma.Api.Repositories.ContactRepository
             _context.Contacts.Add(contact);
             await _context.SaveChangesAsync();
             return contact.Id;
+        }
+
+        public async Task<Contact?> GetContactByIdAsync(int contactId)
+        {
+            return await _context.Contacts
+                .Where(contact => contact.Id == contactId)
+                .FirstOrDefaultAsync();
         }
     }
 }

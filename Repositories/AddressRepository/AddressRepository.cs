@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.AddressRepository
 {
@@ -11,6 +12,13 @@ namespace Emma.Api.Repositories.AddressRepository
             _context.Addresses.Add(address);
             await _context.SaveChangesAsync();
             return address.Id;
+        }
+
+        public async Task<Address?> GetAddressByIdAsync(int addressId)
+        {
+            return await _context.Addresses
+                .Where(address => address.Id == addressId)
+                .FirstOrDefaultAsync();
         }
     }
 }

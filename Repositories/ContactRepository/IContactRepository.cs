@@ -5,5 +5,6 @@ namespace Emma.Api.Repositories.ContactRepository
     public interface IContactRepository
     {
         Task<int> CreateContact(Contact contact);
+        Task<Contact?> GetContactByIdAsync(int contactId);
     }
 }

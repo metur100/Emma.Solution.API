@@ -5,7 +5,6 @@ namespace Emma.Api.Repositories.FreightRepository
 {
     public interface IFreightRepository
     {
-        Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freightId);
         Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId);
         Task UpdateFreightAsync(Freight freight);
         Task<Freight> GetFreightByIdAsync(int id);
@@ -13,5 +12,6 @@ namespace Emma.Api.Repositories.FreightRepository
         Task<string?> GetProfileNameByFreightIdAsync(int freightId);
         Task AddFreightAsync(Freight freight);
         Task<List<Freight>> GetAllFreightsAsync();
+        Task<Freight?> GetFreightByProfileAndIdAsync(int profileId, int freightId);
     }
 }
