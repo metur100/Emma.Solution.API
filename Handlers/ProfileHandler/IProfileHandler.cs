@@ -19,7 +19,7 @@ namespace Emma.Api.Handlers.ProfileHandler
         Task<string> GetProfileNameByUserId(int userId);
         Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId);
         Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO);
-        Task<UpdateProfileDTO> HandleGetProfileByIdAsync(int id);
-        Task HandleDeleteProfileByIdAsync(int id);
+        Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id);
+        Task DeleteProfileByIdAsync(int profileId);
     }
 }

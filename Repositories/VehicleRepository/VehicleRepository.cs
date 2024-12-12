@@ -1,14 +1,11 @@
 ﻿using Emma.Api.Models;
-using Emma.Api.Models.DTOs;
-using Emma.Api.Repositories.ProfileRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.VehicleRepository
 {
-    public class VehicleRepository(AppDbContext context, IProfileRepository profileRepository) : IVehicleRepository
+    public class VehicleRepository(AppDbContext context) : IVehicleRepository
     {
         private readonly AppDbContext _context = context;
-        private readonly IProfileRepository _profileRepository = profileRepository;
 
         public async Task AddVehicleAsync(Vehicle vehicle)
         {
@@ -28,37 +25,13 @@ namespace Emma.Api.Repositories.VehicleRepository
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
+        public async Task<List<Vehicle>> GetVehiclesByProfileIdsAsync(List<int> profileIds)
         {
-            return await _context.Vehicles
-                .Where(vehicle => vehicle.ProfileId == profileId)
-                .ToListAsync();
-        }
-
-
-        public async Task<IEnumerable<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId)
-        {
-            var userProfileIds = await _context.Set<Profile>()
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            if (!userProfileIds.Any())
-            {
-                return Enumerable.Empty<VehicleManagementDTO>();
-            }
-
             return await _context.Set<Vehicle>()
-                .Where(f => userProfileIds.Contains(f.ProfileId))
-                .Select(f => new VehicleManagementDTO
-                {
-                    Id = f.Id,
-                    Brand = f.Brand,
-                    BodyType = f.BodyType,
-                    PayloadCapacity = f.PayloadCapacity
-                })
+                .Where(f => profileIds.Contains(f.ProfileId))
                 .ToListAsync();
         }
+
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
         {
@@ -66,50 +39,26 @@ namespace Emma.Api.Repositories.VehicleRepository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Vehicle> GetVehicleByIdAsync(int id)
+        public async Task<Vehicle?> GetVehicleByIdAsync(int id)
         {
             return await _context.Vehicles
                 .Where(freight => freight.Id == id)
-                .FirstOrDefaultAsync() ?? throw new Exception("");
+                .FirstOrDefaultAsync();
         }
 
-        public async Task DeleteVehicleByIdAsync(int id)
+        public async Task DeleteVehicleAsync(Vehicle vehicle)
         {
-            try
-            {
-                var vehicle = await _context.Vehicles
-                    .FirstOrDefaultAsync(f => f.Id == id);
-
-                if (vehicle == null)
-                {
-                    throw new Exception($"Vehicle with ID {id} not found.");
-                }
-
-                _context.Vehicles.Remove(vehicle);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error deleting vehicle: {ex.Message}");
-            }
+            _context.Vehicles.Remove(vehicle);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId)
         {
-            try
-            {
-                var profileName = await (from vehicle in _context.Vehicles
-                                         join profile in _context.Profiles on vehicle.ProfileId equals profile.Id
-                                         where vehicle.Id == vehicleId
-                                         select profile.Name)
-                                     .FirstOrDefaultAsync();
-
-                return profileName;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error fetching Profile Name for VehicleId {vehicleId}: {ex.Message}");
-            }
+            return await (from vehicle in _context.Vehicles
+                          join profile in _context.Profiles on vehicle.ProfileId equals profile.Id
+                          where vehicle.Id == vehicleId
+                          select profile.Name)
+                     .FirstOrDefaultAsync();
         }
     }
 }

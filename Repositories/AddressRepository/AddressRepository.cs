@@ -20,5 +20,21 @@ namespace Emma.Api.Repositories.AddressRepository
                 .Where(address => address.Id == addressId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task UpdateAddressAsync(Address address)
+        {
+            _context.Set<Address>().Update(address);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAddressAsync(int addressId)
+        {
+            var address = await GetAddressByIdAsync(addressId);
+            if (address != null)
+            {
+                _context.Addresses.Remove(address);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

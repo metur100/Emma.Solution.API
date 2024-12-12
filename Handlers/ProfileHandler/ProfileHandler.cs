@@ -3,6 +3,7 @@ using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.ProfileHandler
 {
@@ -24,7 +25,6 @@ namespace Emma.Api.Handlers.ProfileHandler
             string phoneNumber,
             int userId)
         {
-            // Create and save the address
             var address = new Address
             {
                 StreetAndNumber = streetAndNumber,
@@ -33,7 +33,6 @@ namespace Emma.Api.Handlers.ProfileHandler
             };
             var addressId = await _addressRepository.CreateAddress(address);
 
-            // Create and save the contact
             var contact = new Contact
             {
                 Email = email,
@@ -41,7 +40,6 @@ namespace Emma.Api.Handlers.ProfileHandler
             };
             var contactId = await _contactRepository.CreateContact(contact);
 
-            // Create the profile with the provided userId
             var profile = new Profile
             {
                 Name = name,
@@ -51,7 +49,6 @@ namespace Emma.Api.Handlers.ProfileHandler
                 UserId = userId
             };
 
-            // Call the repository method, passing the userId
             return await _profileRepository.CreateProfileAsync(profile, userId);
         }
 
@@ -59,11 +56,27 @@ namespace Emma.Api.Handlers.ProfileHandler
         {
             try
             {
-                return await _profileRepository.GetProfileNamesByUserIdAsync(userId);
+                if (userId <= 0)
+                    throw new ArgumentException("Invalid User ID.");
+
+                var profiles = await _profileRepository.GetAllProfilesByUserIdAsync(userId);
+
+                if (profiles == null || !profiles.Any())
+                    throw new Exception($"No profiles found for user with ID {userId}");
+
+                return profiles.Select(p => new ProfileDto
+                {
+                    Id = p.Id,
+                    UserName = p.Name
+                }).ToList();
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new Exception($"Invalid input: {argEx.Message}", argEx);
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while retrieving the user profiles for user ID {userId}: {ex.Message}", ex);
+                throw new Exception($"Error fetching profiles for user with ID {userId}: {ex.Message}", ex);
             }
         }
 
@@ -71,44 +84,231 @@ namespace Emma.Api.Handlers.ProfileHandler
         {
             try
             {
-                return await _profileRepository.GetUserProfileInformations(id);
+                if (id <= 0)
+                    throw new ArgumentException("Invalid User ID.");
+
+                var profile = await _profileRepository.GetProfileByIdAsync(id) ?? throw new Exception("User not found.");
+                var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+                var contact = await _contactRepository.GetContactByIdAsync(profile.ContactId);
+
+                var userProfile = new ProfileInfoDTO
+                {
+                    Id = profile.Id,
+                    UserName = profile.Name,
+                    ProfilePicture = profile.ProfilePicture,
+                    StreetAndNumber = address?.StreetAndNumber ?? string.Empty,
+                    PostalCode = address?.PostalCode ?? string.Empty,
+                    City = address?.City ?? string.Empty,
+                    Email = contact?.Email ?? string.Empty,
+                    PhoneNumber = contact?.PhoneNumber ?? string.Empty,
+                    Ratings = profile.Ratings
+                };
+
+                return userProfile;
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new Exception($"Invalid input: {argEx.Message}", argEx);
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while retrieving the user profile for user ID {id}: {ex.Message}", ex);
+                throw new Exception($"Error fetching user profile information for ID {id}: {ex.Message}", ex);
             }
         }
+
 
         public async Task<string> GetProfileNameByUserId(int userId)
         {
             try
             {
-                return await _profileRepository.GetProfileNameByUserId(userId);
+                if (userId <= 0)
+                    throw new ArgumentException("Invalid User ID.");
+
+                var profileName = await _profileRepository.GetProfileNameByUserIdAsync(userId);
+
+                if (profileName == null)
+                    throw new Exception($"Profile not found for UserId: {userId}");
+
+                return profileName;
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new Exception($"Invalid input: {argEx.Message}", argEx);
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error occurred while retrieving the user profile for user ID {userId}: {ex.Message}", ex);
+                throw new Exception($"Error fetching profile name for UserId {userId}: {ex.Message}", ex);
             }
         }
 
+
         public async Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId)
         {
-            return await _profileRepository.GetProfilesByUserIdAsync(userId);
+            try
+            {
+                if (userId <= 0)
+                    throw new ArgumentException("Invalid User ID.");
+
+                var profiles = await _profileRepository.GetProfilesByUserIdAsync(userId);
+
+                if (!profiles.Any())
+                    return Enumerable.Empty<ProfileManagementDTO>();
+
+                var profileDtos = new List<ProfileManagementDTO>();
+
+                foreach (var profile in profiles)
+                {
+                    var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+
+                    profileDtos.Add(new ProfileManagementDTO
+                    {
+                        Id = profile.Id,
+                        Name = profile.Name,
+                        City = address?.City ?? "Unknown"
+                    });
+                }
+
+                return profileDtos;
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new Exception($"Invalid input: {argEx.Message}", argEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching profiles for UserId {userId}: {ex.Message}", ex);
+            }
         }
 
         public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO)
         {
-            await _profileRepository.UpdateProfileAsync(profileId, updateProfileDTO);
+            try
+            {
+                var profile = await _profileRepository.GetProfileByIdAsync(profileId) ?? throw new KeyNotFoundException("Profile not found.");
+                profile.Name = updateProfileDTO.Name;
+
+                var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+                if (address != null)
+                {
+                    address.StreetAndNumber = updateProfileDTO.StreetAndNumber;
+                    address.City = updateProfileDTO.City;
+                    address.PostalCode = updateProfileDTO.PostalCode;
+
+                    await _addressRepository.UpdateAddressAsync(address);
+                }
+                else
+                {
+                    throw new KeyNotFoundException("Address not found.");
+                }
+
+                var contact = await _contactRepository.GetContactByIdAsync(profile.ContactId);
+                if (contact != null)
+                {
+                    contact.Email = updateProfileDTO.Email;
+                    contact.PhoneNumber = updateProfileDTO.PhoneNumber;
+
+                    await _contactRepository.UpdateContactAsync(contact);
+                }
+                else
+                {
+                    throw new KeyNotFoundException("Contact not found.");
+                }
+
+                await _profileRepository.UpdateProfileAsync(profile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                throw new Exception($"Not found: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating profile with ID {profileId}: {ex.Message}", ex);
+            }
         }
 
-        public async Task<UpdateProfileDTO> HandleGetProfileByIdAsync(int id)
+
+        public async Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id)
         {
-            return await _profileRepository.GetUpdateProfileByIdAsync(id);
+            try
+            {
+                var profile = await _profileRepository.GetProfileByIdAsync(id);
+                if (profile == null)
+                {
+                    throw new KeyNotFoundException("Profile not found");
+                }
+
+                var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+                if (address == null)
+                {
+                    throw new KeyNotFoundException("Address not found");
+                }
+
+                var contact = await _contactRepository.GetContactByIdAsync(profile.ContactId);
+                if (contact == null)
+                {
+                    throw new KeyNotFoundException("Contact not found");
+                }
+
+                var updateProfileDTO = new UpdateProfileDTO
+                {
+                    Id = profile.Id,
+                    Name = profile.Name,
+                    StreetAndNumber = address.StreetAndNumber,
+                    City = address.City,
+                    PostalCode = address.PostalCode,
+                    Email = contact.Email,
+                    PhoneNumber = contact.PhoneNumber
+                };
+
+                return updateProfileDTO;
+            }
+            catch (KeyNotFoundException ex)
+            {
+                throw new Exception($"Not found: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving profile information for ID {id}: {ex.Message}", ex);
+            }
         }
 
-        public async Task HandleDeleteProfileByIdAsync(int id)
+        public async Task DeleteProfileByIdAsync(int profileId)
         {
-            await _profileRepository.DeleteProfileByIdAsync(id);
+            try
+            {
+                var profile = await _profileRepository.GetProfileByIdAsync(profileId) 
+                    ?? throw new KeyNotFoundException($"Profile with ID {profileId} not found.");
+                var userProfileCount = await _profileRepository.CountProfilesByUserIdAsync(profile.UserId);
+
+                if (userProfileCount <= 1)
+                {
+                    throw new InvalidOperationException("Cannot delete the only profile for the user.");
+                }
+
+                await _profileRepository.DeleteProfileAsync(profileId);
+
+                if (profile.AddressId > 0)
+                {
+                    await _addressRepository.DeleteAddressAsync(profile.AddressId);
+                }
+
+                if (profile.ContactId > 0)
+                {
+                    await _contactRepository.DeleteContactAsync(profile.ContactId);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new Exception($"Operation failed: {ex.Message}", ex);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                throw new Exception($"Database update error: {dbEx.InnerException?.Message ?? dbEx.Message}", dbEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting profile: {ex.Message}", ex);
+            }
         }
     }
 }

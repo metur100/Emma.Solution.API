@@ -116,7 +116,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var profile = await _profileHandler.HandleGetProfileByIdAsync(id);
+                var profile = await _profileHandler.GetUpdateProfileByIdAsync(id);
                 return Ok(profile);
             }
             catch (KeyNotFoundException ex)
@@ -134,7 +134,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                await _profileHandler.HandleDeleteProfileByIdAsync(id);
+                await _profileHandler.DeleteProfileByIdAsync(id);
                 return NoContent();
             }
             catch (KeyNotFoundException ex)

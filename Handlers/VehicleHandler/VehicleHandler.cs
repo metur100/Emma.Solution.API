@@ -21,7 +21,7 @@ namespace Emma.Api.Handlers.VehicleHandler
         {
             try
             {
-                var userProfileId = await _profileRepository.GetProfileIdByIdAsync(profileId);
+                var userProfileId = await _profileRepository.GetProfileIdById(profileId);
 
                 if (userProfileId == 0)
                 {
@@ -116,34 +116,40 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
+        public async Task<Vehicle?> GetVehicleByIdAsync(int id)
         {
             try
             {
-                var vehicles = await _vehicleRepository.GetVehiclesByProfileIdAsync(profileId);
-
-                if (vehicles == null || !vehicles.Any())
-                {
-                    throw new Exception($"No vehicles found for profile {profileId}.");
-                }
-
-                return vehicles;
+                var vehicle = await _vehicleRepository.GetVehicleByIdAsync(id) 
+                    ?? throw new Exception($"Vehicle with ID {id} not found.");
+                return vehicle;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching vehicles for user {profileId}: {ex.Message}");
+                throw new Exception($"Error fetching vehicle with ID {id}: {ex.Message}", ex);
             }
         }
 
-
-        public async Task<Vehicle> GetVehicleByIdAsync(int id)
+        public async Task<List<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId)
         {
-            return await _vehicleRepository.GetVehicleByIdAsync(id);
-        }
+            var userProfileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
 
-        public async Task<IEnumerable<VehicleManagementDTO>> GetVehiclesByUserIdAsync(int userId)
-        {
-            return await _vehicleRepository.GetVehiclesByUserIdAsync(userId);
+            if (userProfileIds == null || !userProfileIds.Any())
+            {
+                return [];
+            }
+
+            var vehicles = await _vehicleRepository.GetVehiclesByProfileIdsAsync(userProfileIds);
+
+            var vehicleDtos = vehicles.Select(v => new VehicleManagementDTO
+            {
+                Id = v.Id,
+                Brand = v.Brand,
+                BodyType = v.BodyType,
+                PayloadCapacity = v.PayloadCapacity
+            }).ToList();
+
+            return vehicleDtos;
         }
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
@@ -167,12 +173,31 @@ namespace Emma.Api.Handlers.VehicleHandler
 
         public async Task DeleteVehicleByIdAsync(int id)
         {
-            await _vehicleRepository.DeleteVehicleByIdAsync(id);
+            try
+            {
+                var vehicle = await _vehicleRepository.GetVehicleByIdAsync(id)
+                    ?? throw new Exception($"Vehicle with ID {id} not found.");
+                await _vehicleRepository.DeleteVehicleAsync(vehicle);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting vehicle: {ex.Message}");
+            }
         }
 
         public async Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId)
         {
-            return await _vehicleRepository.GetProfileNameByVehicleIdAsync(vehicleId);
+            try
+            {
+                var profileName = await _vehicleRepository.GetProfileNameByVehicleIdAsync(vehicleId);
+
+                return profileName == null ? throw new Exception($"Profile name not found for vehicle with ID {vehicleId}.") : profileName;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching Profile Name for VehicleId {vehicleId}: {ex.Message}");
+            }
         }
+
     }
 }

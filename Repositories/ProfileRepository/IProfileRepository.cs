@@ -6,16 +6,15 @@ namespace Emma.Api.Repositories.ProfileRepository
     public interface IProfileRepository
     {
         Task<int> CreateProfileAsync(Profile profile, int userId);
-        Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId);
-        Task<int> GetProfileIdById(int id);
-        Task<ProfileInfoDTO> GetUserProfileInformations(int id);
-        Task<string> GetProfileNameByUserId(int userId);
-        Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId);
-        Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO);
-        Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id);
-        Task DeleteProfileByIdAsync(int id);
+        Task<string?> GetProfileNameByUserIdAsync(int userId);
+        Task<List<Profile>> GetProfilesByUserIdAsync(int userId);
+        Task UpdateProfileAsync(Profile profile);
+        Task DeleteProfileAsync(int profileId);
         Task<Profile?> GetProfileByIdAsync(int profileId);
         Task<List<int>> GetUserProfileIdsByUserIdAsync(int userId);
-        Task<int> GetProfileIdByIdAsync(int profileId);
+        Task<int> GetProfileIdById(int profileId);
+        Task<List<Profile>> GetAllProfilesByUserIdAsync(int userId);
+        Task<Profile?> GetProfileInfoByIdAsync(int id);
+        Task<int> CountProfilesByUserIdAsync(int userId);
     }
 }

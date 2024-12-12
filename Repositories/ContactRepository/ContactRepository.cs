@@ -20,5 +20,21 @@ namespace Emma.Api.Repositories.ContactRepository
                 .Where(contact => contact.Id == contactId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task UpdateContactAsync(Contact contact)
+        {
+            _context.Set<Contact>().Update(contact);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteContactAsync(int contactId)
+        {
+            var contact = await GetContactByIdAsync(contactId);
+            if (contact != null)
+            {
+                _context.Contacts.Remove(contact);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

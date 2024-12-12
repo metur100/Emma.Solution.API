@@ -6,5 +6,7 @@ namespace Emma.Api.Repositories.AddressRepository
     {
         Task<int> CreateAddress(Address address);
         Task<Address?> GetAddressByIdAsync(int addressId);
+        Task UpdateAddressAsync(Address address);
+        Task DeleteAddressAsync(int addressId);
     }
 }
