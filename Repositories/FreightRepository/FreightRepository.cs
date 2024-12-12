@@ -5,56 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.FreightRepository
 {
-    public class FreightRepository(AppDbContext context, IProfileRepository profileRepository) : IFreightRepository
+    public class FreightRepository(AppDbContext context) : IFreightRepository
     {
         private readonly AppDbContext _context = context;
-        private readonly IProfileRepository _profileRepository = profileRepository;
 
-        public async Task CreateFreightAsync(Freight freight, int profileId)
+        public async Task AddFreightAsync(Freight freight)
         {
-            try
-            {
-                var user = await _profileRepository.GetProfileById(profileId);
-
-                freight.ProfileId = user;
-
-                _context.Freights.Add(freight);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error creating freight: {ex.Message}");
-            }
+            _context.Freights.Add(freight);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<List<FreightListDTO>> GetAllFreightsAsync()
+        public async Task<List<Freight>> GetAllFreightsAsync()
         {
-            try
-            {
-                var freights = await _context.Freights
-                    .Select(freight => new FreightListDTO
-                    {
-                        Id = freight.Id,
-                        ProfileId = freight.ProfileId,
-                        UserName = _context.Profiles
-                            .Where(user => user.Id == freight.ProfileId)
-                            .Select(user => user.Name)
-                            .FirstOrDefault() ?? "Unknown User",
-                        ProfilePicture = _context.Profiles
-                            .Where(user => user.Id == freight.ProfileId)
-                            .Select(user => user.ProfilePicture)
-                            .FirstOrDefault() ?? "Unknown Picture",
-                        LoadingAddress = freight.LoadingAddress,
-                        AvailabilityDate = freight.AvailabilityDate
-                    })
-                    .ToListAsync();
-
-                return freights;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error fetching all freights: {ex.Message}");
-            }
+            return await _context.Freights.ToListAsync();
         }
 
         public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freightId)

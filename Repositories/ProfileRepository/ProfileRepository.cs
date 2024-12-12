@@ -17,6 +17,13 @@ namespace Emma.Api.Repositories.ProfileRepository
             return profile.Id;
         }
 
+        public async Task<Profile?> GetProfileByIdAsync(int profileId)
+        {
+            return await _context.Profiles
+                .Where(user => user.Id == profileId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId)
         {
             if (userId <= 0)
@@ -32,7 +39,7 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .ToListAsync();
         }
 
-        public async Task<int> GetProfileById(int id)
+        public async Task<int> GetProfileIdById(int id)
         {
             var profile = await _context.Profiles
                 .Where(u => u.Id == id)
@@ -156,7 +163,7 @@ namespace Emma.Api.Repositories.ProfileRepository
         }
 
 
-        public async Task<UpdateProfileDTO> GetProfileByIdAsync(int id)
+        public async Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id)
         {
             var profile = await _context.Profiles
                 .Where(p => p.Id == id)

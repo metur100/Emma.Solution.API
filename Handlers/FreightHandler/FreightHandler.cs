@@ -1,30 +1,59 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.FreightRepository;
-using Microsoft.EntityFrameworkCore;
+using Emma.Api.Repositories.ProfileRepository;
 
 namespace Emma.Api.Handlers.FreightHandler
 {
-    public class FreightHandler(IFreightRepository freightRepository) : IFreightHandler
+    public class FreightHandler(IFreightRepository freightRepository, IProfileRepository profileRepository) : IFreightHandler
     {
         private readonly IFreightRepository _freightRepository = freightRepository;
+        private readonly IProfileRepository _profileRepository = profileRepository;
 
         public async Task CreateFreightAsync(Freight freight, int profileId)
         {
             try
             {
-                await _freightRepository.CreateFreightAsync(freight, profileId);
+                var profile = await _profileRepository.GetProfileIdById(profileId);
+                freight.ProfileId = profile;
+                await _freightRepository.AddFreightAsync(freight);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error in vehicle handler: {ex.Message}");
+                throw new Exception($"Error creating freight: {ex.Message}");
             }
         }
 
         public async Task<List<FreightListDTO>> GetAllFreightsAsync()
         {
-            var allFreights = await _freightRepository.GetAllFreightsAsync();
-            return allFreights ?? throw new Exception("");
+            try
+            {
+                var freights = await _freightRepository.GetAllFreightsAsync();
+                var freightListDTOs = new List<FreightListDTO>();
+
+                foreach (var freight in freights)
+                {
+                    var user = await _profileRepository.GetProfileByIdAsync(freight.ProfileId);
+                    var userName = user?.Name ?? "Unknown User";
+                    var profilePicture = user?.ProfilePicture ?? "Unknown Picture";
+
+                    freightListDTOs.Add(new FreightListDTO
+                    {
+                        Id = freight.Id,
+                        ProfileId = freight.ProfileId,
+                        UserName = userName,
+                        ProfilePicture = profilePicture,
+                        LoadingAddress = freight.LoadingAddress,
+                        AvailabilityDate = freight.AvailabilityDate
+                    });
+                }
+
+                return freightListDTOs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all freights: {ex.Message}");
+            }
         }
 
         public async Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freigthId)

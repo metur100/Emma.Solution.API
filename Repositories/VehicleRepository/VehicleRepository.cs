@@ -14,7 +14,7 @@ namespace Emma.Api.Repositories.VehicleRepository
         {
             try
             {
-                var user = await _profileRepository.GetProfileById(profileId);  
+                var user = await _profileRepository.GetProfileIdById(profileId);  
 
                 vehicle.ProfileId = user;
 

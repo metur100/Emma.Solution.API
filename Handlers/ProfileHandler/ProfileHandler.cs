@@ -103,7 +103,7 @@ namespace Emma.Api.Handlers.ProfileHandler
 
         public async Task<UpdateProfileDTO> HandleGetProfileByIdAsync(int id)
         {
-            return await _profileRepository.GetProfileByIdAsync(id);
+            return await _profileRepository.GetUpdateProfileByIdAsync(id);
         }
 
         public async Task HandleDeleteProfileByIdAsync(int id)
