@@ -135,10 +135,8 @@ namespace Emma.Api.Handlers.FreightHandler
 
         public async Task UpdateFreightAsync(Freight freight)
         {
-            var existingFreight = await _freightRepository.GetFreightByIdAsync(freight.Id);
-            if (existingFreight == null)
-                throw new KeyNotFoundException($"Freight with ID {freight.Id} not found.");
-
+            var existingFreight = await _freightRepository.GetFreightByIdAsync(freight.Id) 
+                ?? throw new KeyNotFoundException($"Freight with ID {freight.Id} not found.");
             existingFreight.LoadingAddress = freight.LoadingAddress;
             existingFreight.UnloadingAddress = freight.UnloadingAddress;
             existingFreight.TransportPrice = freight.TransportPrice;
@@ -154,14 +152,33 @@ namespace Emma.Api.Handlers.FreightHandler
             await _freightRepository.UpdateFreightAsync(existingFreight);
         }
 
-        public async Task DeleteFreightByIdAsync(int id)
+        public async Task DeleteFreightByIdAsync(int freightId)
         {
-            await _freightRepository.DeleteFreightByIdAsync(id);
+            try
+            {
+                var freight = await _freightRepository.GetFreightByIdAsync(freightId) 
+                    ?? throw new Exception($"Freight with ID {freightId} not found.");
+                await _freightRepository.DeleteFreightAsync(freight);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error deleting freight: {ex.Message}");
+            }
         }
 
         public async Task<string?> GetProfileNameByFreightIdAsync(int freightId)
         {
-            return await _freightRepository.GetProfileNameByFreightIdAsync(freightId);
+            try
+            {
+                var profileName = await _freightRepository.GetProfileNameByFreightIdAsync(freightId) 
+                    ?? throw new Exception($"Profile name not found for FreightId {freightId}");
+                return profileName;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching Profile Name for FreightId {freightId}: {ex.Message}");
+            }
         }
+
     }
 }
