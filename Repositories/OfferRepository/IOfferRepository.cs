@@ -10,5 +10,6 @@ namespace Emma.Api.Repositories.OfferRepository
         Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId);
         Task<IEnumerable<Offer>> GetSentOffersAsync(int userId);
         Task<IEnumerable<Offer>> GetTransitOffersAsync(int userId);
+        Task<IEnumerable<Offer>> GetDeclinedOffersAsync(int userId);
     }
 }

@@ -44,5 +44,10 @@ namespace Emma.Api.Handlers.OfferHandler
         {
             return await _offerRepository.GetTransitOffersAsync(userId);
         }
+
+        public async Task<IEnumerable<Offer>> GetDeclinedOffersAsync(int userId)
+        {
+            return await _offerRepository.GetDeclinedOffersAsync(userId);
+        }
     }
 }

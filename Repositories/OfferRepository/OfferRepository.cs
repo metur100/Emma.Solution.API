@@ -131,6 +131,61 @@ namespace Emma.Api.Repositories.OfferRepository
             return transitOffers;
         }
 
+        public async Task<IEnumerable<Offer>> GetDeclinedOffersAsync(int userId)
+        {
+            // Get the names of the user's profiles
+            var userProfileNames = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Name)
+                .ToListAsync();
+
+            // Get the IDs of the user's profiles
+            var userProfiles = await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            // Get the IDs of the user's vehicles
+            var userVehicles = await _context.Vehicles
+                .Where(v => userProfiles.Contains(v.ProfileId))
+                .Select(v => v.Id)
+                .ToListAsync();
+
+            // Get the IDs of the user's freights
+            var userFreights = await _context.Freights
+                .Where(f => userProfiles.Contains(f.ProfileId))
+                .Select(f => f.Id)
+                .ToListAsync();
+
+            // Get the latest statuses for all offers
+            var latestStatuses = await _context.Statuses
+                .GroupBy(s => s.OfferId)
+                .Select(g => new
+                {
+                    OfferId = g.Key,
+                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
+                })
+                .ToListAsync();
+
+            // Filter for declined offers based on the latest status
+            var declinedOfferIds = latestStatuses
+                .Where(ls => ls.LatestStatusType == (int)StatusType.Declined)
+                .Select(ls => ls.OfferId)
+                .ToList();
+
+            // Get declined offers that match the criteria
+            var declinedOffers = await _context.Offers
+                .Where(o =>
+                    (userProfileNames.Contains(o.OfferFrom) && declinedOfferIds.Contains(o.Id)) ||
+                    (!userProfileNames.Contains(o.OfferFrom) &&
+                     (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
+                     declinedOfferIds.Contains(o.Id)))
+                .ToListAsync();
+
+            return declinedOffers;
+        }
+
+
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
             var userId = _jWTHelper.GetUserId();
