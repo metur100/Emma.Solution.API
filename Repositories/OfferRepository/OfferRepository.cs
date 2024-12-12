@@ -13,29 +13,51 @@ namespace Emma.Api.Repositories.OfferRepository
 
         public async Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId)
         {
+            // Get the names of the user's profiles
             var userProfileNames = await _context.Profiles
                 .Where(p => p.UserId == userId)
                 .Select(p => p.Name)
                 .ToListAsync();
 
+            // Get the IDs of the user's profiles
             var userProfiles = await _context.Profiles
                 .Where(p => p.UserId == userId)
                 .Select(p => p.Id)
                 .ToListAsync();
 
+            // Get the IDs of the user's vehicles
             var userVehicles = await _context.Vehicles
                 .Where(v => userProfiles.Contains(v.ProfileId))
                 .Select(v => v.Id)
                 .ToListAsync();
 
+            // Get the IDs of the user's freights
             var userFreights = await _context.Freights
                 .Where(f => userProfiles.Contains(f.ProfileId))
                 .Select(f => f.Id)
                 .ToListAsync();
 
+            // Get the latest statuses for all offers
+            var latestStatuses = await _context.Statuses
+                .GroupBy(s => s.OfferId)
+                .Select(g => new
+                {
+                    OfferId = g.Key,
+                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
+                })
+                .ToListAsync();
+
+            // Filter offers based on the latest status type and user criteria
+            var validOfferIds = latestStatuses
+                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                .Select(ls => ls.OfferId)
+                .ToList();
+
+            // Get received offers that match the criteria
             var receivedOffers = await _context.Offers
                 .Where(o => !userProfileNames.Contains(o.OfferFrom))
                 .Where(o => userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId))
+                .Where(o => validOfferIds.Contains(o.Id))
                 .ToListAsync();
 
             return receivedOffers;
@@ -43,13 +65,32 @@ namespace Emma.Api.Repositories.OfferRepository
 
         public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
         {
+            // Get the names of the user's profiles
             var userProfileNames = await _context.Profiles
                 .Where(p => p.UserId == userId)
                 .Select(p => p.Name)
                 .ToListAsync();
 
+            // Get the latest statuses for all offers
+            var latestStatuses = await _context.Statuses
+                .GroupBy(s => s.OfferId)
+                .Select(g => new
+                {
+                    OfferId = g.Key,
+                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
+                })
+                .ToListAsync();
+
+            // Filter sent offers based on the latest status type
+            var validOfferIds = latestStatuses
+                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                .Select(ls => ls.OfferId)
+                .ToList();
+
+            // Get sent offers that match the criteria
             var sentOffers = await _context.Offers
                 .Where(o => userProfileNames.Contains(o.OfferFrom))
+                .Where(o => validOfferIds.Contains(o.Id))
                 .ToListAsync();
 
             return sentOffers;
@@ -89,7 +130,6 @@ namespace Emma.Api.Repositories.OfferRepository
 
             return transitOffers;
         }
-
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {

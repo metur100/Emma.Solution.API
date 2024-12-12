@@ -3,8 +3,8 @@
     public enum StatusType
     {
         Created = 1,
-        Declined,
         CounterOffer,
+        Declined,
         PreperingForTransit,
         InTransit,
         Arrived,
