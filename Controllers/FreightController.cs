@@ -75,7 +75,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var result = await _freightHandler.GetFreightsByUserAsync(userId);
+                var result = await _freightHandler.GetFreightsByUserIdAsync(userId);
                 return Ok(result);
             }
             catch (Exception ex)

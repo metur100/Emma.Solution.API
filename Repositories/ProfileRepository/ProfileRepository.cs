@@ -24,6 +24,14 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<int>> GetUserProfileIdsByUserIdAsync(int userId)
+        {
+            return await _context.Set<Profile>()
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+        }
+
         public async Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId)
         {
             if (userId <= 0)

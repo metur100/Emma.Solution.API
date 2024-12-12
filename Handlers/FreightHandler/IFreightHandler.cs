@@ -9,7 +9,7 @@ namespace Emma.Api.Handlers.FreightHandler
         Task<List<FreightListDTO>> GetAllFreightsAsync();
         Task<FreightInformationsDTO> GetFreightInformationByFreightIdAsync(int profileId, int freigthId);
         Task<Freight> GetFreightByIdAsync(int id);
-        Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserAsync(int userId);
+        Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId);
         Task UpdateFreightAsync(Freight freight);
         Task DeleteFreightByIdAsync(int id);
         Task<string?> GetProfileNameByFreightIdAsync(int freightId);

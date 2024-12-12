@@ -107,9 +107,30 @@ namespace Emma.Api.Handlers.FreightHandler
             return await _freightRepository.GetFreightByIdAsync(id);
         }
 
-        public async Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserAsync(int userId)
+        public async Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId)
         {
-            return await _freightRepository.GetFreightsByUserIdAsync(userId);
+            try
+            {
+                var userProfileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+                if (!userProfileIds.Any())
+                {
+                    return Enumerable.Empty<FreightManagementDTO>();
+                }
+
+                var freights = await _freightRepository.GetFreightsByProfileIdsAsync(userProfileIds);
+
+                return freights.Select(f => new FreightManagementDTO
+                {
+                    Id = f.Id,
+                    GoodsDescription = f.GoodsDescription,
+                    GoodsWeight = f.GoodsWeight,
+                    Distance = f.Distance
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching freights for user {userId}: {ex.Message}");
+            }
         }
 
         public async Task UpdateFreightAsync(Freight freight)
