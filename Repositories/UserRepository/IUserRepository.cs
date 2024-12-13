@@ -7,5 +7,7 @@ namespace Emma.Api.Repositories.UserRepository
         Task<User?> GetProfileByEmailAsync(string email);
         Task<User?> GetProfileByEmailAndPasswordAsync(string email, string hashedPassword);
         Task AddAsync(User user);
+        Task<User?> GetUserByTokenAsync(string token);
+        Task UpdateAsync(User user);
     }
 }

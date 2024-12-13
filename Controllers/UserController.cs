@@ -2,6 +2,7 @@
 using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata;
 
 namespace Emma.Api.Controllers
 {
@@ -29,10 +30,10 @@ namespace Emma.Api.Controllers
 
             if (result == "Profile already exists.")
             {
-                return Conflict(new { message = result }); 
+                return Conflict(new { message = result });
             }
 
-            return Ok(new { message = result }); 
+            return Ok(new { message = result });
         }
 
         [AllowAnonymous]
@@ -53,6 +54,41 @@ namespace Emma.Api.Controllers
 
             return Ok(new { Token = result });
         }
+
+        //[HttpPost("register")]
+        //public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ModelState);
+
+        //    try
+        //    {
+        //        var result = await _userHandler.RegisterUserWithConfirmationAsync(registerUserDto);
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message);
+        //    }
+        //}
+
+        [HttpGet("confirm/{token}")]
+        public async Task<IActionResult> ConfirmUser(string token)
+        {
+            try
+            {
+                var result = await _userHandler.ConfirmUserAsync(token);
+                if (result == "User successfully confirmed.")
+                    return Ok(result);
+
+                return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
 
     }
 }

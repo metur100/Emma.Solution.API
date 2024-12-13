@@ -112,20 +112,22 @@ namespace Emma.Api.Handlers.UserHandler
             }
         }
 
-        public async Task<string> RegisterUserAsynca(RegisterUserDto registerUserDto)
+        public async Task<string> RegisterUserWithConfirmationAsync(RegisterUserDto registerUserDto)
         {
             if (registerUserDto == null)
                 throw new ArgumentNullException(nameof(registerUserDto));
             try
             {
+                // Create and save user
                 var user = new User
                 {
                     Email = registerUserDto.Email,
                     Password = registerUserDto.Password,
                     Confirmed = false,
-                    ConfirmationToken = Guid.NewGuid().ToString() 
+                    ConfirmationToken = Guid.NewGuid().ToString()
                 };
 
+                // Create and save address
                 var address = new Address
                 {
                     StreetAndNumber = registerUserDto.StreetAndNumber,
@@ -133,6 +135,7 @@ namespace Emma.Api.Handlers.UserHandler
                     City = registerUserDto.City
                 };
 
+                // Create and save contact
                 var contact = new Contact
                 {
                     Email = registerUserDto.Email,
@@ -143,6 +146,7 @@ namespace Emma.Api.Handlers.UserHandler
                 await _contactRepository.CreateContact(contact);
                 await _userRepository.AddAsync(user);
 
+                // Create and save profile
                 var profile = new Profile
                 {
                     Name = registerUserDto.UserName,
@@ -153,12 +157,13 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _profileRepository.CreateProfileAsync(profile, user.Id);
 
+                // Generate confirmation email
                 var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
                 var emailSubject = "Confirm your registration";
                 var emailBody = $@"
-                    <p>Hi {registerUserDto.UserName},</p>
-                    <p>Thank you for registering. Please confirm your registration by clicking the link below:</p>
-                    <a href='{confirmationUrl}'>Confirm Registration</a>";
+                     <p>Hi {registerUserDto.UserName},</p>
+                     <p>Thank you for registering. Please confirm your registration by clicking the link below:</p>
+                     <a href='{confirmationUrl}'>Confirm Registration</a>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
@@ -170,5 +175,33 @@ namespace Emma.Api.Handlers.UserHandler
             }
         }
 
+        public async Task<string> ConfirmUserAsync(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new ArgumentException("Token is invalid.", nameof(token));
+
+            try
+            {
+                // Fetch user by token
+                var user = await _userRepository.GetUserByTokenAsync(token);
+                if (user == null)
+                    return "Invalid or expired confirmation token.";
+
+                // Check if already confirmed
+                if (user.Confirmed)
+                    return "User is already confirmed.";
+
+                // Confirm user and save
+                user.Confirmed = true;
+                user.ConfirmationToken = null; // Invalidate token
+                await _userRepository.UpdateAsync(user);
+
+                return "User successfully confirmed.";
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred during user confirmation.", ex);
+            }
+        }
     }
 }
