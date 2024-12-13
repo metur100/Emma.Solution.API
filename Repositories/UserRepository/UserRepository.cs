@@ -19,6 +19,12 @@ namespace Emma.Api.Repositories.UserRepository
                 .SingleOrDefaultAsync(p => p.Email == email && p.Password == hashedPassword);
         }
 
+        public async Task AddAsync(User user)
+        {
+            _dbContext.Users.Add(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task RegisterUserAsync(User user, Address address, Contact contact, string userName)
         {
             _dbContext.Addresses.Add(address);

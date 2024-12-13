@@ -25,7 +25,7 @@ namespace Emma.Api.Controllers
                 return BadRequest("Invalid user data.");
             }
 
-            var result = await _userHandler.RegisterAsync(dto);
+            var result = await _userHandler.RegisterUserAsync(dto);
 
             if (result == "Profile already exists.")
             {

@@ -1,48 +1,74 @@
 ﻿using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Emma.Api.Repositories.AddressRepository;
+using Emma.Api.Repositories.ContactRepository;
+using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.UserRepository;
 
 namespace Emma.Api.Handlers.UserHandler
 {
-    public class UserHandler(IUserRepository userRepository, IJWTHelper jWTHelper) : IUserHandler
+    public class UserHandler(IUserRepository userRepository, 
+        IJWTHelper jWTHelper,
+        IContactRepository contactRepository,
+        IAddressRepository addressRepository,
+        IProfileRepository profileRepository) : IUserHandler
     {
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
+        private readonly IContactRepository _contactRepository = contactRepository;
+        private readonly IAddressRepository _addressRepository = addressRepository;
+        private readonly IProfileRepository _profileRepository = profileRepository;
 
-        public async Task<string> RegisterAsync(RegisterUserDto dto)
+        public async Task<string> RegisterUserAsync(RegisterUserDto registerUserDto)
         {
-            var existingProfile = await _userRepository.GetProfileByEmailAsync(dto.Email);
-            if (existingProfile != null)
-            {
-                return "Profile already exists."; 
-            }
+            if (registerUserDto == null) throw new ArgumentNullException(nameof(registerUserDto));
 
-            var hashedPassword = _jWTHelper.HashPassword(dto.Password);
+            if (string.IsNullOrWhiteSpace(registerUserDto.Email)) throw new ArgumentException("Email cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.Password)) throw new ArgumentException("Password cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.UserName)) throw new ArgumentException("User name cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.StreetAndNumber)) throw new ArgumentException("Street and number cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.PostalCode)) throw new ArgumentException("Postal code cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.City)) throw new ArgumentException("City cannot be null or empty.");
+            if (string.IsNullOrWhiteSpace(registerUserDto.PhoneNumber)) throw new ArgumentException("Phone number cannot be null or empty.");
 
             var user = new User
             {
-                Email = dto.Email,
-                Password = hashedPassword
+                Email = registerUserDto.Email,
+                Password = registerUserDto.Password,
             };
 
             var address = new Address
             {
-                StreetAndNumber = dto.StreetAndNumber,
-                PostalCode = dto.PostalCode,
-                City = dto.City
+                StreetAndNumber = registerUserDto.StreetAndNumber,
+                PostalCode = registerUserDto.PostalCode,
+                City = registerUserDto.City
             };
 
             var contact = new Contact
             {
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber
+                Email = registerUserDto.Email,
+                PhoneNumber = registerUserDto.PhoneNumber
             };
 
-            await _userRepository.RegisterUserAsync(user, address, contact, dto.UserName);
+            await _addressRepository.CreateAddress(address);
+            await _contactRepository.CreateContact(contact);
 
-            return "Profile registered successfully."; 
+            await _userRepository.AddAsync(user);
+
+            var profile = new Profile
+            {
+                Name = registerUserDto.UserName,
+                AddressId = address.Id,
+                ContactId = contact.Id,
+                UserId = user.Id,
+            };
+
+            await _profileRepository.CreateProfileAsync(profile, user.Id);
+
+            return "User registered successfully.";
         }
+
 
         public async Task<string> LoginAsync(string email, string password)
         {
