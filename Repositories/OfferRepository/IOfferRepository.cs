@@ -5,12 +5,10 @@ namespace Emma.Api.Repositories.OfferRepository
 {
     public interface IOfferRepository
     {
-        Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId);
         Task CreateOfferAsync(Offer offer, int userId);
-        Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId);
-        Task<IEnumerable<Offer>> GetSentOffersAsync(int userId);
-        Task<IEnumerable<Offer>> GetTransitOffersAsync(int userId);
-        Task<IEnumerable<Offer>> GetDeclinedOffersAsync(int userId);
         Task<List<Offer>> GetOffersByIdsAsync(IEnumerable<int> offerIds);
+        Task<List<Offer>> GetOffersByProfileNamesAsync(IEnumerable<string> profileNames);
+        Task<List<Offer>> GetOffersAsync();
+        Task<Offer?> GetOfferByIdAsync(int offerId);
     }
 }

@@ -17,7 +17,7 @@ namespace Emma.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOfferDetails(int id)
         {
-            var offer = await _offerHandler.GetOfferDetailsAsync(id);
+            var offer = await _offerHandler.GetOfferByIdAsync(id);
             if (offer == null)
                 return NotFound();
 

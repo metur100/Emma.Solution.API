@@ -11,217 +11,6 @@ namespace Emma.Api.Repositories.OfferRepository
         private readonly AppDbContext _context = context;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
 
-        public async Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId)
-        {
-            // Get the names of the user's profiles
-            var userProfileNames = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Name)
-                .ToListAsync();
-
-            // Get the IDs of the user's profiles
-            var userProfiles = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            // Get the IDs of the user's vehicles
-            var userVehicles = await _context.Vehicles
-                .Where(v => userProfiles.Contains(v.ProfileId))
-                .Select(v => v.Id)
-                .ToListAsync();
-
-            // Get the IDs of the user's freights
-            var userFreights = await _context.Freights
-                .Where(f => userProfiles.Contains(f.ProfileId))
-                .Select(f => f.Id)
-                .ToListAsync();
-
-            // Get the latest statuses for all offers
-            var latestStatuses = await _context.Statuses
-                .GroupBy(s => s.OfferId)
-                .Select(g => new
-                {
-                    OfferId = g.Key,
-                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
-                })
-                .ToListAsync();
-
-            // Filter offers based on the latest status type and user criteria
-            var validOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
-                .Select(ls => ls.OfferId)
-                .ToList();
-
-            // Get received offers that match the criteria
-            var receivedOffers = await _context.Offers
-                .Where(o => !userProfileNames.Contains(o.OfferFrom))
-                .Where(o => userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId))
-                .Where(o => validOfferIds.Contains(o.Id))
-                .ToListAsync();
-
-            return receivedOffers;
-        }
-
-        public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
-        {
-            // Get the names of the user's profiles
-            var userProfileNames = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Name)
-                .ToListAsync();
-
-            // Get the latest statuses for all offers
-            var latestStatuses = await _context.Statuses
-                .GroupBy(s => s.OfferId)
-                .Select(g => new
-                {
-                    OfferId = g.Key,
-                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
-                })
-                .ToListAsync();
-
-            // Filter sent offers based on the latest status type
-            var validOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
-                .Select(ls => ls.OfferId)
-                .ToList();
-
-            // Get sent offers that match the criteria
-            var sentOffers = await _context.Offers
-                .Where(o => userProfileNames.Contains(o.OfferFrom))
-                .Where(o => validOfferIds.Contains(o.Id))
-                .ToListAsync();
-
-            return sentOffers;
-        }
-
-        public async Task<IEnumerable<Offer>> GetTransitOffersAsync(int userId)
-        {
-            var userProfileNames = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Name)
-                .ToListAsync();
-
-            var userProfiles = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            var userVehicles = await _context.Vehicles
-                .Where(v => userProfiles.Contains(v.ProfileId))
-                .Select(v => v.Id)
-                .ToListAsync();
-
-            var userFreights = await _context.Freights
-                .Where(f => userProfiles.Contains(f.ProfileId))
-                .Select(f => f.Id)
-                .ToListAsync();
-
-            var transitOffers = await _context.Offers
-                .Where(o =>
-                    (userProfileNames.Contains(o.OfferFrom) &&
-                     _context.Statuses.Any(s => s.OfferId == o.Id && s.StatusType >= (int)StatusType.PreperingForTransit)) ||
-
-                    (!userProfileNames.Contains(o.OfferFrom) &&
-                     (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
-                     _context.Statuses.Any(s => s.OfferId == o.Id && s.StatusType >= (int)StatusType.PreperingForTransit)))
-                .ToListAsync();
-
-            return transitOffers;
-        }
-
-        public async Task<IEnumerable<Offer>> GetDeclinedOffersAsync(int userId)
-        {
-            // Get the names of the user's profiles
-            var userProfileNames = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Name)
-                .ToListAsync();
-
-            // Get the IDs of the user's profiles
-            var userProfiles = await _context.Profiles
-                .Where(p => p.UserId == userId)
-                .Select(p => p.Id)
-                .ToListAsync();
-
-            // Get the IDs of the user's vehicles
-            var userVehicles = await _context.Vehicles
-                .Where(v => userProfiles.Contains(v.ProfileId))
-                .Select(v => v.Id)
-                .ToListAsync();
-
-            // Get the IDs of the user's freights
-            var userFreights = await _context.Freights
-                .Where(f => userProfiles.Contains(f.ProfileId))
-                .Select(f => f.Id)
-                .ToListAsync();
-
-            // Get the latest statuses for all offers
-            var latestStatuses = await _context.Statuses
-                .GroupBy(s => s.OfferId)
-                .Select(g => new
-                {
-                    OfferId = g.Key,
-                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
-                })
-                .ToListAsync();
-
-            // Filter for declined offers based on the latest status
-            var declinedOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Declined)
-                .Select(ls => ls.OfferId)
-                .ToList();
-
-            // Get declined offers that match the criteria
-            var declinedOffers = await _context.Offers
-                .Where(o =>
-                    (userProfileNames.Contains(o.OfferFrom) && declinedOfferIds.Contains(o.Id)) ||
-                    (!userProfileNames.Contains(o.OfferFrom) &&
-                     (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
-                     declinedOfferIds.Contains(o.Id)))
-                .ToListAsync();
-
-            return declinedOffers;
-        }
-
-        public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
-        {
-            var userId = _jWTHelper.GetUserId();
-            return await (from o in _context.Offers
-                          join v in _context.Vehicles on o.VehicleId equals v.Id
-                          join f in _context.Freights on o.FreightId equals f.Id
-                          select new OfferDetailsDTO
-                          {
-                              Id = o.Id,
-                              OfferFor = o.OfferFor,
-                              OfferFrom = o.OfferFrom,
-                              Transporter = o.Transporter,
-                              FreightForTransport = o.FreightForTransport,
-                              FirstOfferPrice = f.TransportPrice,
-                              SecondOfferPrice = o.NewTransportPrice,
-                              Comment = o.Comment,
-                              Brand = v.Brand,
-                              PlateNumber = v.PlateNumber,
-                              Description = v.Description,
-                              BodyType = v.BodyType,
-                              PayloadCapacity = v.PayloadCapacity,
-                              CargoSpaceVolume = v.CargoSpaceVolume,
-                              Length = v.Length,
-                              Weight = v.Weight,
-                              LoadingAddress = f.LoadingAddress,
-                              UnloadingAddress = f.UnloadingAddress,
-                              TransportPrice = f.TransportPrice,
-                              Distance = f.Distance,
-                              GoodsDescription = f.GoodsDescription,
-                              GoodsType = f.GoodsType,
-                              GoodsWeight = f.GoodsWeight,
-                              GoodsLength = f.GoodsLength,
-                              GoodsPrice = f.GoodsPrice,
-                              AvailabilityDate = f.AvailabilityDate
-                          }).FirstOrDefaultAsync(o => o.Id == offerId);
-        }
-
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
             if (await IsInvalidOfferAsync(userId, offer.VehicleId, offer.FreightId))
@@ -273,6 +62,24 @@ namespace Emma.Api.Repositories.OfferRepository
             return await _context.Offers
                 .Where(o => offerIds.Contains(o.Id))
                 .ToListAsync();
+        }
+
+        public async Task<List<Offer>> GetOffersByProfileNamesAsync(IEnumerable<string> profileNames)
+        {
+            return await _context.Offers
+                .Where(o => profileNames.Contains(o.OfferFrom))
+                .ToListAsync();
+        }
+
+        public async Task<List<Offer>> GetOffersAsync()
+        {
+            return await _context.Offers.ToListAsync();
+        }
+
+        public async Task<Offer?> GetOfferByIdAsync(int offerId)
+        {
+            return await _context.Offers
+                .FirstOrDefaultAsync(o => o.Id == offerId);
         }
     }
 }

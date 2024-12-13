@@ -39,6 +39,12 @@ namespace Emma.Api.Repositories.StatusRepository
                 .Select(x => (x.OfferId, x.LatestStatusType))
                 .ToList();
         }
+
+        public async Task<bool> HasStatusGreaterOrEqualAsync(int offerId, int statusType)
+        {
+            return await _context.Statuses
+                .AnyAsync(s => s.OfferId == offerId && s.StatusType >= statusType);
+        }
     }
 }
 

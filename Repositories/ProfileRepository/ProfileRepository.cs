@@ -31,6 +31,14 @@ namespace Emma.Api.Repositories.ProfileRepository
             return profile?.Id;
         }
 
+        public async Task<List<int>> GetProfileIdsByUserIdAsync(int userId)
+        {
+            return await _context.Profiles
+                .Where(p => p.UserId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+        }
+
         public async Task<List<string>> GetProfileNamesByUserIdAsync(int userId)
         {
             return await _context.Profiles
