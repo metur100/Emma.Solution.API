@@ -16,5 +16,6 @@ namespace Emma.Api.Repositories.ProfileRepository
         Task<List<Profile>> GetAllProfilesByUserIdAsync(int userId);
         Task<Profile?> GetProfileInfoByIdAsync(int id);
         Task<int> CountProfilesByUserIdAsync(int userId);
+        Task<int?> GetProfileIdByUserIdAsync(int userId);
     }
 }
