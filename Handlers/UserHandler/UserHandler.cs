@@ -206,7 +206,6 @@ namespace Emma.Api.Handlers.UserHandler
                     return "User is already confirmed.";
 
                 user.Confirmed = true;
-                //user.ConfirmationToken = null;
                 await _userRepository.UpdateAsync(user);
 
                 return "User successfully confirmed.";
