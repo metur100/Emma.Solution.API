@@ -44,12 +44,14 @@ namespace Emma.Api.Handlers.UserHandler
             if (string.IsNullOrWhiteSpace(registerUserDto.PhoneNumber))
                 throw new ArgumentException("Phone number cannot be null or empty.");
 
+            var hashedPassword = _jWTHelper.HashPassword(registerUserDto.Password);
+
             try
             {
                 var user = new User
                 {
                     Email = registerUserDto.Email,
-                    Password = registerUserDto.Password,
+                    Password = hashedPassword,
                 };
 
                 var address = new Address
@@ -118,11 +120,13 @@ namespace Emma.Api.Handlers.UserHandler
                 throw new ArgumentNullException(nameof(registerUserDto));
             try
             {
+
+                var hashedPassword = _jWTHelper.HashPassword(registerUserDto.Password);
                 // Create and save user
                 var user = new User
                 {
                     Email = registerUserDto.Email,
-                    Password = registerUserDto.Password,
+                    Password = hashedPassword,
                     Confirmed = false,
                     ConfirmationToken = Guid.NewGuid().ToString()
                 };
@@ -159,11 +163,18 @@ namespace Emma.Api.Handlers.UserHandler
 
                 // Generate confirmation email
                 var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
-                var emailSubject = "Confirm your registration";
+                var emailSubject = "Potvrdite vasu registraciju";
                 var emailBody = $@"
-                     <p>Hi {registerUserDto.UserName},</p>
-                     <p>Thank you for registering. Please confirm your registration by clicking the link below:</p>
-                     <a href='{confirmationUrl}'>Confirm Registration</a>";
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.UserName}!</h2>
+                        <p>Hvala vam što ste se registrovali na našoj platformi. Da biste dovršili proces registracije i aktivirali vaš nalog, molimo vas da potvrdite svoju registraciju klikom na sledeći link:</p>
+                        <p>
+                            <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>
+                        </p>
+                        <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
+                        <p>Srdačno,<br>Vaš tim za podršku</p>
+                    </div>";
+
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
@@ -182,18 +193,15 @@ namespace Emma.Api.Handlers.UserHandler
 
             try
             {
-                // Fetch user by token
                 var user = await _userRepository.GetUserByTokenAsync(token);
                 if (user == null)
                     return "Invalid or expired confirmation token.";
 
-                // Check if already confirmed
                 if (user.Confirmed)
                     return "User is already confirmed.";
 
-                // Confirm user and save
                 user.Confirmed = true;
-                user.ConfirmationToken = null; // Invalidate token
+                //user.ConfirmationToken = null;
                 await _userRepository.UpdateAsync(user);
 
                 return "User successfully confirmed.";

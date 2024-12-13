@@ -17,24 +17,24 @@ namespace Emma.Api.Controllers
             _userHandler = userHandler;
         }
 
-        [AllowAnonymous]
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
-        {
-            if (dto == null)
-            {
-                return BadRequest("Invalid user data.");
-            }
+        //[AllowAnonymous]
+        //[HttpPost("Register")]
+        //public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
+        //{
+        //    if (dto == null)
+        //    {
+        //        return BadRequest("Invalid user data.");
+        //    }
 
-            var result = await _userHandler.RegisterUserAsync(dto);
+        //    var result = await _userHandler.RegisterUserAsync(dto);
 
-            if (result == "Profile already exists.")
-            {
-                return Conflict(new { message = result });
-            }
+        //    if (result == "Profile already exists.")
+        //    {
+        //        return Conflict(new { message = result });
+        //    }
 
-            return Ok(new { message = result });
-        }
+        //    return Ok(new { message = result });
+        //}
 
         [AllowAnonymous]
         [HttpPost("Login")]
@@ -55,23 +55,25 @@ namespace Emma.Api.Controllers
             return Ok(new { Token = result });
         }
 
-        //[HttpPost("register")]
-        //public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        //    try
-        //    {
-        //        var result = await _userHandler.RegisterUserWithConfirmationAsync(registerUserDto);
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message);
-        //    }
-        //}
+            try
+            {
+                var result = await _userHandler.RegisterUserWithConfirmationAsync(registerUserDto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
+        [AllowAnonymous]
         [HttpGet("confirm/{token}")]
         public async Task<IActionResult> ConfirmUser(string token)
         {
