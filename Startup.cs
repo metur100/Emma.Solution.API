@@ -13,6 +13,8 @@ using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Handlers.StatusHandler;
 using Emma.Api.Repositories.StatusRepository;
+using Emma.Api.Helpers;
+using Emma.Api.Helpers.EmailServiceHelper;
 
 namespace Emma.Api
 {
@@ -28,6 +30,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IUserHandler, UserHandler>();
             builder.Services.AddScoped<IOfferHandler, OfferHandler>();
             builder.Services.AddScoped<IStatusHandler, StatusHandler>();
+            builder.Services.AddScoped<IEmailServiceHelper, EmailServiceHelper>();
 
             builder.Services.AddScoped<IJWTHelper, JWTHelper>();
             builder.Services.AddHttpContextAccessor();
