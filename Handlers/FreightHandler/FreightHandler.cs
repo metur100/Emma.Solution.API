@@ -101,10 +101,24 @@ namespace Emma.Api.Handlers.FreightHandler
             }
         }
 
-
-        public async Task<Freight> GetFreightByIdAsync(int id)
+        public async Task<Freight?> GetFreightByIdAsync(int id)
         {
-            return await _freightRepository.GetFreightByIdAsync(id);
+            if (id <= 0)
+                throw new ArgumentException("The freight ID must be a positive integer.");
+
+            try
+            {
+                var freight = await _freightRepository.GetFreightByIdAsync(id);
+
+                if (freight == null)
+                    throw new KeyNotFoundException($"No freight found with ID {id}.");
+
+                return freight;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"An error occurred while retrieving the freight with ID {id}.", ex);
+            }
         }
 
         public async Task<IEnumerable<FreightManagementDTO>> GetFreightsByUserIdAsync(int userId)

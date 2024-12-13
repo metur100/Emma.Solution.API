@@ -29,8 +29,6 @@ namespace Emma.Api.Handlers.OfferHandler
             if (offerId <= 0)
                 throw new ArgumentException("Invalid offer ID.");
 
-            var userId = _jwTHelper.GetUserId();
-
             var offer = await _offerRepository.GetOfferByIdAsync(offerId);
             if (offer == null)
                 return null;
@@ -74,62 +72,109 @@ namespace Emma.Api.Handlers.OfferHandler
 
         public async Task<IEnumerable<Offer>> GetReceivedOffersAsync(int userId)
         {
-            var profileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-            var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
-            var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
-            var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
-            var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+            if (userId <= 0)
+                throw new ArgumentException("The user ID must be a positive integer.", nameof(userId));
 
-            var validOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
-                .Select(ls => ls.OfferId)
-                .ToList();
+            try
+            {
+                var profileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
+                var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+                var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
+                var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
 
-            var receivedOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (profileNames == null || profileIds == null || vehicleIds == null || freightIds == null || latestStatuses == null)
+                    throw new InvalidOperationException("Failed to retrieve necessary data from repositories.");
 
-            var filteredOffers = receivedOffers
-                .Where(o => !profileNames.Contains(o.OfferFrom))
-                .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
-                .ToList();
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
 
-            return filteredOffers;
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<Offer>(); 
+
+                var receivedOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (receivedOffers == null)
+                    throw new InvalidOperationException("Failed to retrieve offers from the repository.");
+
+                var filteredOffers = receivedOffers
+                    .Where(o => !profileNames.Contains(o.OfferFrom))
+                    .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
+                    .ToList();
+
+                return filteredOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while fetching received offers.", ex);
+            }
         }
+
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
-            await _offerRepository.CreateOfferAsync(offer, userId);
+            if (offer == null)
+                throw new ArgumentNullException(nameof(offer), "Offer cannot be null.");
 
-            var initialStatus = new Status
+            if (userId <= 0)
+                throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
+
+            try
             {
-                OfferId = offer.Id,
-                StatusType = (int)StatusType.Created,
-                CreatedAt = DateTime.UtcNow
-            };
+                await _offerRepository.CreateOfferAsync(offer, userId);
 
-            await _statusRepository.CreateStatusAsync(initialStatus);
+                if (offer.Id <= 0)
+                    throw new InvalidOperationException("Offer creation failed. The Offer ID is invalid.");
+                var initialStatus = new Status
+                {
+                    OfferId = offer.Id,
+                    StatusType = (int)StatusType.Created,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _statusRepository.CreateStatusAsync(initialStatus);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while creating the offer.", ex);
+            }
         }
+
 
         public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID.");
 
-            var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-            if (!userProfileNames.Any())
-                return Enumerable.Empty<Offer>();
+            try
+            {
+                var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
+                if (userProfileNames == null || !userProfileNames.Any())
+                    return Enumerable.Empty<Offer>();
 
-            var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<Offer>();
 
-            var validOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
-                .Select(ls => ls.OfferId)
-                .ToList();
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
 
-            if (!validOfferIds.Any())
-                return Enumerable.Empty<Offer>();
-            var sentOffers = await _offerRepository.GetOffersByProfileNamesAsync(userProfileNames);
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<Offer>();
 
-            return sentOffers.Where(o => validOfferIds.Contains(o.Id)).ToList();
+                var sentOffers = await _offerRepository.GetOffersByProfileNamesAsync(userProfileNames);
+                if (sentOffers == null)
+                    return Enumerable.Empty<Offer>();
+
+                return sentOffers.Where(o => validOfferIds.Contains(o.Id)).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving sent offers.", ex);
+            }
         }
 
         public async Task<IEnumerable<Offer>> GetTransitOffersAsync(int userId)
@@ -174,28 +219,49 @@ namespace Emma.Api.Handlers.OfferHandler
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID.");
 
-            var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-            var userProfiles = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
-            var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfiles);
-            var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfiles);
+            try
+            {
+                var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
+                if (userProfileNames == null || !userProfileNames.Any())
+                    return Enumerable.Empty<Offer>();
 
-            var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
-            var declinedOfferIds = latestStatuses
-                .Where(ls => ls.LatestStatusType == (int)StatusType.Declined)
-                .Select(ls => ls.OfferId)
-                .ToList();
+                var userProfiles = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfiles == null || !userProfiles.Any())
+                    return Enumerable.Empty<Offer>();
 
-            var allOffers = await _offerRepository.GetOffersByIdsAsync(declinedOfferIds);
+                var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfiles);
+                var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfiles);
 
-            var declinedOffers = allOffers
-                .Where(o =>
-                    (userProfileNames.Contains(o.OfferFrom) && declinedOfferIds.Contains(o.Id)) ||
-                    (!userProfileNames.Contains(o.OfferFrom) &&
-                     (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
-                     declinedOfferIds.Contains(o.Id)))
-                .ToList();
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<Offer>();
 
-            return declinedOffers;
+                var declinedOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Declined)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!declinedOfferIds.Any())
+                    return Enumerable.Empty<Offer>();
+
+                var allOffers = await _offerRepository.GetOffersByIdsAsync(declinedOfferIds);
+                if (allOffers == null || !allOffers.Any())
+                    return Enumerable.Empty<Offer>();
+
+                var declinedOffers = allOffers
+                    .Where(o =>
+                        (userProfileNames.Contains(o.OfferFrom) && declinedOfferIds.Contains(o.Id)) ||
+                        (!userProfileNames.Contains(o.OfferFrom) &&
+                         (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
+                         declinedOfferIds.Contains(o.Id)))
+                    .ToList();
+
+                return declinedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving declined offers.", ex);
+            }
         }
     }
 }
