@@ -106,6 +106,11 @@ namespace Emma.Api.Handlers.UserHandler
                     return "Invalid email or password.";
                 }
 
+                if (!user.Confirmed)
+                {
+                    return "Your account is not confirmed. Please check your email for the confirmation link.";
+                }
+
                 return await _jWTHelper.GenerateJwtTokenAsync(user);
             }
             catch (Exception ex)
