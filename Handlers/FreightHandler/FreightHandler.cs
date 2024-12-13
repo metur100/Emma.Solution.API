@@ -149,21 +149,39 @@ namespace Emma.Api.Handlers.FreightHandler
 
         public async Task UpdateFreightAsync(Freight freight)
         {
-            var existingFreight = await _freightRepository.GetFreightByIdAsync(freight.Id) 
-                ?? throw new KeyNotFoundException($"Freight with ID {freight.Id} not found.");
-            existingFreight.LoadingAddress = freight.LoadingAddress;
-            existingFreight.UnloadingAddress = freight.UnloadingAddress;
-            existingFreight.TransportPrice = freight.TransportPrice;
-            existingFreight.Status = freight.Status;
-            existingFreight.Distance = freight.Distance;
-            existingFreight.GoodsDescription = freight.GoodsDescription;
-            existingFreight.GoodsType = freight.GoodsType;
-            existingFreight.GoodsWeight = freight.GoodsWeight;
-            existingFreight.GoodsLength = freight.GoodsLength;
-            existingFreight.GoodsPrice = freight.GoodsPrice;
-            existingFreight.AvailabilityDate = freight.AvailabilityDate;
+            if (freight == null)
+                throw new ArgumentNullException(nameof(freight), "Freight cannot be null.");
 
-            await _freightRepository.UpdateFreightAsync(existingFreight);
+            if (freight.Id <= 0)
+                throw new ArgumentException("Invalid freight ID.", nameof(freight.Id));
+
+            try
+            {
+                var existingFreight = await _freightRepository.GetFreightByIdAsync(freight.Id)
+                    ?? throw new KeyNotFoundException($"Freight with ID {freight.Id} not found.");
+
+                existingFreight.LoadingAddress = freight.LoadingAddress;
+                existingFreight.UnloadingAddress = freight.UnloadingAddress;
+                existingFreight.TransportPrice = freight.TransportPrice;
+                existingFreight.Status = freight.Status;
+                existingFreight.Distance = freight.Distance;
+                existingFreight.GoodsDescription = freight.GoodsDescription;
+                existingFreight.GoodsType = freight.GoodsType;
+                existingFreight.GoodsWeight = freight.GoodsWeight;
+                existingFreight.GoodsLength = freight.GoodsLength;
+                existingFreight.GoodsPrice = freight.GoodsPrice;
+                existingFreight.AvailabilityDate = freight.AvailabilityDate;
+
+                await _freightRepository.UpdateFreightAsync(existingFreight);
+            }
+            catch (KeyNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while updating the freight.", ex);
+            }
         }
 
         public async Task DeleteFreightByIdAsync(int freightId)

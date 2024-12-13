@@ -37,7 +37,6 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-
         public async Task<List<VehicleListDTO>> GetAllVehiclesAsync()
         {
             try
@@ -154,21 +153,33 @@ namespace Emma.Api.Handlers.VehicleHandler
 
         public async Task UpdateVehicleAsync(Vehicle vehicle)
         {
-            var existingVehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicle.Id);
-            if (existingVehicle == null)
-                throw new KeyNotFoundException($"Vehicle with ID {vehicle.Id} not found.");
+            if (vehicle == null)
+                throw new ArgumentNullException(nameof(vehicle));
 
-            existingVehicle.Brand = vehicle.Brand;
-            existingVehicle.PlateNumber = vehicle.PlateNumber;
-            existingVehicle.Description = vehicle.Description;
-            existingVehicle.BodyType = vehicle.BodyType;
-            existingVehicle.PayloadCapacity = vehicle.PayloadCapacity;
-            existingVehicle.CargoSpaceVolume = vehicle.CargoSpaceVolume;
-            existingVehicle.Length = vehicle.Length;
-            existingVehicle.Weight = vehicle.Weight;
+            if (vehicle.Id <= 0)
+                throw new ArgumentException("Invalid vehicle ID.");
 
+            try
+            {
+                var existingVehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicle.Id);
+                if (existingVehicle == null)
+                    throw new KeyNotFoundException($"Vehicle with ID {vehicle.Id} not found.");
 
-            await _vehicleRepository.UpdateVehicleAsync(existingVehicle);
+                existingVehicle.Brand = vehicle.Brand;
+                existingVehicle.PlateNumber = vehicle.PlateNumber;
+                existingVehicle.Description = vehicle.Description;
+                existingVehicle.BodyType = vehicle.BodyType;
+                existingVehicle.PayloadCapacity = vehicle.PayloadCapacity;
+                existingVehicle.CargoSpaceVolume = vehicle.CargoSpaceVolume;
+                existingVehicle.Length = vehicle.Length;
+                existingVehicle.Weight = vehicle.Weight;
+
+                await _vehicleRepository.UpdateVehicleAsync(existingVehicle);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while updating the vehicle.", ex);
+            }
         }
 
         public async Task DeleteVehicleByIdAsync(int id)

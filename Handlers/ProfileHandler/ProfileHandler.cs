@@ -25,31 +25,59 @@ namespace Emma.Api.Handlers.ProfileHandler
             string phoneNumber,
             int userId)
         {
-            var address = new Address
-            {
-                StreetAndNumber = streetAndNumber,
-                PostalCode = postalCode,
-                City = city
-            };
-            var addressId = await _addressRepository.CreateAddress(address);
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Profile name cannot be null or empty.", nameof(name));
 
-            var contact = new Contact
-            {
-                Email = email,
-                PhoneNumber = phoneNumber
-            };
-            var contactId = await _contactRepository.CreateContact(contact);
+            if (string.IsNullOrWhiteSpace(streetAndNumber))
+                throw new ArgumentException("Street and number cannot be null or empty.", nameof(streetAndNumber));
 
-            var profile = new Profile
-            {
-                Name = name,
-                ProfilePicture = profilePicture,
-                AddressId = addressId,
-                ContactId = contactId,
-                UserId = userId
-            };
+            if (string.IsNullOrWhiteSpace(postalCode))
+                throw new ArgumentException("Postal code cannot be null or empty.", nameof(postalCode));
 
-            return await _profileRepository.CreateProfileAsync(profile, userId);
+            if (string.IsNullOrWhiteSpace(city))
+                throw new ArgumentException("City cannot be null or empty.", nameof(city));
+
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email cannot be null or empty.", nameof(email));
+
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                throw new ArgumentException("Phone number cannot be null or empty.", nameof(phoneNumber));
+
+            if (userId <= 0)
+                throw new ArgumentException("Invalid user ID.", nameof(userId));
+
+            try
+            {
+                var address = new Address
+                {
+                    StreetAndNumber = streetAndNumber,
+                    PostalCode = postalCode,
+                    City = city
+                };
+                var addressId = await _addressRepository.CreateAddress(address);
+
+                var contact = new Contact
+                {
+                    Email = email,
+                    PhoneNumber = phoneNumber
+                };
+                var contactId = await _contactRepository.CreateContact(contact);
+
+                var profile = new Profile
+                {
+                    Name = name,
+                    ProfilePicture = profilePicture,
+                    AddressId = addressId,
+                    ContactId = contactId,
+                    UserId = userId
+                };
+
+                return await _profileRepository.CreateProfileAsync(profile, userId);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while creating the profile.", ex);
+            }
         }
 
         public async Task<List<ProfileDto>> GetProfileNamesByUserIdAsync(int userId)
@@ -116,7 +144,6 @@ namespace Emma.Api.Handlers.ProfileHandler
             }
         }
 
-
         public async Task<string> GetProfileNameByUserId(int userId)
         {
             try
@@ -140,7 +167,6 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error fetching profile name for UserId {userId}: {ex.Message}", ex);
             }
         }
-
 
         public async Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId)
         {
@@ -225,7 +251,6 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error updating profile with ID {profileId}: {ex.Message}", ex);
             }
         }
-
 
         public async Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id)
         {

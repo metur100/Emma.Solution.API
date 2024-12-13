@@ -10,19 +10,43 @@ namespace Emma.Api.Handlers.StatusHandler
 
         public async Task UpdateOfferStatusAsync(int offerId, StatusType statusType)
         {
-            var newStatus = new Status
-            {
-                OfferId = offerId,
-                StatusType = (int)statusType,
-                CreatedAt = DateTime.UtcNow
-            };
+            if (offerId <= 0)
+                throw new ArgumentException("Invalid offer ID.", nameof(offerId));
 
-            await _statusRepository.CreateStatusAsync(newStatus);
+            try
+            {
+                var newStatus = new Status
+                {
+                    OfferId = offerId,
+                    StatusType = (int)statusType,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _statusRepository.CreateStatusAsync(newStatus);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"An error occurred while updating the status for offer ID {offerId}.", ex);
+            }
         }
 
         public async Task<int> GetStatusTypeByOfferId(int offerId)
         {
-            return await _statusRepository.GetStatusTypeByOfferId(offerId);
+            if (offerId <= 0)
+                throw new ArgumentException("Invalid offer ID.", nameof(offerId));
+
+            try
+            {
+                return await _statusRepository.GetStatusTypeByOfferId(offerId);
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new KeyNotFoundException($"No status found for offer ID {offerId}.");
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"An error occurred while retrieving the status type for offer ID {offerId}.", ex);
+            }
         }
     }
 }
