@@ -59,5 +59,13 @@ namespace Emma.Api.Repositories.FreightRepository
                           select profile.Name)
                       .FirstOrDefaultAsync();
         }
+
+        public async Task<List<int>> GetFreightIdsByProfileIdsAsync(IEnumerable<int> profileIds)
+        {
+            return await _context.Freights
+                .Where(f => profileIds.Contains(f.ProfileId))
+                .Select(f => f.Id)
+                .ToListAsync();
+        }
     }
 }

@@ -24,6 +24,21 @@ namespace Emma.Api.Repositories.StatusRepository
             return statusType;
         }
 
+        public async Task<List<(int OfferId, int LatestStatusType)>> GetLatestStatusesAsync()
+        {
+            var statuses = await _context.Statuses
+                .GroupBy(s => s.OfferId)
+                .Select(g => new
+                {
+                    OfferId = g.Key,
+                    LatestStatusType = g.OrderByDescending(s => s.CreatedAt).First().StatusType
+                })
+                .ToListAsync();
+
+            return statuses
+                .Select(x => (x.OfferId, x.LatestStatusType))
+                .ToList();
+        }
     }
 }
 

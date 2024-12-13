@@ -267,5 +267,12 @@ namespace Emma.Api.Repositories.OfferRepository
 
             return isVehicleOwnedByCurrentUser && isFreightOwnedByCurrentUser;
         }
+
+        public async Task<List<Offer>> GetOffersByIdsAsync(IEnumerable<int> offerIds)
+        {
+            return await _context.Offers
+                .Where(o => offerIds.Contains(o.Id))
+                .ToListAsync();
+        }
     }
 }

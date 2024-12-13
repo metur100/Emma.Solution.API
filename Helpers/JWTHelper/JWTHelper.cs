@@ -1,6 +1,5 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Repositories.ProfileRepository;
-using Emma.Api.Repositories.UserRepository;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,11 +9,9 @@ using System.Text;
 namespace Emma.Api.Helpers.JWTHelper
 {
     public class JWTHelper(IHttpContextAccessor httpContextAccessor,
-        IUserRepository userRepository,
         IProfileRepository profileRepository) : IJWTHelper
     {
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly IUserRepository _userRepository = userRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
 
         private ClaimsPrincipal User => _httpContextAccessor.HttpContext!.User;

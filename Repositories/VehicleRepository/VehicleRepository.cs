@@ -60,5 +60,13 @@ namespace Emma.Api.Repositories.VehicleRepository
                           select profile.Name)
                      .FirstOrDefaultAsync();
         }
+
+        public async Task<List<int>> GetVehicleIdsByProfileIdsAsync(IEnumerable<int> profileIds)
+        {
+            return await _context.Vehicles
+                .Where(v => profileIds.Contains(v.ProfileId))
+                .Select(v => v.Id)
+                .ToListAsync();
+        }
     }
 }
