@@ -1,15 +1,11 @@
-﻿using Emma.Api.Helpers.JWTHelper;
-using Emma.Api.Models;
-using Emma.Api.Models.DTOs;
-using Emma.Api.Models.Enum;
+﻿using Emma.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.OfferRepository
 {
-    public class OfferRepository(AppDbContext context, IJWTHelper jWTHelper) : IOfferRepository
+    public class OfferRepository(AppDbContext context) : IOfferRepository
     {
         private readonly AppDbContext _context = context;
-        private readonly IJWTHelper _jWTHelper = jWTHelper;
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
