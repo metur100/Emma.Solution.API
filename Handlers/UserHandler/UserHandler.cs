@@ -1,5 +1,4 @@
-﻿using Emma.Api.Helpers;
-using Emma.Api.Helpers.EmailServiceHelper;
+﻿using Emma.Api.Helpers.EmailServiceHelper;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
@@ -168,7 +167,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 // Generate confirmation email
                 var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
-                var emailSubject = "Potvrdite vasu registraciju";
+                var emailSubject = "Potvrdite vašu registraciju";
                 var emailBody = $@"
                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
                         <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.UserName}!</h2>

@@ -11,19 +11,17 @@ namespace Emma.Api.Helpers.EmailServiceHelper
 
         public void SendEmail(List<string> toEmails, string subject, string body)
         {
-            // Configuration settings
             var port = _config.GetValue<int>("SMTP:Port");
             var host = _config.GetValue<string>("SMTP:Host");
             var password = _config.GetValue<string>("SMTP:EmailPassword");
             var fromEmail = _config.GetValue<string>("SMTP:EmailAddress");
 
-            // Create a new email message
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("HBS", fromEmail));
+            message.From.Add(new MailboxAddress("Emma Logistics", fromEmail));
 
             foreach (var toEmail in toEmails)
             {
-                message.To.Add(new MailboxAddress("HBS", toEmail));
+                message.To.Add(new MailboxAddress("Emma Logistics", toEmail));
             }
 
             message.Subject = subject;
@@ -33,13 +31,8 @@ namespace Emma.Api.Helpers.EmailServiceHelper
             {
                 try
                 {
-                    // Connect to the SMTP server
                     client.Connect(host, port, SecureSocketOptions.StartTls);
-
-                    // Authenticate to the SMTP server
                     client.Authenticate(fromEmail, password);
-
-                    // Send the email
                     client.Send(message);
                 }
                 catch (Exception ex)
