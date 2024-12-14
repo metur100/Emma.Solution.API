@@ -31,6 +31,10 @@ namespace Emma.Api.Controllers
             {
                 return Unauthorized(new { message = result });
             }
+            else if (result == "NotConfirmed")
+            {
+                return Unauthorized(new { message = result });
+            }
 
             return Ok(new { Token = result });
         }

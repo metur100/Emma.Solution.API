@@ -42,7 +42,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 if (!user.Confirmed)
                 {
-                    return "Your account is not confirmed. Please check your email for the confirmation link.";
+                    return "NotConfirmed";
                 }
 
                 return await _jWTHelper.GenerateJwtTokenAsync(user);
