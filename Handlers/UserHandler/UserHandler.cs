@@ -137,7 +137,7 @@ namespace Emma.Api.Handlers.UserHandler
                 user.Confirmed = true;
                 await _userRepository.UpdateAsync(user);
 
-                return "Vaš profil je uspjesno potvrđen.";
+                return "Vaš profil je uspješno potvrđen.";
             }
             catch (Exception ex)
             {

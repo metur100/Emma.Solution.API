@@ -34,6 +34,5 @@ namespace Emma.Api.Repositories.UserRepository
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
         }
-
     }
 }

@@ -1,7 +1,5 @@
-﻿using MailKit.Net.Smtp;
-using MailKit.Security;
+﻿using MailKit.Security;
 using MimeKit;
-using System.Net.Mail;
 
 namespace Emma.Api.Helpers.EmailServiceHelper
 {

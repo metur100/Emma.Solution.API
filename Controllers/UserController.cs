@@ -64,7 +64,7 @@ namespace Emma.Api.Controllers
             try
             {
                 var result = await _userHandler.ConfirmUserAsync(token);
-                if (result == "Vaš profil je uspjesno potvrđen.")
+                if (result == "Vaš profil je uspješno potvrđen.")
                     return Ok(result);
 
                 return BadRequest(result);
