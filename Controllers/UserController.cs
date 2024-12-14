@@ -2,7 +2,6 @@
 using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata;
 
 namespace Emma.Api.Controllers
 {
@@ -16,25 +15,6 @@ namespace Emma.Api.Controllers
         {
             _userHandler = userHandler;
         }
-
-        //[AllowAnonymous]
-        //[HttpPost("Register")]
-        //public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
-        //{
-        //    if (dto == null)
-        //    {
-        //        return BadRequest("Invalid user data.");
-        //    }
-
-        //    var result = await _userHandler.RegisterUserAsync(dto);
-
-        //    if (result == "Profile already exists.")
-        //    {
-        //        return Conflict(new { message = result });
-        //    }
-
-        //    return Ok(new { message = result });
-        //}
 
         [AllowAnonymous]
         [HttpPost("Login")]
@@ -56,7 +36,7 @@ namespace Emma.Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("register")]
+        [HttpPost("Register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto registerUserDto)
         {
             if (!ModelState.IsValid)
@@ -74,13 +54,13 @@ namespace Emma.Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("confirm/{token}")]
+        [HttpGet("Confirm/{token}")]
         public async Task<IActionResult> ConfirmUser(string token)
         {
             try
             {
                 var result = await _userHandler.ConfirmUserAsync(token);
-                if (result == "User successfully confirmed.")
+                if (result == "Vaš profil je uspjesno potvrđen.")
                     return Ok(result);
 
                 return BadRequest(result);
@@ -90,7 +70,5 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
-
     }
 }

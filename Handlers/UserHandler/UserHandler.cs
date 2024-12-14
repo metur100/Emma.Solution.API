@@ -23,71 +23,6 @@ namespace Emma.Api.Handlers.UserHandler
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IEmailServiceHelper _emailServiceHelper = emailServiceHelper;
 
-        public async Task<string> RegisterUserAsync(RegisterUserDto registerUserDto)
-        {
-            if (registerUserDto == null)
-                throw new ArgumentNullException(nameof(registerUserDto));
-
-            if (string.IsNullOrWhiteSpace(registerUserDto.Email))
-                throw new ArgumentException("Email cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.Password))
-                throw new ArgumentException("Password cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.UserName))
-                throw new ArgumentException("User name cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.StreetAndNumber))
-                throw new ArgumentException("Street and number cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.PostalCode))
-                throw new ArgumentException("Postal code cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.City))
-                throw new ArgumentException("City cannot be null or empty.");
-            if (string.IsNullOrWhiteSpace(registerUserDto.PhoneNumber))
-                throw new ArgumentException("Phone number cannot be null or empty.");
-
-            var hashedPassword = _jWTHelper.HashPassword(registerUserDto.Password);
-
-            try
-            {
-                var user = new User
-                {
-                    Email = registerUserDto.Email,
-                    Password = hashedPassword,
-                };
-
-                var address = new Address
-                {
-                    StreetAndNumber = registerUserDto.StreetAndNumber,
-                    PostalCode = registerUserDto.PostalCode,
-                    City = registerUserDto.City
-                };
-
-                var contact = new Contact
-                {
-                    Email = registerUserDto.Email,
-                    PhoneNumber = registerUserDto.PhoneNumber
-                };
-
-                await _addressRepository.CreateAddress(address);
-                await _contactRepository.CreateContact(contact);
-                await _userRepository.AddAsync(user);
-
-                var profile = new Profile
-                {
-                    Name = registerUserDto.UserName,
-                    AddressId = address.Id,
-                    ContactId = contact.Id,
-                    UserId = user.Id,
-                };
-
-                await _profileRepository.CreateProfileAsync(profile, user.Id);
-
-                return "User registered successfully.";
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("An error occurred during user registration.", ex);
-            }
-        }
-
         public async Task<string> LoginAsync(string email, string password)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -126,7 +61,7 @@ namespace Emma.Api.Handlers.UserHandler
             {
 
                 var hashedPassword = _jWTHelper.HashPassword(registerUserDto.Password);
-                // Create and save user
+
                 var user = new User
                 {
                     Email = registerUserDto.Email,
@@ -135,7 +70,6 @@ namespace Emma.Api.Handlers.UserHandler
                     ConfirmationToken = Guid.NewGuid().ToString()
                 };
 
-                // Create and save address
                 var address = new Address
                 {
                     StreetAndNumber = registerUserDto.StreetAndNumber,
@@ -143,7 +77,6 @@ namespace Emma.Api.Handlers.UserHandler
                     City = registerUserDto.City
                 };
 
-                // Create and save contact
                 var contact = new Contact
                 {
                     Email = registerUserDto.Email,
@@ -154,7 +87,6 @@ namespace Emma.Api.Handlers.UserHandler
                 await _contactRepository.CreateContact(contact);
                 await _userRepository.AddAsync(user);
 
-                // Create and save profile
                 var profile = new Profile
                 {
                     Name = registerUserDto.UserName,
@@ -165,7 +97,6 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _profileRepository.CreateProfileAsync(profile, user.Id);
 
-                // Generate confirmation email
                 var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
                 var emailSubject = "Potvrdite vašu registraciju";
                 var emailBody = $@"
@@ -178,7 +109,6 @@ namespace Emma.Api.Handlers.UserHandler
                         <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
                         <p>Srdačno,<br>Vaš tim za podršku</p>
                     </div>";
-
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
@@ -199,15 +129,15 @@ namespace Emma.Api.Handlers.UserHandler
             {
                 var user = await _userRepository.GetUserByTokenAsync(token);
                 if (user == null)
-                    return "Invalid or expired confirmation token.";
+                    return "Vaš link za potvrdu nije validan ili je istekao";
 
                 if (user.Confirmed)
-                    return "User is already confirmed.";
+                    return "Vas račun je vec potvrđen";
 
                 user.Confirmed = true;
                 await _userRepository.UpdateAsync(user);
 
-                return "User successfully confirmed.";
+                return "Vaš profil je uspjesno potvrđen.";
             }
             catch (Exception ex)
             {
