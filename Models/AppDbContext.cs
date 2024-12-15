@@ -12,5 +12,6 @@ namespace Emma.Api.Models
         public required DbSet<Offer> Offers { get; set; }
         public required DbSet<Profile> Profiles { get; set; }
         public required DbSet<Status> Statuses { get; set; }
+        public required DbSet<Rating> Ratings { get; set; }
     }
 }

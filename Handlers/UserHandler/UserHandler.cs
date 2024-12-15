@@ -107,7 +107,7 @@ namespace Emma.Api.Handlers.UserHandler
                             <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>
                         </p>
                         <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
-                        <p>Srdačno,<br>Vaša Emma Logistics</p>
+                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
                     </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
