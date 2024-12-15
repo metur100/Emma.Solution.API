@@ -34,5 +34,15 @@ namespace Emma.Api.Repositories.UserRepository
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User?> GetUserByResetTokenAsync(string token)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(u => u.ResetPasswordToken == token);
+        }
     }
 }

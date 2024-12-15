@@ -9,5 +9,7 @@ namespace Emma.Api.Repositories.UserRepository
         Task AddAsync(User user);
         Task<User?> GetUserByTokenAsync(string token);
         Task UpdateAsync(User user);
+        Task<User?> GetUserByEmailAsync(string email);
+        Task<User?> GetUserByResetTokenAsync(string token);
     }
 }

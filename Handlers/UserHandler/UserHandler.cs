@@ -144,5 +144,73 @@ namespace Emma.Api.Handlers.UserHandler
                 throw new InvalidOperationException("An error occurred during user confirmation.", ex);
             }
         }
+
+        public async Task<string> ForgotPasswordAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email cannot be null or empty.");
+
+            try
+            {
+                var user = await _userRepository.GetUserByEmailAsync(email);
+                if (user == null)
+                    return "User with this email does not exist.";
+
+                var resetToken = Guid.NewGuid().ToString();
+                user.ResetPasswordToken = resetToken;
+                user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+                await _userRepository.UpdateAsync(user);
+
+                var resetUrl = $"http://localhost:5173/reset-password/{resetToken}";
+                var emailSubject = "Reset your password";
+                var emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #1abc9c;'>Reset Your Password</h2>
+                        <p>We received a request to reset your password. Click the link below to reset your password:</p>
+                        <p>
+                            <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Reset Password</a>
+                        </p>
+                        <p>This link will expire in 1 hour. If you did not request a password reset, please ignore this email.</p>
+                        <p>Best regards,<br>Your Emma Logistics Team</p>
+                    </div>";
+
+                _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
+
+                return "A password reset link has been sent to your email.";
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred during forgot password.", ex);
+            }
+        }
+
+        public async Task<string> ResetPasswordAsync(string token, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                throw new ArgumentException("Invalid token.");
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+                throw new ArgumentException("Password cannot be null or empty.");
+
+            try
+            {
+                var user = await _userRepository.GetUserByResetTokenAsync(token);
+                if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
+                    return "Invalid or expired token.";
+
+                user.Password = _jWTHelper.HashPassword(newPassword);
+                user.ResetPasswordToken = null;
+                user.ResetTokenExpiry = null;
+
+                await _userRepository.UpdateAsync(user);
+
+                return "Your password has been successfully reset.";
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred during password reset.", ex);
+            }
+        }
     }
 }

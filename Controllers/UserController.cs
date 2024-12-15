@@ -74,5 +74,33 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] string email)
+        {
+            try
+            {
+                var result = await _userHandler.ForgotPasswordAsync(email);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            try
+            {
+                var result = await _userHandler.ResetPasswordAsync(resetPasswordDto.Token, resetPasswordDto.NewPassword);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

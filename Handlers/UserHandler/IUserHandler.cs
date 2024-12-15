@@ -8,5 +8,7 @@ namespace Emma.Api.Handlers.UserHandler
         Task<string> LoginAsync(string email, string password);
         Task<string> RegisterUserWithConfirmationAsync(RegisterUserDto registerUserDto);
         Task<string> ConfirmUserAsync(string token);
+        Task<string> ForgotPasswordAsync(string email);
+        Task<string> ResetPasswordAsync(string token, string newPassword);
     }
 }
