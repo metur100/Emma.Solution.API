@@ -166,14 +166,15 @@ namespace Emma.Api.Handlers.UserHandler
                 var emailSubject = "Reset your password";
                 var emailBody = $@"
                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #1abc9c;'>Reset Your Password</h2>
-                        <p>We received a request to reset your password. Click the link below to reset your password:</p>
+                        <h2 style='color: #1abc9c;'>Resetirajte Vašu Lozinku</h2>
+                        <p>Primili smo zahtjev za resetovanje Vaše lozinke. Kliknite na link ispod kako biste resetovali lozinku:</p>
                         <p>
-                            <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Reset Password</a>
+                            <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Resetuj Lozinku</a>
                         </p>
-                        <p>This link will expire in 1 hour. If you did not request a password reset, please ignore this email.</p>
-                        <p>Best regards,<br>Your Emma Logistics Team</p>
+                        <p>Ovaj link će isteći za 1 sat. Ako niste zatražili resetovanje lozinke, zanemarite ovaj email.</p>
+                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
                     </div>";
+
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
