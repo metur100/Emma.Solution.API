@@ -14,5 +14,6 @@ namespace Emma.Api.Repositories.FreightRepository
         Task<Freight?> GetFreightByProfileAndIdAsync(int profileId, int freightId);
         Task<List<Freight>> GetFreightsByProfileIdsAsync(List<int> profileIds);
         Task<List<int>> GetFreightIdsByProfileIdsAsync(IEnumerable<int> profileIds);
+        Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId);
     }
 }

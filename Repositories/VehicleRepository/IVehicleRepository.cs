@@ -14,5 +14,6 @@ namespace Emma.Api.Repositories.VehicleRepository
         Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId);
         Task AddVehicleAsync(Vehicle vehicle);
         Task<List<int>> GetVehicleIdsByProfileIdsAsync(IEnumerable<int> profileIds);
+        Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId);
     }
 }

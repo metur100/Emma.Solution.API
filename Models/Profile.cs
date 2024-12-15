@@ -8,6 +8,5 @@
         public string? ProfilePicture { get; set; }
         public int AddressId { get; set; }
         public int ContactId { get; set; }
-        public float? Ratings { get; set; } 
     }
 }

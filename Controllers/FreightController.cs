@@ -136,5 +136,19 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("/ListFreights/{profileId}")]
+        public async Task<IActionResult> GetFreightsByProfileIdAsync(int profileId)
+        {
+            try
+            {
+                var result = await _freightHandler.GetFreightsByProfileIdAsync(profileId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -210,5 +210,18 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
+        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
+        {
+            try
+            {
+                var vehicle = await _vehicleRepository.GetVehiclesByProfileIdAsync(profileId)
+                    ?? throw new Exception($"Vehicle with {profileId} not found.");
+                return vehicle;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching vehicle with {profileId}: {ex.Message}", ex);
+            }
+        }
     }
 }

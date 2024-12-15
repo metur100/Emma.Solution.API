@@ -212,5 +212,19 @@ namespace Emma.Api.Handlers.FreightHandler
             }
         }
 
+        public async Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId)
+        {
+            try
+            {
+                var freights = await _freightRepository.GetFreightsByProfileIdAsync(profileId)
+                    ?? throw new Exception($"Freights with {profileId} not found.");
+                return freights;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching freights with {profileId}: {ex.Message}", ex);
+            }
+        }
+
     }
 }

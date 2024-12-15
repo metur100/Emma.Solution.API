@@ -128,8 +128,7 @@ namespace Emma.Api.Handlers.ProfileHandler
                     PostalCode = address?.PostalCode ?? string.Empty,
                     City = address?.City ?? string.Empty,
                     Email = contact?.Email ?? string.Empty,
-                    PhoneNumber = contact?.PhoneNumber ?? string.Empty,
-                    Ratings = profile.Ratings
+                    PhoneNumber = contact?.PhoneNumber ?? string.Empty
                 };
 
                 return userProfile;

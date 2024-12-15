@@ -135,5 +135,19 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("/ListVehicles/{profileId}")]
+        public async Task<IActionResult> GetVehiclesByProfileIdAsync(int profileId)
+        {
+            try
+            {
+                var result = await _vehicleHandler.GetVehiclesByProfileIdAsync(profileId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

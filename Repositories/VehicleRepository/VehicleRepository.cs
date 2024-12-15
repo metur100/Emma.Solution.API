@@ -32,7 +32,6 @@ namespace Emma.Api.Repositories.VehicleRepository
                 .ToListAsync();
         }
 
-
         public async Task UpdateVehicleAsync(Vehicle vehicle)
         {
             _context.Set<Vehicle>().Update(vehicle);
@@ -66,6 +65,13 @@ namespace Emma.Api.Repositories.VehicleRepository
             return await _context.Vehicles
                 .Where(v => profileIds.Contains(v.ProfileId))
                 .Select(v => v.Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId)
+        {
+            return await _context.Set<Vehicle>()
+                .Where(p => p.ProfileId == profileId)
                 .ToListAsync();
         }
     }

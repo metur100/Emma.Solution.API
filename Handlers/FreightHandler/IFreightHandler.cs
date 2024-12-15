@@ -13,5 +13,6 @@ namespace Emma.Api.Handlers.FreightHandler
         Task UpdateFreightAsync(Freight freight);
         Task DeleteFreightByIdAsync(int id);
         Task<string?> GetProfileNameByFreightIdAsync(int freightId);
+        Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId);
     }
 }
