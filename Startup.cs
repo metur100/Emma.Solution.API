@@ -15,6 +15,8 @@ using Emma.Api.Handlers.StatusHandler;
 using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Helpers;
 using Emma.Api.Helpers.EmailServiceHelper;
+using Emma.Api.Handlers.RatingHandler;
+using Emma.Api.Repositories.RatingRepository;
 
 namespace Emma.Api
 {
@@ -30,6 +32,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IUserHandler, UserHandler>();
             builder.Services.AddScoped<IOfferHandler, OfferHandler>();
             builder.Services.AddScoped<IStatusHandler, StatusHandler>();
+            builder.Services.AddScoped<IRatingHandler, RatingHandler>();
             builder.Services.AddScoped<IEmailServiceHelper, EmailServiceHelper>();
 
             builder.Services.AddScoped<IJWTHelper, JWTHelper>();
@@ -48,6 +51,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IOfferRepository, OfferRepository>();
             builder.Services.AddScoped<IStatusRepository, StatusRepository>();
+            builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 
             #endregion
 
