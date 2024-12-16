@@ -60,10 +60,10 @@ namespace Emma.Api.Repositories.OfferRepository
                 .ToListAsync();
         }
 
-        public async Task<List<Offer>> GetOffersByProfileNamesAsync(IEnumerable<string> profileNames)
+        public async Task<List<Offer>> GetOffersByProfileIdsAsync(IEnumerable<int> profileIds)
         {
             return await _context.Offers
-                .Where(o => profileNames.Contains(o.OfferFromUser))
+                .Where(o => profileIds.Contains(o.OfferFromUserProfileId))
                 .ToListAsync();
         }
 

@@ -1,5 +1,4 @@
-﻿using Emma.Api.Helpers.JWTHelper;
-using Emma.Api.Models;
+﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Models.Enum;
 using Emma.Api.Repositories.FreightRepository;
@@ -14,15 +13,13 @@ namespace Emma.Api.Handlers.OfferHandler
         IStatusRepository statusRepository,
         IProfileRepository profileRepository,
         IVehicleRepository vehicleRepository,
-        IFreightRepository freightRepository,
-        IJWTHelper jWTHelper) : IOfferHandler
+        IFreightRepository freightRepository) : IOfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
         private readonly IStatusRepository _statusRepository = statusRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IFreightRepository _freightRepository = freightRepository;
-        private readonly IJWTHelper _jwTHelper = jWTHelper;
 
         public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
         {
@@ -42,12 +39,12 @@ namespace Emma.Api.Handlers.OfferHandler
             return new OfferDetailsDTO
             {
                 Id = offer.Id,
-                OfferForStuff = offer.OfferForStuff,
-                OfferFromUser = offer.OfferFromUser,
-                OfferForUser = offer.OfferForUser,
-                OfferFromStuff = offer.OfferFromStuff,
-                Transporter = offer.Transporter,
-                FreightForTransport = offer.FreightForTransport,
+                OfferForStuffId = offer.OfferForStuffId,
+                OfferFromUserProfileId = offer.OfferFromUserProfileId,
+                OfferForUserProfileId = offer.OfferForUserProfileId,
+                OfferFromStuffId = offer.OfferFromStuffId,
+                TransporterId = offer.TransporterProfileId,
+                FreightIdForTransport = offer.FreightIdForTransport,
                 FirstOfferPrice = freight.TransportPrice,
                 SecondOfferPrice = offer.NewTransportPrice,
                 Comment = offer.Comment,
@@ -79,14 +76,10 @@ namespace Emma.Api.Handlers.OfferHandler
 
             try
             {
-                var profileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
                 var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
                 var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
                 var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
                 var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
-
-                if (profileNames == null || profileIds == null || vehicleIds == null || freightIds == null || latestStatuses == null)
-                    throw new InvalidOperationException("Failed to retrieve necessary data from repositories.");
 
                 var validOfferIds = latestStatuses
                     .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
@@ -101,7 +94,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     throw new InvalidOperationException("Failed to retrieve offers from the repository.");
 
                 var filteredOffers = receivedOffers
-                    .Where(o => !profileNames.Contains(o.OfferFromUser))
+                    .Where(o => !profileIds.Contains(o.OfferFromUserProfileId))
                     .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
                     .ToList();
 
@@ -112,7 +105,6 @@ namespace Emma.Api.Handlers.OfferHandler
                 throw new InvalidOperationException("An error occurred while fetching received offers.", ex);
             }
         }
-
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
@@ -143,7 +135,6 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
-
         public async Task<IEnumerable<Offer>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)
@@ -151,8 +142,8 @@ namespace Emma.Api.Handlers.OfferHandler
 
             try
             {
-                var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-                if (userProfileNames == null || !userProfileNames.Any())
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
                     return Enumerable.Empty<Offer>();
 
                 var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
@@ -167,7 +158,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!validOfferIds.Any())
                     return Enumerable.Empty<Offer>();
 
-                var sentOffers = await _offerRepository.GetOffersByProfileNamesAsync(userProfileNames);
+                var sentOffers = await _offerRepository.GetOffersByProfileIdsAsync(userProfileIds);
                 if (sentOffers == null)
                     return Enumerable.Empty<Offer>();
 
@@ -184,11 +175,9 @@ namespace Emma.Api.Handlers.OfferHandler
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID.");
 
-            var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-            var userProfiles = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
-
-            var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfiles);
-            var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfiles);
+            var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+            var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfileIds);
+            var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfileIds);
 
             var allOffers = await _offerRepository.GetOffersAsync();
 
@@ -197,7 +186,7 @@ namespace Emma.Api.Handlers.OfferHandler
             {
                 bool isTransitOffer = false;
 
-                if (userProfileNames.Contains(offer.OfferFromUser))
+                if (userProfileIds.Contains(offer.OfferFromUserProfileId))
                 {
                     isTransitOffer = await _statusRepository.HasStatusGreaterOrEqualAsync(offer.Id, (int)StatusType.PreperingForTransit);
                 }
@@ -223,8 +212,8 @@ namespace Emma.Api.Handlers.OfferHandler
 
             try
             {
-                var userProfileNames = await _profileRepository.GetProfileNamesByUserIdAsync(userId);
-                if (userProfileNames == null || !userProfileNames.Any())
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
                     return Enumerable.Empty<Offer>();
 
                 var userProfiles = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
@@ -252,8 +241,8 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var declinedOffers = allOffers
                     .Where(o =>
-                        (userProfileNames.Contains(o.OfferFromUser) && declinedOfferIds.Contains(o.Id)) ||
-                        (!userProfileNames.Contains(o.OfferFromUser) &&
+                        (userProfileIds.Contains(o.OfferFromUserProfileId) && declinedOfferIds.Contains(o.Id)) ||
+                        (!userProfileIds.Contains(o.OfferFromUserProfileId) &&
                          (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
                          declinedOfferIds.Contains(o.Id)))
                     .ToList();

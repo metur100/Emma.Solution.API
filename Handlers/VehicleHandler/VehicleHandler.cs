@@ -196,17 +196,17 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task<string?> GetProfileNameByVehicleIdAsync(int vehicleId)
+        public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
         {
             try
             {
-                var profileName = await _vehicleRepository.GetProfileNameByVehicleIdAsync(vehicleId);
+                var profileId = await _vehicleRepository.GetProfileIdByVehicleIdAsync(vehicleId);
 
-                return profileName == null ? throw new Exception($"Profile name not found for vehicle with ID {vehicleId}.") : profileName;
+                return profileId == null ? throw new Exception($"Profile id not found for vehicle with ID {vehicleId}.") : profileId;
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error fetching Profile Name for VehicleId {vehicleId}: {ex.Message}");
+                throw new Exception($"Error fetching Profile id for VehicleId {vehicleId}: {ex.Message}");
             }
         }
 

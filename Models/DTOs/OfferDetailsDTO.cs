@@ -3,12 +3,12 @@
     public class OfferDetailsDTO
     {
         public int Id { get; set; }
-        public required string OfferForStuff { get; set; }
-        public required string OfferFromUser { get; set; }
-        public required string OfferForUser { get; set; }
-        public required string OfferFromStuff{ get; set; }
-        public required string Transporter { get; set; }
-        public required string FreightForTransport { get; set; }
+        public required int OfferForStuffId { get; set; }
+        public required int OfferFromUserProfileId { get; set; }
+        public required int OfferForUserProfileId { get; set; }
+        public required int OfferFromStuffId { get; set; }
+        public required int TransporterId { get; set; }
+        public required int FreightIdForTransport { get; set; }
         public required string FirstOfferPrice { get; set; }
         public string? SecondOfferPrice { get; set; }
         public string? Comment { get; set; }
