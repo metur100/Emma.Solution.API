@@ -51,12 +51,12 @@ namespace Emma.Api.Repositories.FreightRepository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<string?> GetProfileNameByFreightIdAsync(int freightId)
+        public async Task<int?> GetProfileIdsByFreightIdAsync(int freightId)
         {
             return await (from vehicle in _context.Freights
                           join profile in _context.Profiles on vehicle.ProfileId equals profile.Id
                           where vehicle.Id == freightId
-                          select profile.Name)
+                          select profile.Id)
                       .FirstOrDefaultAsync();
         }
 

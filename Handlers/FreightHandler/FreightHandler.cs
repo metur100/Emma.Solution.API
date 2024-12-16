@@ -198,13 +198,13 @@ namespace Emma.Api.Handlers.FreightHandler
             }
         }
 
-        public async Task<string?> GetProfileNameByFreightIdAsync(int freightId)
+        public async Task<int?> GetProfileIdsByFreightIdAsync(int freightId)
         {
             try
             {
-                var profileName = await _freightRepository.GetProfileNameByFreightIdAsync(freightId) 
+                var profileId = await _freightRepository.GetProfileIdsByFreightIdAsync(freightId) 
                     ?? throw new Exception($"Profile name not found for FreightId {freightId}");
-                return profileName;
+                return profileId;
             }
             catch (Exception ex)
             {

@@ -8,7 +8,7 @@ namespace Emma.Api.Repositories.FreightRepository
         Task UpdateFreightAsync(Freight freight);
         Task<Freight?> GetFreightByIdAsync(int id);
         Task DeleteFreightAsync(Freight freight);
-        Task<string?> GetProfileNameByFreightIdAsync(int freightId);
+        Task<int?> GetProfileIdsByFreightIdAsync(int freightId);
         Task AddFreightAsync(Freight freight);
         Task<List<Freight>> GetAllFreightsAsync();
         Task<Freight?> GetFreightByProfileAndIdAsync(int profileId, int freightId);
