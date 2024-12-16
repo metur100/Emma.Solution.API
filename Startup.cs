@@ -16,6 +16,7 @@ using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Helpers.EmailServiceHelper;
 using Emma.Api.Handlers.RatingHandler;
 using Emma.Api.Repositories.RatingRepository;
+using Emma.Api.Helpers.EnrichOfferHelper;
 
 namespace Emma.Api
 {
@@ -35,6 +36,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IEmailServiceHelper, EmailServiceHelper>();
 
             builder.Services.AddScoped<IJWTHelper, JWTHelper>();
+            builder.Services.AddScoped<IEnrichOfferHelper, EnrichOfferHelper>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<Func<IJWTHelper>>(sp => () => sp.GetRequiredService<IJWTHelper>());
 

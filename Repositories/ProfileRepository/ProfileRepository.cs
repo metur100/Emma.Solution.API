@@ -115,5 +115,13 @@ namespace Emma.Api.Repositories.ProfileRepository
             return await _context.Profiles
                 .CountAsync(p => p.UserId == userId);
         }
+
+        public async Task<string?> GetProfileNameByProfileIdAsync(int profileId)
+        {
+            return await _context.Profiles
+                .Where(p => p.Id == profileId)
+                .Select(p => p.Name)
+                .FirstOrDefaultAsync();
+        }
     }
 }

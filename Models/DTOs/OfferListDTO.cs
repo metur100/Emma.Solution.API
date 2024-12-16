@@ -2,6 +2,7 @@
 {
     public class OfferListDTO
     {
+        public int Id { get; set; }
         public int VehicleId { get; set; }
         public int FreightId { get; set; }
         public required string OfferForStuff { get; set; }
