@@ -1,12 +1,12 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
-
-namespace Emma.Api.Models.DTOs
+﻿namespace Emma.Api.Models.DTOs
 {
     public class OfferDetailsDTO
     {
         public int Id { get; set; }
-        public required string OfferFor { get; set; }
-        public required string OfferFrom { get; set; }
+        public required string OfferForStuff { get; set; }
+        public required string OfferFromUser { get; set; }
+        public required string OfferForUser { get; set; }
+        public required string OfferFromStuff{ get; set; }
         public required string Transporter { get; set; }
         public required string FreightForTransport { get; set; }
         public required string FirstOfferPrice { get; set; }

@@ -63,7 +63,7 @@ namespace Emma.Api.Repositories.OfferRepository
         public async Task<List<Offer>> GetOffersByProfileNamesAsync(IEnumerable<string> profileNames)
         {
             return await _context.Offers
-                .Where(o => profileNames.Contains(o.OfferFrom))
+                .Where(o => profileNames.Contains(o.OfferFromUser))
                 .ToListAsync();
         }
 

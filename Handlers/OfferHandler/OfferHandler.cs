@@ -42,8 +42,10 @@ namespace Emma.Api.Handlers.OfferHandler
             return new OfferDetailsDTO
             {
                 Id = offer.Id,
-                OfferFor = offer.OfferFor,
-                OfferFrom = offer.OfferFrom,
+                OfferForStuff = offer.OfferForStuff,
+                OfferFromUser = offer.OfferFromUser,
+                OfferForUser = offer.OfferForUser,
+                OfferFromStuff = offer.OfferFromStuff,
                 Transporter = offer.Transporter,
                 FreightForTransport = offer.FreightForTransport,
                 FirstOfferPrice = freight.TransportPrice,
@@ -99,7 +101,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     throw new InvalidOperationException("Failed to retrieve offers from the repository.");
 
                 var filteredOffers = receivedOffers
-                    .Where(o => !profileNames.Contains(o.OfferFrom))
+                    .Where(o => !profileNames.Contains(o.OfferFromUser))
                     .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
                     .ToList();
 
@@ -195,7 +197,7 @@ namespace Emma.Api.Handlers.OfferHandler
             {
                 bool isTransitOffer = false;
 
-                if (userProfileNames.Contains(offer.OfferFrom))
+                if (userProfileNames.Contains(offer.OfferFromUser))
                 {
                     isTransitOffer = await _statusRepository.HasStatusGreaterOrEqualAsync(offer.Id, (int)StatusType.PreperingForTransit);
                 }
@@ -250,8 +252,8 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var declinedOffers = allOffers
                     .Where(o =>
-                        (userProfileNames.Contains(o.OfferFrom) && declinedOfferIds.Contains(o.Id)) ||
-                        (!userProfileNames.Contains(o.OfferFrom) &&
+                        (userProfileNames.Contains(o.OfferFromUser) && declinedOfferIds.Contains(o.Id)) ||
+                        (!userProfileNames.Contains(o.OfferFromUser) &&
                          (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
                          declinedOfferIds.Contains(o.Id)))
                     .ToList();

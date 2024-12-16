@@ -13,7 +13,6 @@ using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Handlers.StatusHandler;
 using Emma.Api.Repositories.StatusRepository;
-using Emma.Api.Helpers;
 using Emma.Api.Helpers.EmailServiceHelper;
 using Emma.Api.Handlers.RatingHandler;
 using Emma.Api.Repositories.RatingRepository;
