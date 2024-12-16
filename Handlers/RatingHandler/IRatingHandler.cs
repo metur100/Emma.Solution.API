@@ -2,6 +2,6 @@
 {
     public interface IRatingHandler
     {
-        Task AddNewRating(int profileId, float ratingValue);
+        Task AddNewRating(int offerId, float ratingValue, int profileId);
     }
 }

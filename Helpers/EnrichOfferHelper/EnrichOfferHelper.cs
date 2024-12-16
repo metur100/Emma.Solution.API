@@ -21,7 +21,7 @@ namespace Emma.Api.Helpers.EnrichOfferHelper
             {
                 var vehicle = await _vehicleRepository.GetVehicleByIdAsync(offer.OfferForStuffId);
                 offerForStuff = vehicle != null
-                    ? $"{vehicle.Brand} {vehicle.BodyType}"
+                    ? $"{vehicle.Brand} - {vehicle.BodyType}"
                     : "Unknown Vehicle";
             }
             else if (offer.FreightId == offer.OfferForStuffId)
@@ -38,7 +38,7 @@ namespace Emma.Api.Helpers.EnrichOfferHelper
             {
                 var vehicle = await _vehicleRepository.GetVehicleByIdAsync(offer.OfferFromStuffId);
                 offerFromStuff = vehicle != null
-                    ? $"{vehicle.Brand} {vehicle.BodyType}"
+                    ? $"{vehicle.Brand} - {vehicle.BodyType}"
                     : "Unknown Vehicle";
             }
             else if (offer.FreightId == offer.OfferFromStuffId)

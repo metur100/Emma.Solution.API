@@ -24,7 +24,36 @@ namespace Emma.Api.Handlers.OfferHandler
         private readonly IFreightRepository _freightRepository = freightRepository;
         private readonly IEnrichOfferHelper _enrichOfferHelper = enrichOfferHelper;
 
-        public async Task<OfferDetailsDTO?> GetOfferByIdAsync(int offerId)
+        public async Task CreateOfferAsync(Offer offer, int userId)
+        {
+            if (offer == null)
+                throw new ArgumentNullException(nameof(offer), "Offer cannot be null.");
+
+            if (userId <= 0)
+                throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
+
+            try
+            {
+                await _offerRepository.CreateOfferAsync(offer, userId);
+
+                if (offer.Id <= 0)
+                    throw new InvalidOperationException("Offer creation failed. The Offer ID is invalid.");
+                var initialStatus = new Status
+                {
+                    OfferId = offer.Id,
+                    StatusType = (int)StatusType.Created,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _statusRepository.CreateStatusAsync(initialStatus);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while creating the offer.", ex);
+            }
+        }
+
+        public async Task<OfferDetailsDTO?> GetOfferDetailsByIdAsync(int offerId)
         {
             if (offerId <= 0)
                 throw new ArgumentException("Invalid offer ID.");
@@ -175,35 +204,6 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
-        public async Task CreateOfferAsync(Offer offer, int userId)
-        {
-            if (offer == null)
-                throw new ArgumentNullException(nameof(offer), "Offer cannot be null.");
-
-            if (userId <= 0)
-                throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
-
-            try
-            {
-                await _offerRepository.CreateOfferAsync(offer, userId);
-
-                if (offer.Id <= 0)
-                    throw new InvalidOperationException("Offer creation failed. The Offer ID is invalid.");
-                var initialStatus = new Status
-                {
-                    OfferId = offer.Id,
-                    StatusType = (int)StatusType.Created,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                await _statusRepository.CreateStatusAsync(initialStatus);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("An error occurred while creating the offer.", ex);
-            }
-        }
-
         public async Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)
@@ -254,7 +254,6 @@ namespace Emma.Api.Handlers.OfferHandler
 
             try
             {
-                // Fetch user-related IDs
                 var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
                 if (userProfileIds == null || !userProfileIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
@@ -262,7 +261,6 @@ namespace Emma.Api.Handlers.OfferHandler
                 var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfileIds);
                 var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfileIds);
 
-                // Fetch all offers
                 var allOffers = await _offerRepository.GetOffersAsync();
                 if (allOffers == null || !allOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
@@ -279,7 +277,6 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!transitOfferIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Filter and identify transit offers
                 var transitOffers = allOffers
                     .Where(o =>
                         (userProfileIds.Contains(o.OfferFromUserProfileId) && transitOfferIds.Contains(o.Id)) ||
@@ -291,7 +288,6 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!transitOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Enrich transit offers
                 var enrichedOffers = new List<OfferListDTO>();
                 foreach (var offer in transitOffers)
                 {

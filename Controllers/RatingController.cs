@@ -13,11 +13,11 @@ namespace Emma.Api.Controllers
         private readonly IRatingHandler _ratingHandler = ratingHandler;
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus([FromBody] CreateNewRatingDTO request)
+        public async Task<IActionResult> UpdateStatus([FromBody] RatingProfileDTO request)
         {
             try
             {
-                await _ratingHandler.AddNewRating(request.ProfileId, request.RatingValue);
+                await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue, request.ProfileId);
                 return Ok("Rating created successfully.");
             }
             catch (Exception ex)

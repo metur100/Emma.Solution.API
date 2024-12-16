@@ -17,7 +17,7 @@ namespace Emma.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOfferDetails(int id)
         {
-            var offer = await _offerHandler.GetOfferByIdAsync(id);
+            var offer = await _offerHandler.GetOfferDetailsByIdAsync(id);
             if (offer == null)
                 return NotFound();
 
@@ -50,7 +50,7 @@ namespace Emma.Api.Controllers
             return Ok(offers);
         }
 
-        [HttpGet("PreparingTransit")]
+        [HttpGet("Transit")]
         public async Task<IActionResult> GetTransitOffersAsync()
         {
             var userId = _userClaimHelper.GetUserId();
