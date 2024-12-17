@@ -3,17 +3,20 @@ using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
+using Emma.Api.Repositories.RatingRepository;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.ProfileHandler
 {
     public class ProfileHandler(IProfileRepository userRepository,
         IAddressRepository addressRepository,
-        IContactRepository contactRepository) : IProfileHandler
+        IContactRepository contactRepository,
+        IRatingRepository ratingRepository) : IProfileHandler
     {
         private readonly IProfileRepository _profileRepository = userRepository;
         private readonly IAddressRepository _addressRepository = addressRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
+        private readonly IRatingRepository _ratingRepository = ratingRepository;
 
         public async Task<int> CreateProfileAsync(
             string name,
@@ -115,9 +118,13 @@ namespace Emma.Api.Handlers.ProfileHandler
                 if (id <= 0)
                     throw new ArgumentException("Invalid User ID.");
 
-                var profile = await _profileRepository.GetProfileByIdAsync(id) ?? throw new Exception("User not found.");
+                var profile = await _profileRepository.GetProfileByIdAsync(id)
+                              ?? throw new Exception("User not found.");
+
                 var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
                 var contact = await _contactRepository.GetContactByIdAsync(profile.ContactId);
+
+                var (averageRating, ratingCount) = await _ratingRepository.GetRatingsSummaryForProfileAsync(profile.Id);
 
                 var userProfile = new ProfileInfoDTO
                 {
@@ -128,7 +135,9 @@ namespace Emma.Api.Handlers.ProfileHandler
                     PostalCode = address?.PostalCode ?? string.Empty,
                     City = address?.City ?? string.Empty,
                     Email = contact?.Email ?? string.Empty,
-                    PhoneNumber = contact?.PhoneNumber ?? string.Empty
+                    PhoneNumber = contact?.PhoneNumber ?? string.Empty,
+                    AverageRating = averageRating,
+                    RatingCount = ratingCount
                 };
 
                 return userProfile;

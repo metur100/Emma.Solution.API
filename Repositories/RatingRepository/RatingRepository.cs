@@ -17,5 +17,22 @@ namespace Emma.Api.Repositories.RatingRepository
             return await _context.Ratings
                 .FirstOrDefaultAsync(r => r.ProfileId == profileToRateId && r.OfferId == offerId);
         }
+
+        public async Task<(double AverageRating, int RatingCount)> GetRatingsSummaryForProfileAsync(int profileId)
+        {
+            var ratings = await _context.Ratings
+                .Where(r => r.ProfileId == profileId)
+                .Select(r => r.RatingValue) 
+                .ToListAsync();
+
+            if (!ratings.Any())
+                return (0f, 0);
+
+            double averageRating = ratings.Average();
+            int ratingCount = ratings.Count;
+
+            return (averageRating, ratingCount);
+        }
+
     }
 }

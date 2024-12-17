@@ -10,6 +10,7 @@
         public required string City { get; set; }
         public required string Email { get; set; }
         public required string PhoneNumber { get; set; }
-        public float? Ratings { get; set; }
+        public double AverageRating { get; set; }
+        public int RatingCount { get; set; }
     }
 }

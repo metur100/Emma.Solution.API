@@ -7,5 +7,6 @@ namespace Emma.Api.Repositories.RatingRepository
     {
         Task CreateRatingAsync(Rating rating);
         Task<Rating?> GetRatingForProfileAndOfferAsync(int profileToRateId, int offerId);
+        Task<(double AverageRating, int RatingCount)> GetRatingsSummaryForProfileAsync(int profileId);
     }
 }
