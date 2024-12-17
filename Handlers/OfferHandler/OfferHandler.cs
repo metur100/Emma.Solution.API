@@ -181,7 +181,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
                 var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
 
-                // Fetch and filter valid statuses
+                // Fetch latest statuses and valid offer IDs
                 var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
                 if (latestStatuses == null || !latestStatuses.Any())
                     return Enumerable.Empty<OfferListDTO>();
@@ -194,23 +194,23 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!validOfferIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Fetch offers based on valid IDs
+                // Fetch offers by valid IDs
                 var allOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
                 if (allOffers == null || !allOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Filter relevant received offers
-                var filteredOffers = allOffers
-                    .Where(o => !profileIds.Contains(o.OfferFromUserProfileId)) 
-                    .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId)) 
+                var receivedOffers = allOffers
+                    .Where(o =>
+                        !profileIds.Contains(o.OfferFromUserProfileId) &&
+                        (vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId)) &&
+                        (o.CounterOfferProfileId == null || !profileIds.Contains(o.CounterOfferProfileId.GetValueOrDefault()))
+                    )
                     .ToList();
 
-                if (!filteredOffers.Any())
-                    return Enumerable.Empty<OfferListDTO>();
 
-                // Enrich the filtered offers
+                // Enrich and return received offers
                 var enrichedOffers = new List<OfferListDTO>();
-                foreach (var offer in filteredOffers)
+                foreach (var offer in receivedOffers)
                 {
                     var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
                     enrichedOffers.Add(enrichedOffer);
@@ -227,14 +227,16 @@ namespace Emma.Api.Handlers.OfferHandler
         public async Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)
-                throw new ArgumentException("Invalid user ID.");
+                throw new ArgumentException("Invalid user ID.", nameof(userId));
 
             try
             {
-                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                // Fetch user-related IDs
+                var userProfileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
                 if (userProfileIds == null || !userProfileIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
+                // Fetch latest statuses and valid offer IDs
                 var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
                 if (latestStatuses == null || !latestStatuses.Any())
                     return Enumerable.Empty<OfferListDTO>();
@@ -247,13 +249,21 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!validOfferIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
+                // Fetch offers where the user is the sender or has made a counteroffer
                 var sentOffers = await _offerRepository.GetOffersByProfileIdsAsync(userProfileIds);
-                if (sentOffers == null)
+                if (sentOffers == null || !sentOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                var enrichedOffers = new List<OfferListDTO>();
+                var filteredSentOffers = sentOffers
+                    .Where(o =>
+                        validOfferIds.Contains(o.Id) &&
+                        (userProfileIds.Contains(o.OfferFromUserProfileId) || userProfileIds.Contains(o.CounterOfferProfileId.GetValueOrDefault())) // Sent or countered by user
+                    )
+                    .ToList();
 
-                foreach (var offer in sentOffers.Where(o => validOfferIds.Contains(o.Id)))
+                // Enrich and return sent offers
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in filteredSentOffers)
                 {
                     var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
                     enrichedOffers.Add(enrichedOffer);
