@@ -1,16 +1,22 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Repositories.RatingRepository;
 using Emma.Api.Repositories.OfferRepository;
+using Emma.Api.Helpers.JWTHelper;
+using Emma.Api.Repositories.ProfileRepository;
 
 namespace Emma.Api.Handlers.RatingHandler
 {
     public class RatingHandler (IRatingRepository ratingRepository,
-        IOfferRepository offerRepository) : IRatingHandler
+        IOfferRepository offerRepository,
+        IJWTHelper jWTHelper,
+        IProfileRepository profileRepository) : IRatingHandler
     {
         private readonly IRatingRepository _ratingRepository = ratingRepository;
         private readonly IOfferRepository _offerRepository = offerRepository;
+        private readonly IJWTHelper _jwTHelper = jWTHelper;
+        private readonly IProfileRepository _profileRepository = profileRepository;
 
-        public async Task AddNewRating(int offerId, float ratingValue, int profileId)
+        public async Task AddNewRating(int offerId, float ratingValue, int offerFromUserProfileId, int offerForUserProfileId)
         {
             if (offerId <= 0)
                 throw new ArgumentException("Invalid offer ID.", nameof(offerId));
@@ -20,15 +26,30 @@ namespace Emma.Api.Handlers.RatingHandler
 
             try
             {
-                var offerDetails = await _offerRepository.GetOfferByIdAsync(offerId); 
-                if (offerDetails == null)
-                    throw new InvalidOperationException("Offer not found.");
+                var userId = _jwTHelper.GetUserId();
+                var loggedInProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
 
-                int userBeingRatedId = offerDetails.OfferFromUserProfileId == profileId ? offerDetails.OfferForUserProfileId : offerDetails.OfferFromUserProfileId;
+                if (!loggedInProfileIds.Any())
+                    throw new UnauthorizedAccessException("No profiles associated with the logged-in user.");
+
+                int profileToRateId;
+
+                if (loggedInProfileIds.Contains(offerFromUserProfileId))
+                {
+                    profileToRateId = offerForUserProfileId; 
+                }
+                else if (loggedInProfileIds.Contains(offerForUserProfileId))
+                {
+                    profileToRateId = offerFromUserProfileId; 
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("Logged-in user is not associated with this offer.");
+                }
 
                 var newRating = new Rating
                 {
-                    ProfileId = userBeingRatedId,
+                    ProfileId = profileToRateId,
                     RatingValue = ratingValue,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -40,6 +61,7 @@ namespace Emma.Api.Handlers.RatingHandler
                 throw new InvalidOperationException($"An error occurred while creating the rating for offer ID {offerId}.", ex);
             }
         }
+
 
     }
 }

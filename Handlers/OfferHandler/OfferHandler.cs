@@ -122,6 +122,8 @@ namespace Emma.Api.Handlers.OfferHandler
                 OfferFromStuff = offerFromStuff,
                 Transporter = transporter,
                 FreightForTransport = freightForTransportName,
+                OfferForUserProfileId = offer.OfferForUserProfileId,
+                OfferFromUserProfileId = offer.OfferFromUserProfileId,
                 FirstOfferPrice = offerFreight.TransportPrice,
                 SecondOfferPrice = offer.NewTransportPrice,
                 Comment = offer.Comment,

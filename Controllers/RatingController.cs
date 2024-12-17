@@ -17,7 +17,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue, request.ProfileId);
+                await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue, 
+                    request.OfferFromUserProfileId, request.OfferForUserProfileId);
                 return Ok("Rating created successfully.");
             }
             catch (Exception ex)
