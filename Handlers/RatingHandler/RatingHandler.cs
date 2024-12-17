@@ -1,18 +1,15 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Repositories.RatingRepository;
-using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Repositories.ProfileRepository;
 
 namespace Emma.Api.Handlers.RatingHandler
 {
     public class RatingHandler (IRatingRepository ratingRepository,
-        IOfferRepository offerRepository,
         IJWTHelper jWTHelper,
         IProfileRepository profileRepository) : IRatingHandler
     {
         private readonly IRatingRepository _ratingRepository = ratingRepository;
-        private readonly IOfferRepository _offerRepository = offerRepository;
         private readonly IJWTHelper _jwTHelper = jWTHelper;
         private readonly IProfileRepository _profileRepository = profileRepository;
 
@@ -40,17 +37,25 @@ namespace Emma.Api.Handlers.RatingHandler
                 }
                 else if (loggedInProfileIds.Contains(offerForUserProfileId))
                 {
-                    profileToRateId = offerFromUserProfileId; 
+                    profileToRateId = offerFromUserProfileId;
                 }
                 else
                 {
                     throw new UnauthorizedAccessException("Logged-in user is not associated with this offer.");
                 }
 
+                var existingRating = await _ratingRepository.GetRatingForProfileAndOfferAsync(profileToRateId, offerId);
+
+                if (existingRating != null)
+                {
+                    throw new InvalidOperationException("You have already rated this profile for this offer.");
+                }
+
                 var newRating = new Rating
                 {
                     ProfileId = profileToRateId,
                     RatingValue = ratingValue,
+                    OfferId = offerId,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -61,7 +66,5 @@ namespace Emma.Api.Handlers.RatingHandler
                 throw new InvalidOperationException($"An error occurred while creating the rating for offer ID {offerId}.", ex);
             }
         }
-
-
     }
 }

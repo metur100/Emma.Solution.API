@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.RatingRepository
 {
@@ -9,6 +10,12 @@ namespace Emma.Api.Repositories.RatingRepository
         {
             _context.Ratings.Add(rating);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Rating?> GetRatingForProfileAndOfferAsync(int profileToRateId, int offerId)
+        {
+            return await _context.Ratings
+                .FirstOrDefaultAsync(r => r.ProfileId == profileToRateId && r.OfferId == offerId);
         }
     }
 }
