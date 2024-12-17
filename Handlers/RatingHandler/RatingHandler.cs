@@ -51,11 +51,16 @@ namespace Emma.Api.Handlers.RatingHandler
                     throw new InvalidOperationException("You have already rated this profile for this offer.");
                 }
 
+                var profileToRate = await _profileRepository.GetProfileByIdAsync(profileToRateId) 
+                    ?? throw new InvalidOperationException("Profile to rate not found.");
+                var profileToRateName = profileToRate.Name;
+
                 var newRating = new Rating
                 {
                     ProfileId = profileToRateId,
                     RatingValue = ratingValue,
                     OfferId = offerId,
+                    ProfileToRateName = profileToRateName,
                     CreatedAt = DateTime.UtcNow
                 };
 

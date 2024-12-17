@@ -11,6 +11,7 @@
         public required string OfferFromStuff { get; set; }
         public required string Transporter { get; set; }
         public required string FreightForTransport { get; set; }
+        public required string ProfileToRateName { get; set; }
         public required string FirstOfferPrice { get; set; }
         public string? SecondOfferPrice { get; set; }
         public string? Comment { get; set; }

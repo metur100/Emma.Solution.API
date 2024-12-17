@@ -6,6 +6,7 @@
         public required int ProfileId { get; set; }
         public required int OfferId { get; set; }
         public required double RatingValue {  get; set; }
+        public required string ProfileToRateName { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

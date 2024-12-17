@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Helpers.EnrichOfferHelper;
+using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Models.Enum;
@@ -7,6 +8,7 @@ using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Repositories.VehicleRepository;
+using System.Linq;
 
 namespace Emma.Api.Handlers.OfferHandler
 {
@@ -15,7 +17,8 @@ namespace Emma.Api.Handlers.OfferHandler
         IProfileRepository profileRepository,
         IVehicleRepository vehicleRepository,
         IFreightRepository freightRepository,
-        IEnrichOfferHelper enrichOfferHelper) : IOfferHandler
+        IEnrichOfferHelper enrichOfferHelper,
+        IJWTHelper jWTHelper) : IOfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
         private readonly IStatusRepository _statusRepository = statusRepository;
@@ -23,6 +26,7 @@ namespace Emma.Api.Handlers.OfferHandler
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IFreightRepository _freightRepository = freightRepository;
         private readonly IEnrichOfferHelper _enrichOfferHelper = enrichOfferHelper;
+        private readonly IJWTHelper _jWTHelper = jWTHelper;
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
@@ -113,6 +117,19 @@ namespace Emma.Api.Handlers.OfferHandler
             if (offerVehicle == null || offerFreight == null)
                 throw new InvalidOperationException("Offer data is incomplete.");
 
+            var loggedInUserProfileIds = await _profileRepository.GetProfileNamesByUserIdAsync(_jWTHelper.GetUserId()); 
+
+            string profileToRateName = "Nepoznat korisnik!"; 
+
+            if (loggedInUserProfileIds.Contains(offerFromUser))
+            {
+                profileToRateName = offerForUser; 
+            }
+            else if (loggedInUserProfileIds.Contains(offerForUser))
+            {
+                profileToRateName = offerFromUser; 
+            }
+
             return new OfferDetailsDTO
             {
                 Id = offer.Id,
@@ -124,6 +141,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 FreightForTransport = freightForTransportName,
                 OfferForUserProfileId = offer.OfferForUserProfileId,
                 OfferFromUserProfileId = offer.OfferFromUserProfileId,
+                ProfileToRateName = profileToRateName,
                 FirstOfferPrice = offerFreight.TransportPrice,
                 SecondOfferPrice = offer.NewTransportPrice,
                 Comment = offer.Comment,
