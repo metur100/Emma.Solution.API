@@ -321,11 +321,11 @@ namespace Emma.Api.Handlers.OfferHandler
                 var sentOffers = allValidOffers
                     .Where(o =>
                         // For regular created offers
-                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.Created) &&
+                        (latestStatuses.Any(ls => ls.LatestStatusType == (int)StatusType.Created) &&
                          o.OfferFromUserProfileId == userProfileIds.FirstOrDefault()) ||
 
                         // For counter offers sent by the user
-                        (latestStatuses.Any(ls => ls.LatestStatusType == (int)StatusType.CounterOffer) &&
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.CounterOffer) &&
                          o.CounterOfferProfileId == userProfileIds.FirstOrDefault())
                     )
                     .ToList();
