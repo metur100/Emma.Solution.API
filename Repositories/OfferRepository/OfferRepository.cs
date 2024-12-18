@@ -1,5 +1,6 @@
 ﻿using Emma.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 
 namespace Emma.Api.Repositories.OfferRepository
 {
@@ -124,6 +125,11 @@ namespace Emma.Api.Repositories.OfferRepository
                 _context.Offers.RemoveRange(offers);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<int> GetOffersCountAsync()
+        {
+            return await _context.Offers.CountAsync();
         }
     }
 }

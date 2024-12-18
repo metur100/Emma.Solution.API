@@ -134,5 +134,10 @@ namespace Emma.Api.Repositories.ProfileRepository
                       (profile, contact) => contact.Email)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<int> GetProfilesCountAsync()
+        {
+            return await _context.Profiles.CountAsync();
+        }
     }
 }

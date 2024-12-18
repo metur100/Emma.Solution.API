@@ -15,5 +15,6 @@ namespace Emma.Api.Repositories.OfferRepository
         Task DeleteOffersByVehicleIdAsync(int vehicleId);
         Task<List<Offer>> GetOffersByFreightIdAsync(int freightId);
         Task DeleteOffersByFreightIdAsync(int freightId);
+        Task<int> GetOffersCountAsync();
     }
 }

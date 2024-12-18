@@ -25,6 +25,11 @@ namespace Emma.Api.Repositories.FreightRepository
             return await _context.Freights.ToListAsync();
         }
 
+        public async Task<int> GetFreightsCountAsync()
+        {
+            return await _context.Freights.CountAsync();
+        }
+
         public async Task<List<Freight>> GetFreightsByProfileIdsAsync(List<int> profileIds)
         {
             return await _context.Set<Freight>()

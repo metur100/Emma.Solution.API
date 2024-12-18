@@ -18,6 +18,11 @@ namespace Emma.Api.Repositories.VehicleRepository
             return await _context.Vehicles.ToListAsync();
         }
 
+        public async Task<int> GetVehicleCountAsync()
+        {
+            return await _context.Vehicles.CountAsync();
+        }
+
         public async Task<Vehicle?> GetVehicleByIdAsync(int profileId, int vehicleId)
         {
             return await _context.Vehicles
