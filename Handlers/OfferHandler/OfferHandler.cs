@@ -59,21 +59,47 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var emailSubject = "Nova ponuda na platformi";
                 var emailBody = $@"
-                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                    <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
-                    <p>Primili ste novu ponudu od korisnika <strong>{offerDetails.OfferFromUser}</strong>.</p>
-                    <h3>Detalji ponude:</h3>
-                    <ul>
-                        <li><strong>Teret za prevoz:</strong> {offerDetails.FreightForTransport}</li>
-                        <li><strong>Cijena transporta:</strong> {offerDetails.TransportPrice}</li>
-                        <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
-                        <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
-                        <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
-                        <li><strong>Nosivost:</strong> {offerDetails.PayloadCapacity}</li>
-                    </ul>
-                    <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                 </div>";
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
+                        <p>Primili ste novu ponudu od korisnika <strong>{offerDetails.OfferFromUser}</strong>.</p>
+                        
+                        <h3 style='color: #34495e;'>Detalji ponude:</h3>
+                        <ul>
+                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.FirstOfferPrice}</li>
+                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.SecondOfferPrice}</li>
+                            <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
+                        <ul>
+                            <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
+                            <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
+                            <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
+                            <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
+                            <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
+                            <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
+                            <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o robi:</h3>
+                        <ul>
+                            <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
+                            <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
+                            <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
+                            <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o transportu:</h3>
+                        <ul>
+                            <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
+                            <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
+                            <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
+                        </ul>
+                        
+                        <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    </div>";
+
 
                 var email = await _profileRepository.GetEmailByProfileId(offer.OfferForUserProfileId) 
                     ?? throw new InvalidOperationException("Email for the specified profile ID was not found.");
