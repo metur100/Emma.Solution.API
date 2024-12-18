@@ -185,6 +185,89 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
+        public async Task AddDeclineOfferAsync(int offerId)
+        {
+            if (offerId <= 0)
+                throw new ArgumentException("Invalid offer ID.", nameof(offerId));
+
+            try
+            {
+                var offer = await _offerRepository.GetOfferByIdAsync(offerId);
+                if (offer == null)
+                    throw new InvalidOperationException("Offer not found.");
+
+                var declineStatus = new Status
+                {
+                    OfferId = offerId,
+                    StatusType = (int)StatusType.Declined,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _statusRepository.CreateStatusAsync(declineStatus);
+
+                var offerDetails = await GetOfferDetailsByIdAsync(offer.Id);
+                if (offerDetails == null)
+                    throw new InvalidOperationException("Failed to retrieve offer details.");
+
+                var recipientProfileId = offer.OfferFromUserProfileId == _jWTHelper.GetUserId()
+                    ? offer.OfferForUserProfileId
+                    : offer.OfferFromUserProfileId;
+
+                var email = await _profileRepository.GetEmailByProfileId(recipientProfileId)
+                    ?? throw new InvalidOperationException("Email for the specified profile ID was not found.");
+
+                var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(recipientProfileId);
+
+                var emailSubject = "Ponuda odbijena";
+                var emailBody = $@"
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #e74c3c;'>Poštovani {nameOfRecipient},</h2>
+                        <p>Nažalost, vaša ponuda je odbijena.</p>
+                        
+                        <h3 style='color: #34495e;'>Detalji ponude:</h3>
+                        <ul>
+                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.FirstOfferPrice}</li>
+                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.SecondOfferPrice}</li>
+                            <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
+                        <ul>
+                            <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
+                            <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
+                            <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
+                            <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
+                            <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
+                            <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
+                            <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o robi:</h3>
+                        <ul>
+                            <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
+                            <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
+                            <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
+                            <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
+                        </ul>
+                        
+                        <h3 style='color: #34495e;'>Informacije o transportu:</h3>
+                        <ul>
+                            <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
+                            <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
+                            <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
+                        </ul>
+                        
+                        <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    </div>";
+
+                _emailServiceHelper.SendEmail(new List<string> { email }, emailSubject, emailBody);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"An error occurred while declining the offer with ID {offerId}.", ex);
+            }
+        }
+
         public async Task<OfferDetailsDTO?> GetOfferDetailsByIdAsync(int offerId)
         {
             if (offerId <= 0)

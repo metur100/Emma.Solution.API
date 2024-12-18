@@ -24,7 +24,7 @@ namespace Emma.Api.Controllers
 
             try
             {
-                await _statusHandler.UpdateOfferStatusAsync(request.OfferId, request.StatusType);
+                await _statusHandler.AddOfferStatusAsync(request.OfferId, request.StatusType);
                 return Ok("Status updated successfully.");
             }
             catch (Exception ex)

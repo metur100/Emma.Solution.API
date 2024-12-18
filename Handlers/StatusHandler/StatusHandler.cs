@@ -8,7 +8,7 @@ namespace Emma.Api.Handlers.StatusHandler
     {
         private readonly IStatusRepository _statusRepository = statusRepository;
 
-        public async Task UpdateOfferStatusAsync(int offerId, StatusType statusType)
+        public async Task AddOfferStatusAsync(int offerId, StatusType statusType)
         {
             if (offerId <= 0)
                 throw new ArgumentException("Invalid offer ID.", nameof(offerId));
@@ -26,7 +26,7 @@ namespace Emma.Api.Handlers.StatusHandler
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"An error occurred while updating the status for offer ID {offerId}.", ex);
+                throw new InvalidOperationException($"An error occurred while adding the status for offer ID {offerId}.", ex);
             }
         }
 
