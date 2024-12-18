@@ -163,5 +163,19 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("BodyTypes")]
+        public async Task<IActionResult> GetAllBodyTypes()
+        {
+            try
+            {
+                var result = await _vehicleHandler.GetAllBodyTypesVehiclesAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

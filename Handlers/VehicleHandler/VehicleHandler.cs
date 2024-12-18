@@ -254,5 +254,17 @@ namespace Emma.Api.Handlers.VehicleHandler
                 throw new Exception($"Error fetching all vehicles: {ex.Message}");
             }
         }
+
+        public async Task<List<string>> GetAllBodyTypesVehiclesAsync()
+        {
+            try
+            {
+                return await _vehicleRepository.GetAllBodyTypesOfVehicleAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all body types: {ex.Message}");
+            }
+        }
     }
 }

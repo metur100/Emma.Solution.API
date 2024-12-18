@@ -79,5 +79,15 @@ namespace Emma.Api.Repositories.VehicleRepository
                 .Where(p => p.ProfileId == profileId)
                 .ToListAsync();
         }
+
+        public async Task<List<string>> GetAllBodyTypesOfVehicleAsync()
+        {
+            var bodyTypes = await _context.Vehicles
+                .Select(v => v.BodyType) 
+                .Distinct() 
+                .ToListAsync(); 
+
+            return bodyTypes;
+        }
     }
 }
