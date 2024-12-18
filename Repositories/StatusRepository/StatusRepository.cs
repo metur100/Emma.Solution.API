@@ -52,6 +52,20 @@ namespace Emma.Api.Repositories.StatusRepository
                 .Where(s => offerIds.Contains(s.OfferId))
                 .ToListAsync();
         }
+
+        public async Task DeleteStatusesByOfferIdsAsync(List<int> offerIds)
+        {
+
+            var statuses = await _context.Statuses
+                .Where(s => offerIds.Contains(s.OfferId))
+                .ToListAsync();
+
+            if (statuses.Any())
+            {
+                _context.Statuses.RemoveRange(statuses);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
 

@@ -9,5 +9,6 @@ namespace Emma.Api.Repositories.StatusRepository
         Task<List<(int OfferId, int LatestStatusType)>> GetLatestStatusesAsync();
         Task<bool> HasStatusGreaterOrEqualAsync(int offerId, int statusType);
         Task GetStatusesByOfferIdsAsync(List<int> offerIds);
+        Task DeleteStatusesByOfferIdsAsync(List<int> offerIds);
     }
 }
