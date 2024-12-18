@@ -3,19 +3,25 @@ using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.FreightRepository;
+using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
+using Emma.Api.Repositories.StatusRepository;
 
 namespace Emma.Api.Handlers.FreightHandler
 {
     public class FreightHandler(IFreightRepository freightRepository, 
         IProfileRepository profileRepository,
         IContactRepository contactRepository,
-        IAddressRepository addressRepository) : IFreightHandler
+        IAddressRepository addressRepository,
+        IOfferRepository offerRepository,
+        IStatusRepository statusRepository) : IFreightHandler
     {
         private readonly IFreightRepository _freightRepository = freightRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
         private readonly IAddressRepository _addressRepository = addressRepository;
+        private readonly IOfferRepository _offerRepository = offerRepository;
+        private readonly IStatusRepository _statusRepository = statusRepository;
 
         public async Task CreateFreightAsync(Freight freight, int profileId)
         {
@@ -188,13 +194,25 @@ namespace Emma.Api.Handlers.FreightHandler
         {
             try
             {
-                var freight = await _freightRepository.GetFreightByIdAsync(freightId) 
-                    ?? throw new Exception($"Freight with ID {freightId} not found.");
+                var freight = await _freightRepository.GetFreightByIdAsync(freightId);
+                if (freight == null)
+                {
+                    throw new Exception($"Vehicle with ID {freightId} not found.");
+                }
+
+                var offers = await _offerRepository.GetOffersByFreightIdAsync(freightId);
+                if (offers.Any())
+                {
+                    var offerIds = offers.Select(o => o.Id).ToList();
+                    await _statusRepository.DeleteStatusesByOfferIdsAsync(offerIds);
+
+                    await _offerRepository.DeleteOffersByFreightIdAsync(freightId);
+                }
                 await _freightRepository.DeleteFreightAsync(freight);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error deleting freight: {ex.Message}");
+                throw new Exception($"Error deleting vehicle and its associated data: {ex.Message}");
             }
         }
 
@@ -225,6 +243,5 @@ namespace Emma.Api.Handlers.FreightHandler
                 throw new Exception($"Error fetching freights with {profileId}: {ex.Message}", ex);
             }
         }
-
     }
 }

@@ -104,5 +104,26 @@ namespace Emma.Api.Repositories.OfferRepository
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Offer>> GetOffersByFreightIdAsync(int freightId)
+        {
+            return await _context.Offers
+                .Where(o => o.FreightId == freightId)
+                .ToListAsync();
+        }
+
+        public async Task DeleteOffersByFreightIdAsync(int freightId)
+        {
+
+            var offers = await _context.Offers
+                .Where(o => o.FreightId == freightId)
+                .ToListAsync();
+
+            if (offers.Any())
+            {
+                _context.Offers.RemoveRange(offers);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
