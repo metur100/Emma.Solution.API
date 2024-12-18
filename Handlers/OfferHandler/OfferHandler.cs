@@ -57,6 +57,57 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
+        public async Task AddCounterOffer(CounterOfferDTO counterOfferDTO)
+        {
+            if (counterOfferDTO == null)
+                throw new ArgumentNullException(nameof(counterOfferDTO));
+
+            try
+            {
+                // Retrieve offer from repository
+                var offer = await _offerRepository.GetOfferByIdAsync(counterOfferDTO.OfferId);
+                if (offer == null)
+                    throw new InvalidOperationException("Offer not found.");
+
+                // Get logged-in user's profile IDs
+                var loggedInUserProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(_jWTHelper.GetUserId());
+
+                // Determine the next counterOfferProfileId
+                if (loggedInUserProfileIds.Contains(offer.OfferFromUserProfileId))
+                {
+                    // If the logged-in user is the original offeror, set the counter for the recipient
+                    counterOfferDTO.CounterOfferProfileId = offer.OfferFromUserProfileId;
+                }
+                else if (loggedInUserProfileIds.Contains(offer.OfferForUserProfileId))
+                {
+                    // If the logged-in user is the recipient, set the counter for the original offeror
+                    counterOfferDTO.CounterOfferProfileId = offer.OfferForUserProfileId;
+                }
+                else
+                {
+                    throw new InvalidOperationException("User does not have permission to make a counteroffer.");
+                }
+
+                // Update the offer with the new counter offer details
+                offer.CounterOfferPrice = counterOfferDTO.CounterOfferPrice;
+                offer.CounterOfferProfileId = counterOfferDTO.CounterOfferProfileId;
+                await _offerRepository.UpdateOfferAsync(offer);
+
+                // Create a new status for the counter offer
+                var initialStatus = new Status
+                {
+                    OfferId = counterOfferDTO.OfferId,
+                    StatusType = (int)StatusType.CounterOffer,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _statusRepository.CreateStatusAsync(initialStatus);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while adding the counteroffer.", ex);
+            }
+        }
+
         public async Task<OfferDetailsDTO?> GetOfferDetailsByIdAsync(int offerId)
         {
             if (offerId <= 0)
@@ -186,6 +237,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (latestStatuses == null || !latestStatuses.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
+                // Get the offer IDs for both Created and CounterOffer states
                 var validOfferIds = latestStatuses
                     .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
                     .Select(ls => ls.OfferId)
@@ -194,15 +246,25 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!validOfferIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Fetch offers based on valid IDs
+                // Fetch all offers based on valid IDs
                 var allOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
                 if (allOffers == null || !allOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Filter relevant received offers
+                // Filter and combine relevant received offers
                 var filteredOffers = allOffers
-                    .Where(o => !profileIds.Contains(o.OfferFromUserProfileId)) 
-                    .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId)) 
+                    .Where(o =>
+                        // For normal offers in Created state, check against the latest status
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.Created) &&
+                         !profileIds.Contains(o.OfferFromUserProfileId) &&
+                         (vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))) ||
+
+                        // For counteroffers in CounterOffer state
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.CounterOffer) &&
+                         o.CounterOfferProfileId.HasValue &&
+                         !profileIds.Contains(o.CounterOfferProfileId.Value) &&
+                         (vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId)))
+                    )
                     .ToList();
 
                 if (!filteredOffers.Any())
@@ -224,65 +286,7 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
-        public async Task<IEnumerable<OfferListDTO>> GetReceivedCounterOffersAsync(int userId)
-        {
-            if (userId <= 0)
-                throw new ArgumentException("The user ID must be a positive integer.", nameof(userId));
-
-            try
-            {
-                // Fetch user-related IDs
-                var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
-                if (profileIds == null || !profileIds.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
-                var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
-
-                // Fetch and filter valid statuses
-                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
-                if (latestStatuses == null || !latestStatuses.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                var validOfferIds = latestStatuses
-                    .Where(ls => ls.LatestStatusType == (int)StatusType.CounterOffer)
-                    .Select(ls => ls.OfferId)
-                    .ToList();
-
-                if (!validOfferIds.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Fetch offers based on valid IDs
-                var allOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
-                if (allOffers == null || !allOffers.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Filter relevant received offers
-                var filteredOffers = allOffers
-                    .Where(o => o.CounterOfferProfileId.HasValue && !profileIds.Contains(o.CounterOfferProfileId.Value))
-                    .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
-                    .ToList();
-
-                if (!filteredOffers.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Enrich the filtered offers
-                var enrichedOffers = new List<OfferListDTO>();
-                foreach (var offer in filteredOffers)
-                {
-                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
-                    enrichedOffers.Add(enrichedOffer);
-                }
-
-                return enrichedOffers;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("An error occurred while fetching received offers.", ex);
-            }
-        }
-
-        public async Task<IEnumerable<OfferListDTO>> GetSentCounterOffersAsync(int userId)
+        public async Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)
                 throw new ArgumentException("Invalid user ID.");
@@ -294,64 +298,12 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (userProfileIds == null || !userProfileIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Fetch the latest statuses for valid counter offers
+                // Fetch the latest statuses for valid offers and counter offers
                 var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
                 if (latestStatuses == null || !latestStatuses.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                // Filter the offers that are valid counter offers
-                var validOfferIds = latestStatuses
-                    .Where(ls => ls.LatestStatusType == (int)StatusType.CounterOffer)
-                    .Select(ls => ls.OfferId)
-                    .ToList();
-
-                if (!validOfferIds.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Fetch the offers related to the valid offer IDs
-                var allValidOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
-                if (allValidOffers == null || !allValidOffers.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Filter offers where the user is the one who sent the counter offer
-                var sentCounterOffers = allValidOffers
-                    .Where(o => o.CounterOfferProfileId == userProfileIds.FirstOrDefault())
-                    .ToList();
-
-                if (!sentCounterOffers.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                // Enrich the filtered offers
-                var enrichedOffers = new List<OfferListDTO>();
-                foreach (var offer in sentCounterOffers)
-                {
-                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
-                    enrichedOffers.Add(enrichedOffer);
-                }
-
-                return enrichedOffers;
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("An error occurred while retrieving sent counter offers.", ex);
-            }
-        }
-
-        public async Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId)
-        {
-            if (userId <= 0)
-                throw new ArgumentException("Invalid user ID.");
-
-            try
-            {
-                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
-                if (userProfileIds == null || !userProfileIds.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
-                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
-                if (latestStatuses == null || !latestStatuses.Any())
-                    return Enumerable.Empty<OfferListDTO>();
-
+                // Get the valid offer IDs for both Created and CounterOffer statuses
                 var validOfferIds = latestStatuses
                     .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
                     .Select(ls => ls.OfferId)
@@ -360,13 +312,30 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (!validOfferIds.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                var sentOffers = await _offerRepository.GetOffersByProfileIdsAsync(userProfileIds);
-                if (sentOffers == null)
+                // Fetch all offers based on the valid offer IDs
+                var allValidOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (allValidOffers == null || !allValidOffers.Any())
                     return Enumerable.Empty<OfferListDTO>();
 
-                var enrichedOffers = new List<OfferListDTO>();
+                // Filter offers based on whether they are counter offers or regular offers
+                var sentOffers = allValidOffers
+                    .Where(o =>
+                        // For regular created offers
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.Created) &&
+                         o.OfferFromUserProfileId == userProfileIds.FirstOrDefault()) ||
 
-                foreach (var offer in sentOffers.Where(o => validOfferIds.Contains(o.Id)))
+                        // For counter offers sent by the user
+                        (latestStatuses.Any(ls => ls.LatestStatusType == (int)StatusType.CounterOffer) &&
+                         o.CounterOfferProfileId == userProfileIds.FirstOrDefault())
+                    )
+                    .ToList();
+
+                if (!sentOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Enrich the filtered offers
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in sentOffers)
                 {
                     var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
                     enrichedOffers.Add(enrichedOffer);

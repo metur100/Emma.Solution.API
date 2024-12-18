@@ -77,5 +77,11 @@ namespace Emma.Api.Repositories.OfferRepository
             return await _context.Offers
                 .FirstOrDefaultAsync(o => o.Id == offerId);
         }
+
+        public async Task UpdateOfferAsync(Offer offer)
+        {
+            _context.Offers.Update(offer);
+            await _context.SaveChangesAsync();
+        }
     }
 }

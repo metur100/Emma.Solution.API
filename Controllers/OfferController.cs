@@ -1,6 +1,7 @@
 ﻿using Emma.Api.Handlers.OfferHandler;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,27 +35,18 @@ namespace Emma.Api.Controllers
             return Ok();
         }
 
+        [HttpPatch]
+        public async Task<IActionResult> AddCounterOffer([FromBody] CounterOfferDTO request)
+        {
+            await _offerHandler.AddCounterOffer(request);
+            return Ok();
+        }
+
         [HttpGet("Received")]
         public async Task<IActionResult> GetReceivedOffersAsync()
         {
             var userId = _userClaimHelper.GetUserId();
             var offers = await _offerHandler.GetReceivedOffersAsync(userId);
-            return Ok(offers);
-        }
-
-        [HttpGet("ReceivedCounter")]
-        public async Task<IActionResult> GetReceivedCounterOffersAsync()
-        {
-            var userId = _userClaimHelper.GetUserId();
-            var offers = await _offerHandler.GetReceivedCounterOffersAsync(userId);
-            return Ok(offers);
-        }
-
-        [HttpGet("SentCounter")]
-        public async Task<IActionResult> GetSentCounterOffersAsync()
-        {
-            var userId = _userClaimHelper.GetUserId();
-            var offers = await _offerHandler.GetSentCounterOffersAsync(userId);
             return Ok(offers);
         }
 

@@ -11,7 +11,6 @@ namespace Emma.Api.Handlers.OfferHandler
         Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId);
         Task<IEnumerable<OfferListDTO>> GetTransitOffersAsync(int userId);
         Task<IEnumerable<OfferListDTO>> GetDeclinedOffersAsync(int userId);
-        Task<IEnumerable<OfferListDTO>> GetReceivedCounterOffersAsync(int userId);
-        Task<IEnumerable<OfferListDTO>> GetSentCounterOffersAsync(int userId);
+        Task AddCounterOffer(CounterOfferDTO counterOfferDTO);
     }
 }
