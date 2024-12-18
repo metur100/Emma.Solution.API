@@ -255,11 +255,11 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task<List<string>> GetAllBodyTypesVehiclesAsync()
+        public async Task<List<BodyTypeCountDTO>> GetAllBodyTypesCountsAsync()
         {
             try
             {
-                return await _vehicleRepository.GetAllBodyTypesOfVehicleAsync();
+                return await _vehicleRepository.GetBodyTypeCountsAsync();
             }
             catch (Exception ex)
             {

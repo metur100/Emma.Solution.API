@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.VehicleRepository
@@ -80,14 +81,18 @@ namespace Emma.Api.Repositories.VehicleRepository
                 .ToListAsync();
         }
 
-        public async Task<List<string>> GetAllBodyTypesOfVehicleAsync()
+        public async Task<List<BodyTypeCountDTO>> GetBodyTypeCountsAsync()
         {
-            var bodyTypes = await _context.Vehicles
-                .Select(v => v.BodyType) 
-                .Distinct() 
-                .ToListAsync(); 
+            var bodyTypeCounts = await _context.Vehicles
+                .GroupBy(v => v.BodyType)
+                .Select(group => new BodyTypeCountDTO
+                {
+                    BodyType = group.Key,
+                    Count = group.Count()
+                })
+                .ToListAsync();
 
-            return bodyTypes;
+            return bodyTypeCounts;
         }
     }
 }

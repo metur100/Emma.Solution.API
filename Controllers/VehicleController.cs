@@ -169,7 +169,7 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var result = await _vehicleHandler.GetAllBodyTypesVehiclesAsync();
+                var result = await _vehicleHandler.GetAllBodyTypesCountsAsync();
                 return Ok(result);
             }
             catch (Exception ex)
