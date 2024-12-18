@@ -224,6 +224,119 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
+        public async Task<IEnumerable<OfferListDTO>> GetReceivedCounterOffersAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("The user ID must be a positive integer.", nameof(userId));
+
+            try
+            {
+                // Fetch user-related IDs
+                var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+                if (profileIds == null || !profileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
+                var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
+
+                // Fetch and filter valid statuses
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Fetch offers based on valid IDs
+                var allOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (allOffers == null || !allOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Filter relevant received offers
+                var filteredOffers = allOffers
+                    .Where(o => o.CounterOfferProfileId.HasValue && !profileIds.Contains(o.CounterOfferProfileId.Value))
+                    .Where(o => vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))
+                    .ToList();
+
+                if (!filteredOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Enrich the filtered offers
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in filteredOffers)
+                {
+                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                    enrichedOffers.Add(enrichedOffer);
+                }
+
+                return enrichedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while fetching received offers.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<OfferListDTO>> GetSentCounterOffersAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("Invalid user ID.");
+
+            try
+            {
+                // Fetch the user-related profile IDs
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Fetch the latest statuses for valid counter offers
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Filter the offers that are valid counter offers
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Fetch the offers related to the valid offer IDs
+                var allValidOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (allValidOffers == null || !allValidOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Filter offers where the user is the one who sent the counter offer
+                var sentCounterOffers = allValidOffers
+                    .Where(o => o.CounterOfferProfileId == userProfileIds.FirstOrDefault())
+                    .ToList();
+
+                if (!sentCounterOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Enrich the filtered offers
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in sentCounterOffers)
+                {
+                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                    enrichedOffers.Add(enrichedOffer);
+                }
+
+                return enrichedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving sent counter offers.", ex);
+            }
+        }
+
         public async Task<IEnumerable<OfferListDTO>> GetSentOffersAsync(int userId)
         {
             if (userId <= 0)

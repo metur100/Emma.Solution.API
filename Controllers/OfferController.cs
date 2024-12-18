@@ -42,6 +42,22 @@ namespace Emma.Api.Controllers
             return Ok(offers);
         }
 
+        [HttpGet("ReceivedCounter")]
+        public async Task<IActionResult> GetReceivedCounterOffersAsync()
+        {
+            var userId = _userClaimHelper.GetUserId();
+            var offers = await _offerHandler.GetReceivedCounterOffersAsync(userId);
+            return Ok(offers);
+        }
+
+        [HttpGet("SentCounter")]
+        public async Task<IActionResult> GetSentCounterOffersAsync()
+        {
+            var userId = _userClaimHelper.GetUserId();
+            var offers = await _offerHandler.GetSentCounterOffersAsync(userId);
+            return Ok(offers);
+        }
+
         [HttpGet("Sent")]
         public async Task<IActionResult> GetSentOffersAsync()
         {

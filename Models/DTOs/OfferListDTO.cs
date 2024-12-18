@@ -13,5 +13,7 @@
         public required string FreightForTransport { get; set; }
         public string? NewTransportPrice { get; set; }
         public string? Comment { get; set; }
+        public string? CounterOfferPrice { get; set; }
+        public int? CounterOfferProfileId { get; set; }
     }
 }

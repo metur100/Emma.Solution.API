@@ -12,6 +12,8 @@
         public required int TransporterProfileId { get; set; }
         public required int FreightIdForTransport { get; set; }
         public string? NewTransportPrice { get; set; } 
-        public string? Comment { get; set; } 
+        public string? Comment { get; set; }
+        public string? CounterOfferPrice { get; set; }
+        public int? CounterOfferProfileId { get; set; }
     }
 }
