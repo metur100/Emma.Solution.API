@@ -57,7 +57,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (offerDetails == null)
                     throw new InvalidOperationException("Failed to retrieve offer details.");
 
-                var emailSubject = "Nova ponuda na platformi";
+                var emailSubject = "Nova ponuda";
                 var emailBody = $@"
                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
                         <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
@@ -153,6 +153,31 @@ namespace Emma.Api.Handlers.OfferHandler
                     CreatedAt = DateTime.UtcNow
                 };
                 await _statusRepository.CreateStatusAsync(initialStatus);
+
+                var recipientProfileId = offer.OfferFromUserProfileId == counterOfferDTO.CounterOfferProfileId
+                    ? offer.OfferForUserProfileId
+                    : offer.OfferFromUserProfileId;
+
+                var email = await _profileRepository.GetEmailByProfileId(recipientProfileId)
+                    ?? throw new InvalidOperationException("Email for the specified profile ID was not found.");
+
+                var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(counterOfferDTO.CounterOfferProfileId);
+
+                var emailBody = $@"
+                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                         <h2 style='color: #1abc9c;'>Poštovani,</h2>
+                         <p>Primili ste novu protuponudu od korisnika <strong>{nameOfRecipient}</strong>.</p>
+                         <h3>Detalji protuponude:</h3>
+                         <ul>
+                             <li><strong>Stara cijena transporta:</strong> {offer.NewTransportPrice}</li>
+                             <li><strong>Predložena nova cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
+                         </ul>
+                         <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                         <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                     </div>";
+
+                 _emailServiceHelper.SendEmail(new List<string> { email }, "Nova protuponuda", emailBody);
+
             }
             catch (Exception ex)
             {
