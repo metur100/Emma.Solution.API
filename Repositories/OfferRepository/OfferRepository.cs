@@ -83,5 +83,12 @@ namespace Emma.Api.Repositories.OfferRepository
             _context.Offers.Update(offer);
             await _context.SaveChangesAsync();
         }
+
+        public async Task GetOffersByVehicleIdAsync(int vehicleId)
+        {
+            var offers = await _context.Offers
+                .Where(o => o.VehicleId == vehicleId)
+                .ToListAsync();
+        }
     }
 }

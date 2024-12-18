@@ -2,20 +2,27 @@
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
+using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
+using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Repositories.VehicleRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.VehicleHandler
 {
     public class VehicleHandler(IVehicleRepository vehicleRepository,
         IProfileRepository profileRepository,
         IContactRepository contactRepository,
-        IAddressRepository addressRepository) : IVehicleHandler
+        IAddressRepository addressRepository,
+        IOfferRepository offerRepository,
+        IStatusRepository statusRepository) : IVehicleHandler
     {
         private readonly IVehicleRepository _vehicleRepository = vehicleRepository;
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
         private readonly IAddressRepository _addressRepository = addressRepository;
+        private readonly IOfferRepository _offerRepository = offerRepository;
+        private readonly IStatusRepository _statusRepository = statusRepository;
 
         public async Task CreateVehicleAsync(Vehicle vehicle, int profileId)
         {
@@ -182,19 +189,39 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task DeleteVehicleByIdAsync(int id)
-        {
-            try
-            {
-                var vehicle = await _vehicleRepository.GetVehicleByIdAsync(id)
-                    ?? throw new Exception($"Vehicle with ID {id} not found.");
-                await _vehicleRepository.DeleteVehicleAsync(vehicle);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error deleting vehicle: {ex.Message}");
-            }
-        }
+        //public async Task DeleteVehicleByIdAsync(int vehicleId)
+        //{
+        //    try
+        //    {
+        //        // Step 1: Retrieve the vehicle to be deleted
+        //        var vehicle = await _vehicleRepository.GetVehicleByIdAsync(vehicleId);
+        //        if (vehicle == null)
+        //        {
+        //            throw new Exception($"Vehicle with ID {vehicleId} not found.");
+        //        }
+
+        //        // Step 2: Retrieve all offers associated with the vehicle
+        //        var offers =  _offerRepository.GetOffersByVehicleIdAsync(vehicleId); // Await the task here
+        //        if (offers.Any()) // Now you can use LINQ methods because offers are already fetched
+        //        {
+        //            // Step 3: Delete all statuses associated with the offers
+        //            var offerIds = offers.Select(o => o.Id).ToList();
+        //            await _statusRepository.GetStatusesByOfferIdsAsync(offerIds); // Await the task here
+
+        //            // Step 4: Delete all offers associated with the vehicle
+        //            await _offerRepository.GetOffersByVehicleIdAsync(vehicleId);
+        //        }
+
+        //        // Step 5: Delete the vehicle
+        //        await _vehicleRepository.DeleteVehicleAsync(vehicle);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception($"Error deleting vehicle and its associated data: {ex.Message}");
+        //    }
+        //}
+
+
 
         public async Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId)
         {

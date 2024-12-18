@@ -11,5 +11,6 @@ namespace Emma.Api.Repositories.OfferRepository
         Task<List<Offer>> GetOffersAsync();
         Task<Offer?> GetOfferByIdAsync(int offerId);
         Task UpdateOfferAsync(Offer offer);
+        Task GetOffersByVehicleIdAsync(int vehicleId);
     }
 }

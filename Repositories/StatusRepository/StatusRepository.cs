@@ -45,6 +45,13 @@ namespace Emma.Api.Repositories.StatusRepository
             return await _context.Statuses
                 .AnyAsync(s => s.OfferId == offerId && s.StatusType >= statusType);
         }
+
+        public async Task GetStatusesByOfferIdsAsync(List<int> offerIds)
+        {
+            var statuses = await _context.Statuses
+                .Where(s => offerIds.Contains(s.OfferId))
+                .ToListAsync();
+        }
     }
 }
 
