@@ -1,4 +1,5 @@
-﻿using Emma.Api.Helpers.EnrichOfferHelper;
+﻿using Emma.Api.Helpers.EmailServiceHelper;
+using Emma.Api.Helpers.EnrichOfferHelper;
 using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
@@ -8,7 +9,6 @@ using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Repositories.VehicleRepository;
-using System.Linq;
 
 namespace Emma.Api.Handlers.OfferHandler
 {
@@ -18,7 +18,8 @@ namespace Emma.Api.Handlers.OfferHandler
         IVehicleRepository vehicleRepository,
         IFreightRepository freightRepository,
         IEnrichOfferHelper enrichOfferHelper,
-        IJWTHelper jWTHelper) : IOfferHandler
+        IJWTHelper jWTHelper,
+        IEmailServiceHelper emailServiceHelper) : IOfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
         private readonly IStatusRepository _statusRepository = statusRepository;
@@ -27,6 +28,7 @@ namespace Emma.Api.Handlers.OfferHandler
         private readonly IFreightRepository _freightRepository = freightRepository;
         private readonly IEnrichOfferHelper _enrichOfferHelper = enrichOfferHelper;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
+        private readonly IEmailServiceHelper _emailServiceHelper = emailServiceHelper;
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
@@ -42,14 +44,45 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 if (offer.Id <= 0)
                     throw new InvalidOperationException("Offer creation failed. The Offer ID is invalid.");
+
                 var initialStatus = new Status
                 {
                     OfferId = offer.Id,
                     StatusType = (int)StatusType.Created,
                     CreatedAt = DateTime.UtcNow
                 };
-
                 await _statusRepository.CreateStatusAsync(initialStatus);
+
+                var offerDetails = await GetOfferDetailsByIdAsync(offer.Id); 
+                if (offerDetails == null)
+                    throw new InvalidOperationException("Failed to retrieve offer details.");
+
+                var emailSubject = "Nova ponuda na platformi";
+                var emailBody = $@"
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
+                    <p>Primili ste novu ponudu od korisnika <strong>{offerDetails.OfferFromUser}</strong>.</p>
+                    <h3>Detalji ponude:</h3>
+                    <ul>
+                        <li><strong>Teret za prevoz:</strong> {offerDetails.FreightForTransport}</li>
+                        <li><strong>Cijena transporta:</strong> {offerDetails.TransportPrice}</li>
+                        <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
+                        <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
+                        <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
+                        <li><strong>Nosivost:</strong> {offerDetails.PayloadCapacity}</li>
+                    </ul>
+                    <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                 </div>";
+
+                var email = await _profileRepository.GetEmailByProfileId(offer.OfferForUserProfileId) 
+                    ?? throw new InvalidOperationException("Email for the specified profile ID was not found.");
+
+                _emailServiceHelper.SendEmail(
+                    new List<string> { email },
+                    emailSubject,
+                    emailBody
+                );
             }
             catch (Exception ex)
             {

@@ -20,5 +20,6 @@ namespace Emma.Api.Repositories.ProfileRepository
         Task<List<string>> GetProfileNamesByUserIdAsync(int userId);
         Task<List<int>> GetProfileIdsByUserIdAsync(int userId);
         Task<string?> GetProfileNameByProfileIdAsync(int profileId);
+        Task<string?> GetEmailByProfileId(int profileId);
     }
 }

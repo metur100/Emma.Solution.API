@@ -123,5 +123,16 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .Select(p => p.Name)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<string?> GetEmailByProfileId(int profileId)
+        {
+            return await _context.Profiles
+                .Where(profile => profile.Id == profileId)
+                .Join(_context.Contacts,
+                      profile => profile.ContactId,
+                      contact => contact.Id,
+                      (profile, contact) => contact.Email)
+                .FirstOrDefaultAsync();
+        }
     }
 }
