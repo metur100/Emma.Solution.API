@@ -2,7 +2,7 @@
 {
     public class BodyTypeCountDTO
     {
-        public string BodyType { get; set; }
+        public required string BodyType { get; set; }
         public int Count { get; set; }
     }
 }

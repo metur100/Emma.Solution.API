@@ -177,5 +177,18 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("Search/{searchTerm}")]
+        public async Task<IActionResult> SearchVehicles(string searchTerm)
+        {
+            var (vehicles, errorMessage) = await _vehicleHandler.HandleSearchAsync(searchTerm);
+
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                return BadRequest(errorMessage);
+            }
+
+            return Ok(vehicles);
+        }
     }
 }

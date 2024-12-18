@@ -94,5 +94,26 @@ namespace Emma.Api.Repositories.VehicleRepository
 
             return bodyTypeCounts;
         }
+
+        public async Task<List<Vehicle>> SearchVehiclesAsync(string searchTerm)
+        {
+            // Retrieve all vehicles from the database first (without filtering)
+            var vehicles = await _context.Vehicles.ToListAsync();
+
+            // Perform client-side filtering after retrieving data
+            var filteredVehicles = vehicles.Where(v =>
+                (v.Brand != null && v.Brand.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.PlateNumber != null && v.PlateNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.Description != null && v.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.BodyType != null && v.BodyType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.PayloadCapacity != null && v.PayloadCapacity.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.CargoSpaceVolume != null && v.CargoSpaceVolume.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.Length != null && v.Length.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.Weight != null && v.Weight.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            return filteredVehicles;
+        }
+
     }
 }

@@ -266,5 +266,30 @@ namespace Emma.Api.Handlers.VehicleHandler
                 throw new Exception($"Error fetching all body types: {ex.Message}");
             }
         }
+
+        public async Task<(List<Vehicle> vehicles, string errorMessage)> HandleSearchAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                return (new List<Vehicle>(), "Search term is required.");
+            }
+
+            try
+            {
+                var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim().ToLower());
+                if (vehicles == null || !vehicles.Any())
+                {
+                    return (new List<Vehicle>(), "No vehicles found matching the search criteria.");
+                }
+
+                return (vehicles, "");
+            }
+            catch (Exception ex)
+            {
+
+                return (new List<Vehicle>(), $"An error occurred while searching for vehicles: {ex.Message}");
+            }
+        }
+
     }
 }
