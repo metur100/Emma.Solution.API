@@ -598,6 +598,42 @@ namespace Emma.Api.Handlers.OfferHandler
             }
         }
 
+        public async Task<int> GetAllOffersCountAsync()
+        {
+            try
+            {
+                return await _offerRepository.GetOffersCountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all offers: {ex.Message}");
+            }
+        }
+
+        public async Task<int> GetAllTransportsCountAsync()
+        {
+            try
+            {
+                return await _offerRepository.GetTransportsCountAsync(StatusType.PreperingForTransit);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all offers: {ex.Message}");
+            }
+        }
+
+        public async Task<int> GetAllDeliveredOffersCountAsync()
+        {
+            try
+            {
+                return await _offerRepository.GetDeliveredCountAsync(StatusType.Arrived);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all offers: {ex.Message}");
+            }
+        }
+
         private bool IsOfferRelevant(
             Offer offer,
             IEnumerable<int> userProfileIds,

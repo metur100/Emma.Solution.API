@@ -21,5 +21,6 @@ namespace Emma.Api.Handlers.ProfileHandler
         Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO);
         Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id);
         Task DeleteProfileByIdAsync(int profileId);
+        Task<int> GetAllProfilesCountAsync();
     }
 }

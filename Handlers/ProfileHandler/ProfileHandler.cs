@@ -343,5 +343,16 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error deleting profile: {ex.Message}", ex);
             }
         }
+        public async Task<int> GetAllProfilesCountAsync()
+        {
+            try
+            {
+                return await _profileRepository.GetProfilesCountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all profiles: {ex.Message}");
+            }
+        }
     }
 }

@@ -14,5 +14,6 @@ namespace Emma.Api.Handlers.VehicleHandler
         Task DeleteVehicleByIdAsync(int id);
         Task<int?> GetProfileIdByVehicleIdAsync(int vehicleId);
         Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId);
+        Task<int> GetAllVehiclesCountAsync();
     }
 }

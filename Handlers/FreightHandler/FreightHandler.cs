@@ -243,5 +243,17 @@ namespace Emma.Api.Handlers.FreightHandler
                 throw new Exception($"Error fetching freights with {profileId}: {ex.Message}", ex);
             }
         }
+
+        public async Task<int> GetAllFreightsCountAsync()
+        {
+            try
+            {
+                return await _freightRepository.GetFreightsCountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all freights: {ex.Message}");
+            }
+        }
     }
 }

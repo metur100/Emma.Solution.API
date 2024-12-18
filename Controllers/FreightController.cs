@@ -149,5 +149,19 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("Count")]
+        public async Task<IActionResult> GetAllFreightsCount()
+        {
+            try
+            {
+                var result = await _freightHandler.GetAllFreightsCountAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

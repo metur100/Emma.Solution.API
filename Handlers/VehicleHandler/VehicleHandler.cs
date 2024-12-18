@@ -242,5 +242,17 @@ namespace Emma.Api.Handlers.VehicleHandler
                 throw new Exception($"Error fetching vehicle with {profileId}: {ex.Message}", ex);
             }
         }
+
+        public async Task<int> GetAllVehiclesCountAsync()
+        {
+            try
+            {
+                return await _vehicleRepository.GetVehicleCountAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error fetching all vehicles: {ex.Message}");
+            }
+        }
     }
 }

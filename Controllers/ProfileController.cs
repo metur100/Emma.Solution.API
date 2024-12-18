@@ -146,5 +146,19 @@ namespace Emma.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting profile: {ex.Message}");
             }
         }
+
+        [HttpGet("Count")]
+        public async Task<IActionResult> GetAllProfilesCount()
+        {
+            try
+            {
+                var result = await _profileHandler.GetAllProfilesCountAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

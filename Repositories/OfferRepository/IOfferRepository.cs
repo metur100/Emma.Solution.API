@@ -1,5 +1,6 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Emma.Api.Models.Enum;
 
 namespace Emma.Api.Repositories.OfferRepository
 {
@@ -16,5 +17,7 @@ namespace Emma.Api.Repositories.OfferRepository
         Task<List<Offer>> GetOffersByFreightIdAsync(int freightId);
         Task DeleteOffersByFreightIdAsync(int freightId);
         Task<int> GetOffersCountAsync();
+        Task<int> GetTransportsCountAsync(StatusType statusThreshold);
+        Task<int> GetDeliveredCountAsync(StatusType statusThreshold);
     }
 }

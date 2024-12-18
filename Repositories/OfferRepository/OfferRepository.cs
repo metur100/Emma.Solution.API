@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 
@@ -130,6 +131,28 @@ namespace Emma.Api.Repositories.OfferRepository
         public async Task<int> GetOffersCountAsync()
         {
             return await _context.Offers.CountAsync();
+        }
+
+        public async Task<int> GetTransportsCountAsync(StatusType statusThreshold)
+        {
+            return await _context.Offers
+                                 .Join(_context.Statuses,
+                                       offer => offer.Id,
+                                       status => status.OfferId,
+                                       (offer, status) => new { offer, status })
+                                 .Where(os => (int)os.status.StatusType >= (int)statusThreshold)
+                                 .CountAsync();
+        }
+
+        public async Task<int> GetDeliveredCountAsync(StatusType statusThreshold)
+        {
+            return await _context.Offers
+                                 .Join(_context.Statuses,
+                                       offer => offer.Id,
+                                       status => status.OfferId,
+                                       (offer, status) => new { offer, status })
+                                 .Where(os => (int)os.status.StatusType == (int)statusThreshold)
+                                 .CountAsync();
         }
     }
 }

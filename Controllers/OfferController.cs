@@ -94,5 +94,47 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, new { Message = "An error occurred while declining the offer.", Details = ex.Message });
             }
         }
+
+        [HttpGet("Count")]
+        public async Task<IActionResult> GetAllOffersCount()
+        {
+            try
+            {
+                var result = await _offerHandler.GetAllOffersCountAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/Transports/Count")]
+        public async Task<IActionResult> GetAllTransportsCount()
+        {
+            try
+            {
+                var result = await _offerHandler.GetAllTransportsCountAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("/Delivered/Count")]
+        public async Task<IActionResult> GetAllDeliveredOffersCount()
+        {
+            try
+            {
+                var result = await _offerHandler.GetAllDeliveredOffersCountAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
