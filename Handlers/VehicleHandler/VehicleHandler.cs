@@ -276,38 +276,27 @@ namespace Emma.Api.Handlers.VehicleHandler
 
             try
             {
-                // Fetch filtered vehicles from the repository
-                var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim().ToLower());
+                var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim());
 
                 if (vehicles == null || !vehicles.Any())
                 {
                     return (new List<VehicleSearchDTO>(), "No vehicles found matching the search criteria.");
                 }
 
-                // Map vehicles to VehicleSearchDTO and fetch profile names
-                var vehicleDtos = new List<VehicleSearchDTO>();
-
-                foreach (var vehicle in vehicles)
+                var vehicleDtos = vehicles.Select(vehicle => new VehicleSearchDTO
                 {
-                    // Check if ProfileId is greater than 0 (indicating a valid ProfileId)
-                    var profileName = vehicle.ProfileId > 0
-                        ? await _profileRepository.GetProfileNameByProfileIdAsync(vehicle.ProfileId)
-                        : "Unknown";
-
-                    vehicleDtos.Add(new VehicleSearchDTO
-                    {
-                        Id = vehicle.Id,
-                        ProfileName = profileName ?? "Unknown",
-                        Brand = vehicle.Brand,
-                        PlateNumber = vehicle.PlateNumber,
-                        Description = vehicle.Description,
-                        BodyType = vehicle.BodyType ?? "N/A",
-                        PayloadCapacity = vehicle.PayloadCapacity,
-                        CargoSpaceVolume = vehicle.CargoSpaceVolume,
-                        Length = vehicle.Length,
-                        Weight = vehicle.Weight
-                    });
-                }
+                    Id = vehicle.Id,
+                    ProfileId = vehicle.ProfileId,
+                    ProfileName = vehicle.ProfileName ?? "Unknown",
+                    Brand = vehicle.Brand,
+                    PlateNumber = vehicle.PlateNumber,
+                    Description = vehicle.Description,
+                    BodyType = vehicle.BodyType ?? "N/A",
+                    PayloadCapacity = vehicle.PayloadCapacity,
+                    CargoSpaceVolume = vehicle.CargoSpaceVolume,
+                    Length = vehicle.Length,
+                    Weight = vehicle.Weight
+                }).ToList();
 
                 return (vehicleDtos, "");
             }

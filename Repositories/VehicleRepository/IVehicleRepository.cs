@@ -17,6 +17,6 @@ namespace Emma.Api.Repositories.VehicleRepository
         Task<List<Vehicle>> GetVehiclesByProfileIdAsync(int profileId);
         Task<int> GetVehicleCountAsync();
         Task<List<BodyTypeCountDTO>> GetBodyTypeCountsAsync();
-        Task<List<Vehicle>> SearchVehiclesAsync(string searchTerm);
+        Task<List<VehicleSearchDTO>> SearchVehiclesAsync(string searchTerm);
     }
 }

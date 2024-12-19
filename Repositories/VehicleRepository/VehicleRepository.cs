@@ -95,21 +95,44 @@ namespace Emma.Api.Repositories.VehicleRepository
             return bodyTypeCounts;
         }
 
-        public async Task<List<Vehicle>> SearchVehiclesAsync(string searchTerm)
+        public async Task<List<VehicleSearchDTO>> SearchVehiclesAsync(string searchTerm)
         {
-            // Retrieve all vehicles from the database first (without filtering)
-            var vehicles = await _context.Vehicles.ToListAsync();
+            // First, retrieve the data from the database
+            var vehiclesWithProfileName = await (from v in _context.Vehicles
+                                                 join p in _context.Profiles on v.ProfileId equals p.Id
+                                                 select new
+                                                 {
+                                                     Vehicle = v,
+                                                     ProfileName = p.Name
+                                                 }).ToListAsync();
 
-            // Perform client-side filtering after retrieving data
-            var filteredVehicles = vehicles.Where(v =>
-                (v.Brand != null && v.Brand.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.PlateNumber != null && v.PlateNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.Description != null && v.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.BodyType != null && v.BodyType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.PayloadCapacity != null && v.PayloadCapacity.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.CargoSpaceVolume != null && v.CargoSpaceVolume.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.Length != null && v.Length.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (v.Weight != null && v.Weight.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+            // Now, perform the filtering client-side
+            var filteredVehicles = vehiclesWithProfileName
+                .Where(x =>
+                    (x.ProfileName != null && x.ProfileName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) || // Filter by ProfileName
+                    (x.Vehicle.Brand != null && x.Vehicle.Brand.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.PlateNumber != null && x.Vehicle.PlateNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.Description != null && x.Vehicle.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.BodyType != null && x.Vehicle.BodyType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.PayloadCapacity != null && x.Vehicle.PayloadCapacity.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.CargoSpaceVolume != null && x.Vehicle.CargoSpaceVolume.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.Length != null && x.Vehicle.Length.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Vehicle.Weight != null && x.Vehicle.Weight.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                )
+                .Select(x => new VehicleSearchDTO
+                {
+                    Id = x.Vehicle.Id,
+                    Brand = x.Vehicle.Brand,
+                    PlateNumber = x.Vehicle.PlateNumber,
+                    Description = x.Vehicle.Description,
+                    BodyType = x.Vehicle.BodyType,
+                    PayloadCapacity = x.Vehicle.PayloadCapacity,
+                    CargoSpaceVolume = x.Vehicle.CargoSpaceVolume,
+                    Length = x.Vehicle.Length,
+                    Weight = x.Vehicle.Weight,
+                    ProfileId = x.Vehicle.ProfileId,
+                    ProfileName = x.ProfileName // Include ProfileName from the joined Profile
+                })
                 .ToList();
 
             return filteredVehicles;

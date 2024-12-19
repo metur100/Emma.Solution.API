@@ -3,6 +3,8 @@
     public class VehicleSearchDTO
     {
         public int Id { get; set; }
+        public int ProfileId { get; set; }
+        public string? ProfilePicture { get; set; }
         public required string ProfileName { get; set; }
         public string? Brand { get; set; }
         public string? PlateNumber { get; set; }
