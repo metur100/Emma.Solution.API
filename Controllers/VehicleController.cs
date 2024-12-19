@@ -188,7 +188,8 @@ namespace Emma.Api.Controllers
                 return BadRequest(errorMessage);
             }
 
-            return Ok(vehicles);
+            return Ok(new { vehicles });
         }
+
     }
 }

@@ -54,14 +54,14 @@ namespace Emma.Api.Handlers.VehicleHandler
                 foreach (var vehicle in vehicles)
                 {
                     var profile = await _profileRepository.GetProfileByIdAsync(vehicle.ProfileId);
-                    var userName = profile?.Name ?? "Unknown User";
+                    var profileName = profile?.Name ?? "Unknown User";
                     var profilePicture = profile?.ProfilePicture ?? "Unknown Picture";
 
                     var vehicleDto = new VehicleListDTO
                     {
                         Id = vehicle.Id,
                         ProfileId = vehicle.ProfileId,
-                        UserName = userName,
+                        ProfileName = profileName,
                         ProfilePicture = profilePicture,
                         BodyType = vehicle.BodyType,
                         PayloadCapacity = vehicle.PayloadCapacity ?? "Not Specified"
@@ -98,7 +98,7 @@ namespace Emma.Api.Handlers.VehicleHandler
                 {
                     Id = vehicle.Id,
                     ProfileId = vehicle.ProfileId,
-                    UserName = profile.Name,
+                    ProfileName = profile.Name,
                     StreetAndNumber = address.StreetAndNumber,
                     PostalCode = address.PostalCode,
                     City = address.City,
@@ -267,29 +267,56 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task<(List<Vehicle> vehicles, string errorMessage)> HandleSearchAsync(string searchTerm)
+        public async Task<(List<VehicleSearchDTO> vehicles, string errorMessage)> HandleSearchAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return (new List<Vehicle>(), "Search term is required.");
+                return (new List<VehicleSearchDTO>(), "Search term is required.");
             }
 
             try
             {
+                // Fetch filtered vehicles from the repository
                 var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim().ToLower());
+
                 if (vehicles == null || !vehicles.Any())
                 {
-                    return (new List<Vehicle>(), "No vehicles found matching the search criteria.");
+                    return (new List<VehicleSearchDTO>(), "No vehicles found matching the search criteria.");
                 }
 
-                return (vehicles, "");
+                // Map vehicles to VehicleSearchDTO and fetch profile names
+                var vehicleDtos = new List<VehicleSearchDTO>();
+
+                foreach (var vehicle in vehicles)
+                {
+                    // Check if ProfileId is greater than 0 (indicating a valid ProfileId)
+                    var profileName = vehicle.ProfileId > 0
+                        ? await _profileRepository.GetProfileNameByProfileIdAsync(vehicle.ProfileId)
+                        : "Unknown";
+
+                    vehicleDtos.Add(new VehicleSearchDTO
+                    {
+                        Id = vehicle.Id,
+                        ProfileName = profileName ?? "Unknown",
+                        Brand = vehicle.Brand,
+                        PlateNumber = vehicle.PlateNumber,
+                        Description = vehicle.Description,
+                        BodyType = vehicle.BodyType ?? "N/A",
+                        PayloadCapacity = vehicle.PayloadCapacity,
+                        CargoSpaceVolume = vehicle.CargoSpaceVolume,
+                        Length = vehicle.Length,
+                        Weight = vehicle.Weight
+                    });
+                }
+
+                return (vehicleDtos, "");
             }
             catch (Exception ex)
             {
-
-                return (new List<Vehicle>(), $"An error occurred while searching for vehicles: {ex.Message}");
+                return (new List<VehicleSearchDTO>(), $"An error occurred while searching for vehicles: {ex.Message}");
             }
         }
+
 
     }
 }

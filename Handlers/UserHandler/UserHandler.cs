@@ -89,7 +89,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 var profile = new Profile
                 {
-                    Name = registerUserDto.UserName,
+                    Name = registerUserDto.ProfileName,
                     AddressId = address.Id,
                     ContactId = contact.Id,
                     UserId = user.Id,
@@ -101,7 +101,7 @@ namespace Emma.Api.Handlers.UserHandler
                 var emailSubject = "Potvrdite vašu registraciju";
                 var emailBody = $@"
                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.UserName}!</h2>
+                        <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.ProfileName}!</h2>
                         <p>Hvala vam što ste se registrovali na našoj platformi. Da biste dovršili proces registracije i aktivirali vaš nalog, molimo vas da potvrdite svoju registraciju klikom na sledeći link:</p>
                         <p>
                             <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>

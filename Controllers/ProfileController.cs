@@ -19,7 +19,7 @@ namespace Emma.Api.Controllers
                 return BadRequest(ModelState);
 
             var userId = await _profileHandler.CreateProfileAsync(
-                request.UserName,
+                request.ProfileName,
                 request.ProfilePicture,
                 request.StreetAndNumber,
                 request.PostalCode,
@@ -37,8 +37,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userNames = await _profileHandler.GetProfileNamesByUserIdAsync(userId);
-                return Ok(userNames);
+                var profileName = await _profileHandler.GetProfileNamesByUserIdAsync(userId);
+                return Ok(profileName);
             }
             catch
             {
@@ -51,8 +51,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userNames = await _profileHandler.GetUserProfileInformations(id);
-                return Ok(userNames);
+                var profileName = await _profileHandler.GetUserProfileInformations(id);
+                return Ok(profileName);
             }
             catch
             {
@@ -65,8 +65,8 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                var userName = await _profileHandler.GetProfileNameByUserId(userId);
-                return Ok(userName);
+                var profileName = await _profileHandler.GetProfileNameByUserId(userId);
+                return Ok(profileName);
             }
             catch
             {

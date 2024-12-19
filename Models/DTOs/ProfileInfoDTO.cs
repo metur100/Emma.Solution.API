@@ -3,7 +3,7 @@
     public class ProfileInfoDTO
     {
         public int Id { get; set; }
-        public required string UserName { get; set; }
+        public required string ProfileName { get; set; }
         public string? ProfilePicture { get; set; }
         public required string StreetAndNumber { get; set; }
         public required string PostalCode { get; set; }

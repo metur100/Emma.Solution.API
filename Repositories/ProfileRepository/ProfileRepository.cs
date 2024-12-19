@@ -139,5 +139,17 @@ namespace Emma.Api.Repositories.ProfileRepository
         {
             return await _context.Profiles.CountAsync();
         }
+
+        public async Task<List<string>> SearchProfilesAsync(string searchTerm)
+        {
+            var profiles = await _context.Profiles.ToListAsync();
+
+            var filteredProfileNames = profiles
+                .Where(p => p.Name != null && p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .Select(p => p.Name)
+                .ToList();
+
+            return filteredProfileNames;
+        }
     }
 }

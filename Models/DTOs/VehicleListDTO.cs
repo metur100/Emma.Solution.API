@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int ProfileId { get; set; }
-        public required string UserName { get; set; }
+        public required string ProfileName { get; set; }
         public string? ProfilePicture { get; set; }
         public required string BodyType { get; set; }
         public required string PayloadCapacity { get; set; }

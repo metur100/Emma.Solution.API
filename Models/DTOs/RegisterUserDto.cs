@@ -4,7 +4,7 @@
     {
         public required string Email { get; set; }
         public required string Password { get; set; }
-        public required string UserName { get; set; }
+        public required string ProfileName { get; set; }
         public string? ProfilePicture { get; set; }
         public required string StreetAndNumber { get; set; }
         public required string PostalCode { get; set; }

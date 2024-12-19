@@ -2,7 +2,7 @@
 {
     public class CreateProfileDTO
     {
-        public required string UserName { get; set; }
+        public required string ProfileName { get; set; }
         public required int UserId { get; set; }
         public string? ProfilePicture { get; set; }
         public required string StreetAndNumber { get; set; }

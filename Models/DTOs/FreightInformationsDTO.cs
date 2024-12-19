@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int ProfileId { get; set; }
-        public required string UserName { get; set; }
+        public required string ProfileName { get; set; }
         public required string StreetAndNumber { get; set; }
         public required string PostalCode { get; set; }
         public required string City { get; set; }

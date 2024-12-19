@@ -98,7 +98,7 @@ namespace Emma.Api.Handlers.ProfileHandler
                 return profiles.Select(p => new ProfileDto
                 {
                     Id = p.Id,
-                    UserName = p.Name
+                    ProfileName = p.Name
                 }).ToList();
             }
             catch (ArgumentException argEx)
@@ -129,7 +129,7 @@ namespace Emma.Api.Handlers.ProfileHandler
                 var userProfile = new ProfileInfoDTO
                 {
                     Id = profile.Id,
-                    UserName = profile.Name,
+                    ProfileName = profile.Name,
                     ProfilePicture = profile.ProfilePicture,
                     StreetAndNumber = address?.StreetAndNumber ?? string.Empty,
                     PostalCode = address?.PostalCode ?? string.Empty,

@@ -46,15 +46,15 @@ namespace Emma.Api.Handlers.FreightHandler
 
                 foreach (var freight in freights)
                 {
-                    var user = await _profileRepository.GetProfileByIdAsync(freight.ProfileId);
-                    var userName = user?.Name ?? "Unknown User";
-                    var profilePicture = user?.ProfilePicture ?? "Unknown Picture";
+                    var profile = await _profileRepository.GetProfileByIdAsync(freight.ProfileId);
+                    var profileName = profile?.Name ?? "Unknown User";
+                    var profilePicture = profile?.ProfilePicture ?? "Unknown Picture";
 
                     freightListDTOs.Add(new FreightListDTO
                     {
                         Id = freight.Id,
                         ProfileId = freight.ProfileId,
-                        UserName = userName,
+                        ProfileName = profileName,
                         ProfilePicture = profilePicture,
                         LoadingAddress = freight.LoadingAddress,
                         AvailabilityDate = freight.AvailabilityDate
@@ -74,15 +74,15 @@ namespace Emma.Api.Handlers.FreightHandler
             try
             {
                 var freight = await _freightRepository.GetFreightByProfileAndIdAsync(profileId, freightId) ?? throw new Exception($"Freight with ID {freightId} for user {profileId} not found.");
-                var user = await _profileRepository.GetProfileByIdAsync(profileId) ?? throw new Exception($"User with ID {profileId} not found.");
-                var address = await _addressRepository.GetAddressByIdAsync(user.AddressId);
-                var contact = await _contactRepository.GetContactByIdAsync(user.ContactId);
+                var profile = await _profileRepository.GetProfileByIdAsync(profileId) ?? throw new Exception($"User with ID {profileId} not found.");
+                var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+                var contact = await _contactRepository.GetContactByIdAsync(profile.ContactId);
 
                 return new FreightInformationsDTO
                 {
                     Id = freight.Id,
                     ProfileId = freight.ProfileId,
-                    UserName = user.Name,
+                    ProfileName = profile.Name,
                     StreetAndNumber = address?.StreetAndNumber ?? "Unknown Address",
                     PostalCode = address?.PostalCode ?? "Unknown Postal Code",
                     City = address?.City ?? "Unknown City",
