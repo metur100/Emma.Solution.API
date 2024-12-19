@@ -255,5 +255,16 @@ namespace Emma.Api.Handlers.FreightHandler
                 throw new Exception($"Error fetching all freights: {ex.Message}");
             }
         }
+
+        public async Task<List<FreightSearchDTO>> HandleSearchFreightsAsync(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                throw new ArgumentException("Search term cannot be empty or null.", nameof(searchTerm));
+            }
+
+            var freights = await _freightRepository.SearchFreightsAsync(searchTerm);
+            return freights;
+        }
     }
 }

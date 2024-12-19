@@ -16,5 +16,6 @@ namespace Emma.Api.Repositories.FreightRepository
         Task<List<int>> GetFreightIdsByProfileIdsAsync(IEnumerable<int> profileIds);
         Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId);
         Task<int> GetFreightsCountAsync();
+        Task<List<FreightSearchDTO>> SearchFreightsAsync(string searchTerm);
     }
 }

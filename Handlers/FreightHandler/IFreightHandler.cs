@@ -15,5 +15,6 @@ namespace Emma.Api.Handlers.FreightHandler
         Task<int?> GetProfileIdsByFreightIdAsync(int freightId);
         Task<List<Freight>> GetFreightsByProfileIdAsync(int profileId);
         Task<int> GetAllFreightsCountAsync();
+        Task<List<FreightSearchDTO>> HandleSearchFreightsAsync(string searchTerm);
     }
 }

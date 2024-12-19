@@ -97,7 +97,6 @@ namespace Emma.Api.Repositories.VehicleRepository
 
         public async Task<List<VehicleSearchDTO>> SearchVehiclesAsync(string searchTerm)
         {
-            // First, retrieve the data from the database
             var vehiclesWithProfileName = await (from v in _context.Vehicles
                                                  join p in _context.Profiles on v.ProfileId equals p.Id
                                                  select new
@@ -106,7 +105,6 @@ namespace Emma.Api.Repositories.VehicleRepository
                                                      ProfileName = p.Name
                                                  }).ToListAsync();
 
-            // Now, perform the filtering client-side
             var filteredVehicles = vehiclesWithProfileName
                 .Where(x =>
                     (x.ProfileName != null && x.ProfileName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) || // Filter by ProfileName
@@ -131,7 +129,7 @@ namespace Emma.Api.Repositories.VehicleRepository
                     Length = x.Vehicle.Length,
                     Weight = x.Vehicle.Weight,
                     ProfileId = x.Vehicle.ProfileId,
-                    ProfileName = x.ProfileName // Include ProfileName from the joined Profile
+                    ProfileName = x.ProfileName 
                 })
                 .ToList();
 

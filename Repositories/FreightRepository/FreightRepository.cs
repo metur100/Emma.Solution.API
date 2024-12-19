@@ -1,4 +1,5 @@
 ﻿using Emma.Api.Models;
+using Emma.Api.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Repositories.FreightRepository
@@ -79,5 +80,52 @@ namespace Emma.Api.Repositories.FreightRepository
                 .Where(p => p.ProfileId == profileId)
                 .ToListAsync();
         }
+
+        public async Task<List<FreightSearchDTO>> SearchFreightsAsync(string searchTerm)
+        {
+            var freightsWithProfileName = await (from f in _context.Freights
+                                                 join p in _context.Profiles on f.ProfileId equals p.Id
+                                                 select new
+                                                 {
+                                                     Freight = f,
+                                                     ProfileName = p.Name
+                                                 }).ToListAsync();
+
+            var filteredFreights = freightsWithProfileName
+                .Where(x =>
+                    (x.ProfileName != null && x.ProfileName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) || // Filter by ProfileName
+                    (x.Freight.LoadingAddress != null && x.Freight.LoadingAddress.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.UnloadingAddress != null && x.Freight.UnloadingAddress.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.TransportPrice != null && x.Freight.TransportPrice.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.Status != null && x.Freight.Status.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.Distance != null && x.Freight.Distance.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.GoodsDescription != null && x.Freight.GoodsDescription.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.GoodsType != null && x.Freight.GoodsType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.GoodsWeight != null && x.Freight.GoodsWeight.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.GoodsLength != null && x.Freight.GoodsLength.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                    (x.Freight.GoodsPrice != null && x.Freight.GoodsPrice.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                )
+                .Select(x => new FreightSearchDTO
+                {
+                    Id = x.Freight.Id,
+                    LoadingAddress = x.Freight.LoadingAddress,
+                    UnloadingAddress = x.Freight.UnloadingAddress,
+                    TransportPrice = x.Freight.TransportPrice,
+                    Status = x.Freight.Status,
+                    Distance = x.Freight.Distance,
+                    GoodsDescription = x.Freight.GoodsDescription,
+                    GoodsType = x.Freight.GoodsType,
+                    GoodsWeight = x.Freight.GoodsWeight,
+                    GoodsLength = x.Freight.GoodsLength,
+                    GoodsPrice = x.Freight.GoodsPrice,
+                    AvailabilityDate = x.Freight.AvailabilityDate,
+                    ProfileId = x.Freight.ProfileId,
+                    ProfileName = x.ProfileName
+                })
+                .ToList();
+
+            return filteredFreights;
+        }
+
     }
 }
