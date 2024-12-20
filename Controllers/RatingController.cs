@@ -19,7 +19,7 @@ namespace Emma.Api.Controllers
             {
                 await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue,
                     request.OfferFromUserProfileId, request.OfferForUserProfileId);
-                return Ok("Ocjena uspješno kreirana.");
+                return Ok("Rating successfully created.");
             }
             catch (ArgumentException ex)
             {
@@ -35,7 +35,7 @@ namespace Emma.Api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Došlo je do greške: {ex.Message}");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
     }
