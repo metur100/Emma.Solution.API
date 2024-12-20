@@ -163,14 +163,16 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(counterOfferDTO.CounterOfferProfileId);
 
+                var offerDetails = await GetOfferDetailsByIdAsync(offer.Id);
+
                 var emailBody = $@"
                      <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
                          <h2 style='color: #1abc9c;'>Poštovani,</h2>
                          <p>Primili ste novu protuponudu od korisnika <strong>{nameOfRecipient}</strong>.</p>
                          <h3>Detalji protuponude:</h3>
                          <ul>
-                             <li><strong>Stara cijena transporta:</strong> {offer.NewTransportPrice}</li>
-                             <li><strong>Predložena nova cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
+                             <li><strong>Prvobitna cijena transporta:</strong> {offerDetails?.TransportPrice}</li>
+                             <li><strong>Predložena nova protuponudna cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
                          </ul>
                          <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
                          <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
