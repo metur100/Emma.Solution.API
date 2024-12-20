@@ -646,5 +646,302 @@ namespace Emma.Api.Handlers.OfferHandler
                     (userVehicles.Contains(offer.VehicleId) || userFreights.Contains(offer.FreightId)) &&
                     declinedOfferIds.Contains(offer.Id));
         }
+
+        public async Task<IEnumerable<OfferListDTO>> SearchReceivedOffersAsync(int userId, string searchTerm)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("The user ID must be a positive integer.", nameof(userId));
+
+            try
+            {
+                var profileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+                if (profileIds == null || !profileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var vehicleIds = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(profileIds);
+                var freightIds = await _freightRepository.GetFreightIdsByProfileIdsAsync(profileIds);
+
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var allOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (allOffers == null || !allOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var filteredOffers = allOffers
+                    .Where(o =>
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.Created) &&
+                         !profileIds.Contains(o.OfferFromUserProfileId) &&
+                         (vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId))) ||
+
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.CounterOffer) &&
+                         o.CounterOfferProfileId.HasValue &&
+                         !profileIds.Contains(o.CounterOfferProfileId.Value) &&
+                         (vehicleIds.Contains(o.VehicleId) || freightIds.Contains(o.FreightId)))
+                    )
+                    .ToList();
+
+                if (!filteredOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in filteredOffers)
+                {
+                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                    enrichedOffers.Add(enrichedOffer);
+                }
+
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var searchLower = searchTerm.ToLower();
+                    enrichedOffers = enrichedOffers
+                        .Where(o =>
+                            (!string.IsNullOrEmpty(o.OfferForStuff) && o.OfferForStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferForUser) && o.OfferForUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.CounterOfferPrice) && o.CounterOfferPrice.ToLower().Contains(searchLower))
+                        )
+                        .ToList();
+                }
+
+                return enrichedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while fetching and searching received offers.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<OfferListDTO>> SearchSentOffersAsync(int userId, string searchTerm)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("Invalid user ID.");
+
+            try
+            {
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var validOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Created || ls.LatestStatusType == (int)StatusType.CounterOffer)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!validOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var allValidOffers = await _offerRepository.GetOffersByIdsAsync(validOfferIds);
+                if (allValidOffers == null || !allValidOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var sentOffers = allValidOffers
+                    .Where(o =>
+                        (latestStatuses.Any(ls => ls.LatestStatusType == (int)StatusType.Created) &&
+                         userProfileIds.Contains(o.OfferFromUserProfileId)) ||
+
+                        (latestStatuses.Any(ls => ls.OfferId == o.Id && ls.LatestStatusType == (int)StatusType.CounterOffer) &&
+                         o.CounterOfferProfileId.HasValue && userProfileIds.Contains(o.CounterOfferProfileId.Value))
+                    )
+                    .ToList();
+
+                if (!sentOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                // Enrich offers
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in sentOffers)
+                {
+                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                    enrichedOffers.Add(enrichedOffer);
+                }
+
+                // Apply search filter if searchTerm is provided
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var searchLower = searchTerm.ToLower();
+                    enrichedOffers = enrichedOffers
+                        .Where(o =>
+                            (!string.IsNullOrEmpty(o.OfferForStuff) && o.OfferForStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferForUser) && o.OfferForUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.CounterOfferPrice) && o.CounterOfferPrice.ToLower().Contains(searchLower))
+                        )
+                        .ToList();
+                }
+
+                return enrichedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving and searching sent offers.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<OfferListDTO>> SearchDeclinedOffersAsync(int userId, string searchTerm)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("Invalid user ID.");
+
+            try
+            {
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfileIds);
+                var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfileIds);
+
+                var latestStatuses = await _statusRepository.GetLatestStatusesAsync();
+                if (latestStatuses == null || !latestStatuses.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var declinedOfferIds = latestStatuses
+                    .Where(ls => ls.LatestStatusType == (int)StatusType.Declined)
+                    .Select(ls => ls.OfferId)
+                    .ToList();
+
+                if (!declinedOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var allOffers = await _offerRepository.GetOffersByIdsAsync(declinedOfferIds);
+                if (allOffers == null || !allOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var enrichedDeclinedOffers = new List<OfferListDTO>();
+                foreach (var offer in allOffers)
+                {
+                    if (IsOfferRelevant(offer, userProfileIds, userVehicles, userFreights, declinedOfferIds))
+                    {
+                        var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                        enrichedDeclinedOffers.Add(enrichedOffer);
+                    }
+                }
+
+                // Apply search filter if searchTerm is provided
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var searchLower = searchTerm.ToLower();
+                    enrichedDeclinedOffers = enrichedDeclinedOffers
+                        .Where(o =>
+                            (!string.IsNullOrEmpty(o.OfferForStuff) && o.OfferForStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferForUser) && o.OfferForUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.CounterOfferPrice) && o.CounterOfferPrice.ToLower().Contains(searchLower))
+                        )
+                        .ToList();
+                }
+
+                return enrichedDeclinedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while retrieving and searching declined offers.", ex);
+            }
+        }
+
+        public async Task<IEnumerable<OfferListDTO>> SearchTransitOffersAsync(int userId, string searchTerm)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("Invalid user ID.", nameof(userId));
+
+            try
+            {
+                var userProfileIds = await _profileRepository.GetProfileIdsByUserIdAsync(userId);
+                if (userProfileIds == null || !userProfileIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var userVehicles = await _vehicleRepository.GetVehicleIdsByProfileIdsAsync(userProfileIds);
+                var userFreights = await _freightRepository.GetFreightIdsByProfileIdsAsync(userProfileIds);
+
+                var allOffers = await _offerRepository.GetOffersAsync();
+                if (allOffers == null || !allOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var transitOfferIds = new List<int>();
+                foreach (var offer in allOffers)
+                {
+                    if (await _statusRepository.HasStatusGreaterOrEqualAsync(offer.Id, (int)StatusType.PreperingForTransit))
+                    {
+                        transitOfferIds.Add(offer.Id);
+                    }
+                }
+
+                if (!transitOfferIds.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var transitOffers = allOffers
+                    .Where(o =>
+                        (userProfileIds.Contains(o.OfferFromUserProfileId) && transitOfferIds.Contains(o.Id)) ||
+                        (!userProfileIds.Contains(o.OfferFromUserProfileId) &&
+                         (userVehicles.Contains(o.VehicleId) || userFreights.Contains(o.FreightId)) &&
+                         transitOfferIds.Contains(o.Id)))
+                    .ToList();
+
+                if (!transitOffers.Any())
+                    return Enumerable.Empty<OfferListDTO>();
+
+                var enrichedOffers = new List<OfferListDTO>();
+                foreach (var offer in transitOffers)
+                {
+                    var enrichedOffer = await _enrichOfferHelper.EnrichOfferAsync(offer);
+                    enrichedOffers.Add(enrichedOffer);
+                }
+
+                // Apply search filter if searchTerm is provided
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    var searchLower = searchTerm.ToLower();
+                    enrichedOffers = enrichedOffers
+                        .Where(o =>
+                            (!string.IsNullOrEmpty(o.OfferForStuff) && o.OfferForStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferForUser) && o.OfferForUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.CounterOfferPrice) && o.CounterOfferPrice.ToLower().Contains(searchLower))
+                        )
+                        .ToList();
+                }
+
+                return enrichedOffers;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("An error occurred while fetching and searching transit offers.", ex);
+            }
+        }
+
     }
 }

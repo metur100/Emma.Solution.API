@@ -136,5 +136,65 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("Received/Search/{searchTerm}")]
+        public async Task<IActionResult> SearchReceivedOffers(string searchTerm)
+        {
+            try
+            {
+                var userId = _userClaimHelper.GetUserId();
+                var result = await _offerHandler.SearchReceivedOffersAsync(userId, searchTerm);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("Sent/Search/{searchTerm}")]
+        public async Task<IActionResult> SearchSentOffers(string searchTerm)
+        {
+            try
+            {
+                var userId = _userClaimHelper.GetUserId();
+                var result = await _offerHandler.SearchSentOffersAsync(userId, searchTerm);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("Declined/Search/{searchTerm}")]
+        public async Task<IActionResult> SearchDeclinedOffers(string searchTerm)
+        {
+            try
+            {
+                var userId = _userClaimHelper.GetUserId();
+                var result = await _offerHandler.SearchDeclinedOffersAsync(userId, searchTerm);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("Transit/Search/{searchTerm}")]
+        public async Task<IActionResult> SearchTransportsOffers(string searchTerm)
+        {
+            try
+            {
+                var userId = _userClaimHelper.GetUserId();
+                var result = await _offerHandler.SearchTransitOffersAsync(userId, searchTerm);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
