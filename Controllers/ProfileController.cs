@@ -160,5 +160,30 @@ namespace Emma.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("Search/{userId}/{searchTerm}")]
+        public async Task<IActionResult> SearchProfilesByUserId(string searchTerm, int userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    return BadRequest(new { message = "Search term cannot be empty or null." });
+                }
+
+                var profiles = await _profileHandler.SearchProfilesByUserIdAsync(userId, searchTerm.Trim());
+
+                if (profiles == null || !profiles.Any())
+                {
+                    return NotFound(new { message = "No vehicles found matching the search criteria." });
+                }
+
+                return Ok(new { profiles });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred while searching vehicles: {ex.Message}" });
+            }
+        }
     }
 }

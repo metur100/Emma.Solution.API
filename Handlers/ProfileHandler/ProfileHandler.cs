@@ -343,6 +343,7 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error deleting profile: {ex.Message}", ex);
             }
         }
+
         public async Task<int> GetAllProfilesCountAsync()
         {
             try
@@ -354,5 +355,51 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error fetching all profiles: {ex.Message}");
             }
         }
+
+        public async Task<IEnumerable<ProfileManagementDTO>> SearchProfilesByUserIdAsync(int userId, string searchTerm)
+        {
+            try
+            {
+                if (userId <= 0)
+                    throw new ArgumentException("Invalid User ID.");
+
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                    throw new ArgumentException("Search term cannot be empty.");
+
+                var profiles = await _profileRepository.GetProfilesByUserIdAsync(userId);
+
+                if (!profiles.Any())
+                    return Enumerable.Empty<ProfileManagementDTO>();
+
+                var profileDtos = new List<ProfileManagementDTO>();
+
+                foreach (var profile in profiles)
+                {
+                    var address = await _addressRepository.GetAddressByIdAsync(profile.AddressId);
+
+                    if ((profile.Name != null && profile.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                        (address?.City != null && address.City.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        profileDtos.Add(new ProfileManagementDTO
+                        {
+                            Id = profile.Id,
+                            Name = profile.Name ?? "Nepoznato ime",
+                            City = address?.City ?? "Unknown"
+                        });
+                    }
+                }
+
+                return profileDtos;
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new Exception($"Invalid input: {argEx.Message}", argEx);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error searching profiles for UserId {userId}: {ex.Message}", ex);
+            }
+        }
+
     }
 }

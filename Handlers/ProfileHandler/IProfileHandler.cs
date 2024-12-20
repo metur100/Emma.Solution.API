@@ -22,5 +22,6 @@ namespace Emma.Api.Handlers.ProfileHandler
         Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id);
         Task DeleteProfileByIdAsync(int profileId);
         Task<int> GetAllProfilesCountAsync();
+        Task<IEnumerable<ProfileManagementDTO>> SearchProfilesByUserIdAsync(int userId, string searchTerm);
     }
 }
