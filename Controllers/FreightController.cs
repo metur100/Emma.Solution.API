@@ -181,5 +181,30 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, new { message = $"An error occurred while searching freights: {ex.Message}" });
             }
         }
+
+        [HttpGet("Search/{userId}/{searchTerm}")]
+        public async Task<IActionResult> SearchFreightsByUserId(string searchTerm, int userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    return BadRequest(new { message = "Search term cannot be empty or null." });
+                }
+
+                var freights = await _freightHandler.SearchFreightsByUserIdAsync(userId, searchTerm.Trim());
+
+                if (freights == null || !freights.Any())
+                {
+                    return NotFound(new { message = "No freights found matching the search criteria." });
+                }
+
+                return Ok(new { freights });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred while searching freights: {ex.Message}" });
+            }
+        }
     }
 }

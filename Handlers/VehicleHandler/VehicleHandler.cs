@@ -6,7 +6,6 @@ using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.StatusRepository;
 using Emma.Api.Repositories.VehicleRepository;
-using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.VehicleHandler
 {
@@ -276,6 +275,34 @@ namespace Emma.Api.Handlers.VehicleHandler
 
             var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim());
             return vehicles;
+        }
+
+        public async Task<List<VehicleManagementDTO>> SearchVehiclesByUserIdAsync(int userId, string searchTerm)
+        {
+            var userProfileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+
+            if (userProfileIds == null || !userProfileIds.Any())
+            {
+                return new List<VehicleManagementDTO>();
+            }
+
+            var vehicles = await _vehicleRepository.GetVehiclesByProfileIdsAsync(userProfileIds);
+
+            var filteredVehicles = vehicles.Where(v =>
+                (v.Brand != null && v.Brand.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.BodyType != null && v.BodyType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (v.PayloadCapacity != null && v.PayloadCapacity.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            );
+
+            var vehicleDtos = filteredVehicles.Select(v => new VehicleManagementDTO
+            {
+                Id = v.Id,
+                Brand = v.Brand,
+                BodyType = v.BodyType,
+                PayloadCapacity = v.PayloadCapacity
+            }).ToList();
+
+            return vehicleDtos;
         }
     }
 }

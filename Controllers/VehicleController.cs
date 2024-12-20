@@ -195,5 +195,30 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, new { message = $"An error occurred while searching vehicles: {ex.Message}" });
             }
         }
+
+        [HttpGet("Search/{userId}/{searchTerm}")]
+        public async Task<IActionResult> SearchVehiclesByUserId(string searchTerm, int userId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    return BadRequest(new { message = "Search term cannot be empty or null." });
+                }
+
+                var vehicles = await _vehicleHandler.SearchVehiclesByUserIdAsync(userId, searchTerm.Trim());
+
+                if (vehicles == null || !vehicles.Any())
+                {
+                    return NotFound(new { message = "No vehicles found matching the search criteria." });
+                }
+
+                return Ok(new { vehicles });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred while searching vehicles: {ex.Message}" });
+            }
+        }
     }
 }

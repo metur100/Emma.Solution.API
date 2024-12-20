@@ -266,5 +266,34 @@ namespace Emma.Api.Handlers.FreightHandler
             var freights = await _freightRepository.SearchFreightsAsync(searchTerm);
             return freights;
         }
+
+        public async Task<List<FreightManagementDTO>> SearchFreightsByUserIdAsync(int userId, string searchTerm)
+        {
+            var userProfileIds = await _profileRepository.GetUserProfileIdsByUserIdAsync(userId);
+
+            if (userProfileIds == null || !userProfileIds.Any())
+            {
+                return new List<FreightManagementDTO>();
+            }
+
+            var freights = await _freightRepository.GetFreightsByProfileIdsAsync(userProfileIds);
+
+            var filteredFreights = freights.Where(f =>
+                (f.GoodsDescription != null && f.GoodsDescription.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (f.GoodsWeight != null && f.GoodsWeight.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                (f.Distance != null && f.Distance.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            );
+
+            var freightDtos = filteredFreights.Select(f => new FreightManagementDTO
+            {
+                Id = f.Id,
+                GoodsDescription = f.GoodsDescription,
+                GoodsWeight = f.GoodsWeight,
+                Distance = f.Distance,
+            }).ToList();
+
+            return freightDtos;
+        }
+
     }
 }
