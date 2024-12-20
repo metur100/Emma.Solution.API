@@ -267,45 +267,15 @@ namespace Emma.Api.Handlers.VehicleHandler
             }
         }
 
-        public async Task<(List<VehicleSearchDTO> vehicles, string errorMessage)> HandleSearchAsync(string searchTerm)
+        public async Task<List<VehicleSearchDTO>> HandleSearchVehiclesAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                return (new List<VehicleSearchDTO>(), "Search term is required.");
+                throw new ArgumentException("Search term cannot be empty or null.", nameof(searchTerm));
             }
 
-            try
-            {
-                var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim());
-
-                if (vehicles == null || !vehicles.Any())
-                {
-                    return (new List<VehicleSearchDTO>(), "No vehicles found matching the search criteria.");
-                }
-
-                var vehicleDtos = vehicles.Select(vehicle => new VehicleSearchDTO
-                {
-                    Id = vehicle.Id,
-                    ProfileId = vehicle.ProfileId,
-                    ProfileName = vehicle.ProfileName ?? "Unknown",
-                    Brand = vehicle.Brand,
-                    PlateNumber = vehicle.PlateNumber,
-                    Description = vehicle.Description,
-                    BodyType = vehicle.BodyType ?? "N/A",
-                    PayloadCapacity = vehicle.PayloadCapacity,
-                    CargoSpaceVolume = vehicle.CargoSpaceVolume,
-                    Length = vehicle.Length,
-                    Weight = vehicle.Weight
-                }).ToList();
-
-                return (vehicleDtos, "");
-            }
-            catch (Exception ex)
-            {
-                return (new List<VehicleSearchDTO>(), $"An error occurred while searching for vehicles: {ex.Message}");
-            }
+            var vehicles = await _vehicleRepository.SearchVehiclesAsync(searchTerm.Trim());
+            return vehicles;
         }
-
-
     }
 }

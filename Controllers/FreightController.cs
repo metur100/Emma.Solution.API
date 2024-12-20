@@ -165,10 +165,21 @@ namespace Emma.Api.Controllers
         }
 
         [HttpGet("Search/{searchTerm}")]
-        public async Task<IActionResult> SearchVehicles(string searchTerm)
+        public async Task<IActionResult> SearchFreights(string searchTerm)
         {
-            var freights = await _freightHandler.HandleSearchFreightsAsync(searchTerm);
-            return Ok(new { freights });
+            try
+            {
+                var freights = await _freightHandler.HandleSearchFreightsAsync(searchTerm);
+                return Ok(new { freights });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"An error occurred while searching freights: {ex.Message}" });
+            }
         }
     }
 }
