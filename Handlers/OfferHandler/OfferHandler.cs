@@ -65,8 +65,8 @@ namespace Emma.Api.Handlers.OfferHandler
                         
                         <h3 style='color: #34495e;'>Detalji ponude:</h3>
                         <ul>
-                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.FirstOfferPrice}</li>
-                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.SecondOfferPrice}</li>
+                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
+                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.CounterOfferTransportPrice}</li>
                             <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
                         </ul>
                         
@@ -225,8 +225,8 @@ namespace Emma.Api.Handlers.OfferHandler
                         
                         <h3 style='color: #34495e;'>Detalji ponude:</h3>
                         <ul>
-                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.FirstOfferPrice}</li>
-                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.SecondOfferPrice}</li>
+                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
+                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.CounterOfferTransportPrice}</li>
                             <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
                         </ul>
                         
@@ -353,8 +353,8 @@ namespace Emma.Api.Handlers.OfferHandler
                 OfferForUserProfileId = offer.OfferForUserProfileId,
                 OfferFromUserProfileId = offer.OfferFromUserProfileId,
                 ProfileToRateName = profileToRateName,
-                FirstOfferPrice = offerFreight.TransportPrice,
-                SecondOfferPrice = offer.NewTransportPrice,
+                NewTransportPrice = offer.NewTransportPrice,
+                CounterOfferTransportPrice = offer.CounterOfferPrice,
                 Comment = offer.Comment,
                 Brand = offerVehicle.Brand,
                 PlateNumber = offerVehicle.PlateNumber,
@@ -711,7 +711,9 @@ namespace Emma.Api.Handlers.OfferHandler
                             (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.TransportPrice) && o.TransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.TransportPrice) && o.TransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.CounterOfferPrice) && o.CounterOfferPrice.ToLower().Contains(searchLower))
                         )
@@ -785,6 +787,7 @@ namespace Emma.Api.Handlers.OfferHandler
                             (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.TransportPrice) && o.TransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
@@ -852,6 +855,7 @@ namespace Emma.Api.Handlers.OfferHandler
                             (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.TransportPrice) && o.TransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||
@@ -927,6 +931,7 @@ namespace Emma.Api.Handlers.OfferHandler
                             (!string.IsNullOrEmpty(o.OfferFromStuff) && o.OfferFromStuff.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.OfferFromUser) && o.OfferFromUser.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Transporter) && o.Transporter.ToLower().Contains(searchLower)) ||
+                            (!string.IsNullOrEmpty(o.TransportPrice) && o.TransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.FreightForTransport) && o.FreightForTransport.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.NewTransportPrice) && o.NewTransportPrice.ToLower().Contains(searchLower)) ||
                             (!string.IsNullOrEmpty(o.Comment) && o.Comment.ToLower().Contains(searchLower)) ||

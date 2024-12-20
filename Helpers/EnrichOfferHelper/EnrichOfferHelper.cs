@@ -58,6 +58,7 @@ namespace Emma.Api.Helpers.EnrichOfferHelper
                               ?? "Unknown Transporter";
 
             var freightForTransport = await _freightRepository.GetFreightByIdAsync(offer.FreightIdForTransport);
+
             var freightForTransportName = freightForTransport != null
                 ? $"{freightForTransport.GoodsType} - {freightForTransport.GoodsDescription}"
                 : "Unknown Freight";
@@ -74,6 +75,8 @@ namespace Emma.Api.Helpers.EnrichOfferHelper
                 Transporter = transporter,
                 FreightForTransport = freightForTransportName,
                 NewTransportPrice = offer.NewTransportPrice,
+                TransportPrice = freightForTransport?.TransportPrice ?? "",
+                CounterOfferPrice = offer.CounterOfferPrice,
                 Comment = offer.Comment
             };
         }

@@ -12,8 +12,8 @@
         public required string Transporter { get; set; }
         public required string FreightForTransport { get; set; }
         public required string ProfileToRateName { get; set; }
-        public required string FirstOfferPrice { get; set; }
-        public string? SecondOfferPrice { get; set; }
+        public string? NewTransportPrice { get; set; }
+        public string? CounterOfferTransportPrice { get; set; }
         public string? Comment { get; set; }
         public string? Brand { get; set; }
         public string? PlateNumber { get; set; }

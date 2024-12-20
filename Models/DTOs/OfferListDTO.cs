@@ -11,6 +11,7 @@
         public required string OfferFromUser { get; set; }
         public required string Transporter { get; set; }
         public required string FreightForTransport { get; set; }
+        public required string TransportPrice { get; set; }
         public string? NewTransportPrice { get; set; }
         public string? Comment { get; set; }
         public string? CounterOfferPrice { get; set; }
