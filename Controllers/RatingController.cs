@@ -17,13 +17,25 @@ namespace Emma.Api.Controllers
         {
             try
             {
-                await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue, 
+                await _ratingHandler.AddNewRating(request.OfferId, request.RatingValue,
                     request.OfferFromUserProfileId, request.OfferForUserProfileId);
-                return Ok("Rating created successfully.");
+                return Ok("Ocjena uspješno kreirana.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An error occurred: {ex.Message}");
+                return StatusCode(500, $"Došlo je do greške: {ex.Message}");
             }
         }
     }
