@@ -9,9 +9,9 @@
         public required string TransportPrice { get; set; }
         public string? Status { get; set; } 
         public string? Distance { get; set; } 
-        public string? GoodsDescription { get; set; } 
-        public string? GoodsType { get; set; } 
-        public string? GoodsWeight { get; set; } 
+        public required string GoodsDescription { get; set; } 
+        public required string GoodsType { get; set; } 
+        public required string GoodsWeight { get; set; } 
         public string? GoodsLength { get; set; } 
         public string? GoodsPrice { get; set; } 
         public DateTime AvailabilityDate { get; set; }
