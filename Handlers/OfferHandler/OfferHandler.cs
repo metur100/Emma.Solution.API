@@ -57,49 +57,89 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (offerDetails == null)
                     throw new InvalidOperationException("Failed to retrieve offer details.");
 
-                var emailSubject = "Nova ponuda";
+                var emailSubject = "Nova ponuda / New offer";
                 var emailBody = $@"
-                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
-                        <p>Primili ste novu ponudu od korisnika <strong>{offerDetails.OfferFromUser}</strong>.</p>
-                        
-                        <h3 style='color: #34495e;'>Detalji ponude:</h3>
-                        <ul>
-                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.TransportPrice}</li>
-                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
-                            <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
-                        <ul>
-                            <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
-                            <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
-                            <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
-                            <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
-                            <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
-                            <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
-                            <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o robi:</h3>
-                        <ul>
-                            <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
-                            <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
-                            <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
-                            <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o transportu:</h3>
-                        <ul>
-                            <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
-                            <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
-                            <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
-                        </ul>
-                        
-                        <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                    </div>";
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #1abc9c;'>Poštovani {offerDetails.OfferForUser},</h2>
+                    <p>Primili ste novu ponudu od korisnika <strong>{offerDetails.OfferFromUser}</strong>.</p>
+                    
+                    <h3 style='color: #34495e;'>Detalji ponude:</h3>
+                    <ul>
+                        <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.TransportPrice}</li>
+                        <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
+                        <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
+                    <ul>
+                        <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
+                        <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
+                        <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
+                        <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
+                        <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
+                        <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
+                        <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o robi:</h3>
+                    <ul>
+                        <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
+                        <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
+                        <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
+                        <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o transportu:</h3>
+                    <ul>
+                        <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
+                        <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
+                        <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
+                    </ul>
+                    
+                    <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
 
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+
+                    <h2 style='color: #1abc9c;'><em>Dear {offerDetails.OfferForUser},</em></h2>
+                    <p><em>You have received a new offer from user <strong>{offerDetails.OfferFromUser}</strong>.</em></p>
+                    
+                    <h3 style='color: #34495e;'><em>Offer Details:</em></h3>
+                    <ul>
+                        <li><em><strong>Initial Transport Price:</strong> {offerDetails.TransportPrice}</em></li>
+                        <li><em><strong>Proposed New Transport Price:</strong> {offerDetails.NewTransportPrice}</em></li>
+                        <li><em><strong>Comment:</strong> {offerDetails.Comment}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Vehicle Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Vehicle Brand:</strong> {offerDetails.Brand}</em></li>
+                        <li><em><strong>Vehicle Description:</strong> {offerDetails.Description}</em></li>
+                        <li><em><strong>Payload Capacity:</strong> {offerDetails.PayloadCapacity}</em></li>
+                        <li><em><strong>Body Type:</strong> {offerDetails.BodyType}</em></li>
+                        <li><em><strong>Cargo Space Volume:</strong> {offerDetails.CargoSpaceVolume}</em></li>
+                        <li><em><strong>Vehicle Weight:</strong> {offerDetails.Weight}</em></li>
+                        <li><em><strong>Vehicle Length:</strong> {offerDetails.Length}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Goods Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Goods Description:</strong> {offerDetails.GoodsDescription}</em></li>
+                        <li><em><strong>Goods Price:</strong> {offerDetails.GoodsPrice}</em></li>
+                        <li><em><strong>Goods Weight:</strong> {offerDetails.GoodsWeight}</em></li>
+                        <li><em><strong>Goods Length:</strong> {offerDetails.GoodsLength}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Transport Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Loading Address:</strong> {offerDetails.LoadingAddress}</em></li>
+                        <li><em><strong>Unloading Address:</strong> {offerDetails.UnloadingAddress}</em></li>
+                        <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
+                    </ul>
+                    
+                    <p><em>For more information and to manage offers, please log in to your account.</em></p>
+                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                </div>";
 
                 var email = await _profileRepository.GetEmailByProfileId(offer.OfferForUserProfileId) 
                     ?? throw new InvalidOperationException("Email for the specified profile ID was not found.");
@@ -166,19 +206,31 @@ namespace Emma.Api.Handlers.OfferHandler
                 var offerDetails = await GetOfferDetailsByIdAsync(offer.Id);
 
                 var emailBody = $@"
-                     <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                         <h2 style='color: #1abc9c;'>Poštovani,</h2>
-                         <p>Primili ste novu protuponudu od korisnika <strong>{nameOfRecipient}</strong>.</p>
-                         <h3>Detalji protuponude:</h3>
-                         <ul>
-                             <li><strong>Prvobitna cijena transporta:</strong> {offerDetails?.TransportPrice}</li>
-                             <li><strong>Predložena nova protuponudna cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
-                         </ul>
-                         <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                         <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                     </div>";
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #1abc9c;'>Poštovani,</h2>
+                    <p>Primili ste novu protuponudu od korisnika <strong>{nameOfRecipient}</strong>.</p>
+                    <h3>Detalji protuponude:</h3>
+                    <ul>
+                        <li><strong>Prvobitna cijena transporta:</strong> {offerDetails?.TransportPrice}</li>
+                        <li><strong>Predložena nova protuponudna cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
+                    </ul>
+                    <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
 
-                 _emailServiceHelper.SendEmail(new List<string> { email }, "Nova protuponuda", emailBody);
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+
+                    <h2 style='color: #1abc9c;'><em>Dear Sir/Madam,</em></h2>
+                    <p><em>You have received a new counteroffer from user <strong>{nameOfRecipient}</strong>.</em></p>
+                    <h3><em>Counteroffer Details:</em></h3>
+                    <ul>
+                        <li><em><strong>Original Transport Price:</strong> {offerDetails?.TransportPrice}</em></li>
+                        <li><em><strong>Proposed New Counteroffer Transport Price:</strong> {counterOfferDTO.CounterOfferPrice}</em></li>
+                    </ul>
+                    <p><em>For more information and to manage offers, please log in to your account.</em></p>
+                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                </div>";
+
+                _emailServiceHelper.SendEmail(new List<string> { email }, "Nova protuponuda / New counteroffer", emailBody);
 
             }
             catch (Exception ex)
@@ -219,49 +271,91 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(recipientProfileId);
 
-                var emailSubject = "Ponuda odbijena";
+                var emailSubject = "Ponuda odbijena / Offer rejected";
                 var emailBody = $@"
-                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #e74c3c;'>Poštovani {nameOfRecipient},</h2>
-                        <p>Nažalost, vaša ponuda je odbijena.</p>
-                        
-                        <h3 style='color: #34495e;'>Detalji ponude:</h3>
-                        <ul>
-                            <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.TransportPrice}</li>
-                            <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
-                            <li><strong>Protuponudna cijena transporta:</strong> {offerDetails.CounterOfferTransportPrice}</li>
-                            <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
-                        <ul>
-                            <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
-                            <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
-                            <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
-                            <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
-                            <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
-                            <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
-                            <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o robi:</h3>
-                        <ul>
-                            <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
-                            <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
-                            <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
-                            <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
-                        </ul>
-                        
-                        <h3 style='color: #34495e;'>Informacije o transportu:</h3>
-                        <ul>
-                            <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
-                            <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
-                            <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
-                        </ul>
-                        
-                        <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                    </div>";
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #e74c3c;'>Poštovani {nameOfRecipient},</h2>
+                    <p>Nažalost, vaša ponuda je odbijena.</p>
+                    
+                    <h3 style='color: #34495e;'>Detalji ponude:</h3>
+                    <ul>
+                        <li><strong>Prvobitna cijena transporta:</strong> {offerDetails.TransportPrice}</li>
+                        <li><strong>Predložena nova cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
+                        <li><strong>Protuponudna cijena transporta:</strong> {offerDetails.CounterOfferTransportPrice}</li>
+                        <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
+                    <ul>
+                        <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
+                        <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
+                        <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
+                        <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
+                        <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
+                        <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
+                        <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o robi:</h3>
+                    <ul>
+                        <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
+                        <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
+                        <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
+                        <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o transportu:</h3>
+                    <ul>
+                        <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
+                        <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
+                        <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
+                    </ul>
+                    
+                    <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+
+                    <h2 style='color: #e74c3c;'><em>Dear {nameOfRecipient},</em></h2>
+                    <p><em>Unfortunately, your offer has been declined.</em></p>
+                    
+                    <h3 style='color: #34495e;'><em>Offer Details:</em></h3>
+                    <ul>
+                        <li><em><strong>Original Transport Price:</strong> {offerDetails.TransportPrice}</em></li>
+                        <li><em><strong>Proposed New Transport Price:</strong> {offerDetails.NewTransportPrice}</em></li>
+                        <li><em><strong>Counteroffer Transport Price:</strong> {offerDetails.CounterOfferTransportPrice}</em></li>
+                        <li><em><strong>Comment:</strong> {offerDetails.Comment}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Vehicle Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Vehicle Brand:</strong> {offerDetails.Brand}</em></li>
+                        <li><em><strong>Vehicle Description:</strong> {offerDetails.Description}</em></li>
+                        <li><em><strong>Payload Capacity:</strong> {offerDetails.PayloadCapacity}</em></li>
+                        <li><em><strong>Body Type:</strong> {offerDetails.BodyType}</em></li>
+                        <li><em><strong>Cargo Space Volume:</strong> {offerDetails.CargoSpaceVolume}</em></li>
+                        <li><em><strong>Vehicle Weight:</strong> {offerDetails.Weight}</em></li>
+                        <li><em><strong>Vehicle Length:</strong> {offerDetails.Length}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Goods Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Goods Description:</strong> {offerDetails.GoodsDescription}</em></li>
+                        <li><em><strong>Goods Price:</strong> {offerDetails.GoodsPrice}</em></li>
+                        <li><em><strong>Goods Weight:</strong> {offerDetails.GoodsWeight}</em></li>
+                        <li><em><strong>Goods Length:</strong> {offerDetails.GoodsLength}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Transport Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Loading Address:</strong> {offerDetails.LoadingAddress}</em></li>
+                        <li><em><strong>Unloading Address:</strong> {offerDetails.UnloadingAddress}</em></li>
+                        <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
+                    </ul>
+                    
+                    <p><em>For more information and to manage offers, please log in to your account.</em></p>
+                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { email }, emailSubject, emailBody);
             }

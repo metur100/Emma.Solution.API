@@ -9,7 +9,7 @@ using Emma.Api.Repositories.UserRepository;
 
 namespace Emma.Api.Handlers.UserHandler
 {
-    public class UserHandler(IUserRepository userRepository, 
+    public class UserHandler(IUserRepository userRepository,
         IJWTHelper jWTHelper,
         IContactRepository contactRepository,
         IAddressRepository addressRepository,
@@ -98,17 +98,27 @@ namespace Emma.Api.Handlers.UserHandler
                 await _profileRepository.CreateProfileAsync(profile, user.Id);
 
                 var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
-                var emailSubject = "Potvrdite vašu registraciju";
+                var emailSubject = "Potvrdite vašu registraciju / Confirm your registration";
                 var emailBody = $@"
-                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.ProfileName}!</h2>
-                        <p>Hvala vam što ste se registrovali na našoj platformi. Da biste dovršili proces registracije i aktivirali vaš nalog, molimo vas da potvrdite svoju registraciju klikom na sledeći link:</p>
-                        <p>
-                            <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>
-                        </p>
-                        <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
-                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                    </div>";
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #1abc9c;'>Dobrodošli, {registerUserDto.ProfileName}!</h2>
+                    <p>Hvala vam što ste se registrovali na našoj platformi. Da biste dovršili proces registracije i aktivirali vaš nalog, molimo vas da potvrdite svoju registraciju klikom na sledeći link:</p>
+                    <p>
+                        <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>
+                    </p>
+                    <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+
+                    <h2 style='color: #1abc9c;'><em>Welcome, {registerUserDto.ProfileName}!</em></h2>
+                    <p><em>Thank you for registering on our platform. To complete your registration and activate your account, please confirm your registration by clicking the following link:</em></p>
+                    <p>
+                        <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'><em>Confirm Registration</em></a>
+                    </p>
+                    <p><em>If you have any questions or need assistance, feel free to contact us.</em></p>
+                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
@@ -163,18 +173,27 @@ namespace Emma.Api.Handlers.UserHandler
                 await _userRepository.UpdateAsync(user);
 
                 var resetUrl = $"http://localhost:5173/reset-password/{resetToken}";
-                var emailSubject = "Reset your password";
+                var emailSubject = "Resetuj lozinku / Reset your password";
                 var emailBody = $@"
-                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                        <h2 style='color: #1abc9c;'>Resetirajte Vašu Lozinku</h2>
-                        <p>Primili smo zahtjev za resetovanje Vaše lozinke. Kliknite na link ispod kako biste resetovali lozinku:</p>
-                        <p>
-                            <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Resetuj Lozinku</a>
-                        </p>
-                        <p>Ovaj link će isteći za 1 sat. Ako niste zatražili resetovanje lozinke, zanemarite ovaj email.</p>
-                        <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                    </div>";
+                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #1abc9c;'>Resetirajte Vašu Lozinku</h2>
+                    <p>Primili smo zahtjev za resetovanje Vaše lozinke. Kliknite na link ispod kako biste resetovali lozinku:</p>
+                    <p>
+                        <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Resetuj Lozinku</a>
+                    </p>
+                    <p>Ovaj link će isteći za 1 sat. Ako niste zatražili resetovanje lozinke, zanemarite ovaj email.</p>
+                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
 
+                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+
+                    <h2 style='color: #1abc9c;'><em>Reset Your Password</em></h2>
+                    <p><em>We have received a request to reset your password. Click the link below to reset your password:</em></p>
+                    <p>
+                        <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'><em>Reset Password</em></a>
+                    </p>
+                    <p><em>This link will expire in 1 hour. If you did not request a password reset, please ignore this email.</em></p>
+                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
 
