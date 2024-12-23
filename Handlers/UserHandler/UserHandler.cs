@@ -97,7 +97,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _profileRepository.CreateProfileAsync(profile, user.Id);
 
-                var confirmationUrl = $"http://localhost:5173/confirm/{user.ConfirmationToken}";
+                var confirmationUrl = $"https://emma-logistics-git-master-metur100s-projects.vercel.app/confirm/{user.ConfirmationToken}";
                 var emailSubject = "Potvrdite vašu registraciju / Confirm your registration";
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
