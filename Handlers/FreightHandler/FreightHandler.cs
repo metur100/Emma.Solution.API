@@ -1,5 +1,6 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
+using Emma.Api.Models.Enum;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.FreightRepository;
@@ -42,6 +43,37 @@ namespace Emma.Api.Handlers.FreightHandler
             try
             {
                 var freights = await _freightRepository.GetAllFreightsAsync();
+
+                var offers = await _offerRepository.GetOffersAsync();
+                var validateStatuses = new List<StatusType>
+                {
+                    StatusType.PreperingForTransit,
+                    StatusType.Arrived,
+                    StatusType.DidNotArrive,
+                    StatusType.InTransit
+                };
+
+                var validOfferIds = new List<int>();
+
+                foreach (var offer in offers)
+                {
+                    var status = await _statusRepository.GetStatusTypeByOfferId(offer.Id);
+                    if (validateStatuses.Contains((StatusType)status))
+                    {
+                        validOfferIds.Add(offer.Id);
+                    }
+                }
+
+                var validFreightIds = offers
+                    .Where(o => validOfferIds.Contains(o.Id))
+                    .Select(o => o.FreightId)
+                    .Distinct()
+                    .ToList();
+
+                freights = freights
+                    .Where(f => !validFreightIds.Contains(f.Id))
+                    .ToList();
+
                 var freightListDTOs = new List<FreightListDTO>();
 
                 foreach (var freight in freights)
