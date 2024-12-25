@@ -4,6 +4,7 @@ using Emma.Api.Helpers.JWTHelper;
 using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Models.Enum;
+using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.FreightRepository;
 using Emma.Api.Repositories.OfferRepository;
 using Emma.Api.Repositories.ProfileRepository;
@@ -19,7 +20,8 @@ namespace Emma.Api.Handlers.OfferHandler
         IFreightRepository freightRepository,
         IEnrichOfferHelper enrichOfferHelper,
         IJWTHelper jWTHelper,
-        IEmailServiceHelper emailServiceHelper) : IOfferHandler
+        IEmailServiceHelper emailServiceHelper,
+        IContactRepository contactRepository) : IOfferHandler
     {
         private readonly IOfferRepository _offerRepository = repository;
         private readonly IStatusRepository _statusRepository = statusRepository;
@@ -29,6 +31,7 @@ namespace Emma.Api.Handlers.OfferHandler
         private readonly IEnrichOfferHelper _enrichOfferHelper = enrichOfferHelper;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
         private readonly IEmailServiceHelper _emailServiceHelper = emailServiceHelper;
+        private readonly IContactRepository _contactRepository = contactRepository;
 
         public async Task CreateOfferAsync(Offer offer, int userId)
         {
@@ -56,6 +59,11 @@ namespace Emma.Api.Handlers.OfferHandler
                 var offerDetails = await GetOfferDetailsByIdAsync(offer.Id); 
                 if (offerDetails == null)
                     throw new InvalidOperationException("Failed to retrieve offer details.");
+
+                var contactId = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+
+                var contactDetails = await _contactRepository.GetContactByIdAsync(contactId);
 
                 var emailSubject = "Nova ponuda / New offer";
                 var emailBody = $@"
@@ -94,6 +102,12 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
                         <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
                         <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
+                    </ul>
+
+                    <h3 style='color: #34495e;'>Kontakt podaci:</h3>
+                    <ul>
+                        <li><strong>Email:</strong> {contactDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {contactDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
@@ -135,6 +149,12 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><em><strong>Loading Address:</strong> {offerDetails.LoadingAddress}</em></li>
                         <li><em><strong>Unloading Address:</strong> {offerDetails.UnloadingAddress}</em></li>
                         <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
+                    </ul>
+
+                    <h3 style='color: #34495e;'>Contact details:</h3>
+                    <ul>
+                        <li><strong>E-mail:</strong> {contactDetails?.Email}</li>
+                        <li><strong>Phone number:</strong> {contactDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>

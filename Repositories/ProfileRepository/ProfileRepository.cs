@@ -151,5 +151,13 @@ namespace Emma.Api.Repositories.ProfileRepository
 
             return filteredProfileNames;
         }
+
+        public async Task<int?> GetContactIdByProfileId(int profileId)
+        {
+            return await _context.Profiles
+                .Where(profile => profile.Id == profileId)
+                .Select(profile => profile.ContactId)
+                .FirstOrDefaultAsync();
+        }
     }
 }
