@@ -48,9 +48,10 @@ namespace Emma.Api.Handlers.VehicleHandler
             try
             {
                 var vehicles = await _vehicleRepository.GetAllVehiclesAsync();
+                var activeVehicles = vehicles.Where(v => v.IsActive).ToList();
                 var vehicleList = new List<VehicleListDTO>();
 
-                foreach (var vehicle in vehicles)
+                foreach (var vehicle in activeVehicles)
                 {
                     var profile = await _profileRepository.GetProfileByIdAsync(vehicle.ProfileId);
                     var profileName = profile?.Name ?? "Unknown User";
@@ -151,7 +152,8 @@ namespace Emma.Api.Handlers.VehicleHandler
                 Id = v.Id,
                 Brand = v.Brand,
                 BodyType = v.BodyType,
-                PayloadCapacity = v.PayloadCapacity
+                PayloadCapacity = v.PayloadCapacity,
+                IsActive = v.IsActive,
             }).ToList();
 
             return vehicleDtos;
@@ -303,6 +305,11 @@ namespace Emma.Api.Handlers.VehicleHandler
             }).ToList();
 
             return vehicleDtos;
+        }
+
+        public async Task HandleActiveVehicleAsync(int vehicleId)
+        {
+            await _vehicleRepository.ToggleVehicleStatusAsync(vehicleId);
         }
     }
 }

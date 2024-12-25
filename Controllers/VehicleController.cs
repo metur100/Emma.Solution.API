@@ -220,5 +220,19 @@ namespace Emma.Api.Controllers
                 return StatusCode(500, new { message = $"An error occurred while searching vehicles: {ex.Message}" });
             }
         }
+
+        [HttpPatch("IsActive/{vehicleId}")]
+        public async Task<IActionResult> ToggleVehicleStatus(int vehicleId)
+        {
+            try
+            {
+                await _vehicleHandler.HandleActiveVehicleAsync(vehicleId);
+                return Ok(new { message = "Vehicle status updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = $"Error updating vehicle status: {ex.Message}" });
+            }
+        }
     }
 }

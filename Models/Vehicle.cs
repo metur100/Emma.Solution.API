@@ -12,5 +12,6 @@
         public string? CargoSpaceVolume { get; set; } 
         public string? Length { get; set; }
         public string? Weight { get; set; } 
+        public bool IsActive { get; set; } = true;
     }
 }

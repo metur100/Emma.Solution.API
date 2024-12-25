@@ -18,5 +18,6 @@ namespace Emma.Api.Handlers.VehicleHandler
         Task<List<BodyTypeCountDTO>> GetAllBodyTypesCountsAsync();
         Task<List<VehicleSearchDTO>> HandleSearchVehiclesAsync(string searchTerm);
         Task<List<VehicleManagementDTO>> SearchVehiclesByUserIdAsync(int userId, string searchTerm);
+        Task HandleActiveVehicleAsync(int vehicleId);
     }
 }

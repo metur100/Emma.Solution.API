@@ -136,5 +136,15 @@ namespace Emma.Api.Repositories.VehicleRepository
             return filteredVehicles;
         }
 
+        public async Task ToggleVehicleStatusAsync(int vehicleId)
+        {
+            var vehicle = await _context.Vehicles.FindAsync(vehicleId);
+            if (vehicle != null)
+            {
+                vehicle.IsActive = !vehicle.IsActive;
+                _context.Vehicles.Update(vehicle);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
