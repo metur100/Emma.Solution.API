@@ -253,10 +253,10 @@ namespace Emma.Api.Handlers.ProfileHandler
                 }
 
                 // Upload new profile picture if provided
-                if (updateProfileDTO.profilePicture != null && updateProfileDTO.profilePicture.Length > 0)
+                if (updateProfileDTO.ProfilePicture != null && updateProfileDTO.ProfilePicture.Length > 0)
                 {
-                    using var stream = updateProfileDTO.profilePicture.OpenReadStream();
-                    var fileName = $"{Guid.NewGuid()}-{updateProfileDTO.profilePicture.FileName}";
+                    using var stream = updateProfileDTO.ProfilePicture.OpenReadStream();
+                    var fileName = $"{Guid.NewGuid()}-{updateProfileDTO.ProfilePicture.FileName}";
                     var blobUrl = await _blobStorageHelper.UploadProfilePictureAsync(stream, fileName);
 
                     profile.ProfilePicture = blobUrl;

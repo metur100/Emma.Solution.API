@@ -9,7 +9,7 @@
         public required string PostalCode { get; set; }
         public required string Email { get; set; }
         public required string PhoneNumber { get; set; }
-        public IFormFile? profilePicture {  get; set; }
+        public IFormFile? ProfilePicture {  get; set; }
     }
 
 }
