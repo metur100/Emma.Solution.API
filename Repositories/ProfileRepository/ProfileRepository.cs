@@ -159,5 +159,13 @@ namespace Emma.Api.Repositories.ProfileRepository
                 .Select(profile => profile.ContactId)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<string?> GetProfilePictureUrlByIdAsync(int profileId)
+        {
+            return await _context.Profiles
+                .Where(profile => profile.Id == profileId)
+                .Select(profile => profile.ProfilePicture)
+                .FirstOrDefaultAsync();
+        }
     }
 }

@@ -18,10 +18,12 @@ namespace Emma.Api.Handlers.ProfileHandler
         Task<ProfileInfoDTO> GetUserProfileInformations(int id);
         Task<string> GetProfileNameByUserId(int userId);
         Task<IEnumerable<ProfileManagementDTO>> GetProfilesByUserIdAsync(int userId);
-        Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO, IFormFile? profilePicture = null);
+        Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO);
         Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id);
         Task DeleteProfileByIdAsync(int profileId);
         Task<int> GetAllProfilesCountAsync();
         Task<IEnumerable<ProfileManagementDTO>> SearchProfilesByUserIdAsync(int userId, string searchTerm);
+        Task<string?> GetProfilePictureAsync(int profileId);
+        Task<bool> DeleteProfilePictureAsync(int profileId);
     }
 }

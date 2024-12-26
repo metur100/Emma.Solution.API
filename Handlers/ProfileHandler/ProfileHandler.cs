@@ -5,6 +5,7 @@ using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
 using Emma.Api.Repositories.ProfileRepository;
 using Emma.Api.Repositories.RatingRepository;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emma.Api.Handlers.ProfileHandler
@@ -217,7 +218,7 @@ namespace Emma.Api.Handlers.ProfileHandler
             }
         }
 
-        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO, IFormFile? profilePicture = null)
+        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO)
         {
             try
             {
@@ -252,10 +253,10 @@ namespace Emma.Api.Handlers.ProfileHandler
                 }
 
                 // Upload new profile picture if provided
-                if (profilePicture != null && profilePicture.Length > 0)
+                if (updateProfileDTO.profilePicture != null && updateProfileDTO.profilePicture.Length > 0)
                 {
-                    using var stream = profilePicture.OpenReadStream();
-                    var fileName = $"{Guid.NewGuid()}-{profilePicture.FileName}";
+                    using var stream = updateProfileDTO.profilePicture.OpenReadStream();
+                    var fileName = $"{Guid.NewGuid()}-{updateProfileDTO.profilePicture.FileName}";
                     var blobUrl = await _blobStorageHelper.UploadProfilePictureAsync(stream, fileName);
 
                     profile.ProfilePicture = blobUrl;
@@ -271,6 +272,42 @@ namespace Emma.Api.Handlers.ProfileHandler
             {
                 throw new Exception($"Error updating profile with ID {profileId}: {ex.Message}", ex);
             }
+        }
+
+        public async Task<string?> GetProfilePictureAsync(int profileId)
+        {
+            return await _profileRepository.GetProfilePictureUrlByIdAsync(profileId) ?? "";
+        }
+
+        public async Task<bool> DeleteProfilePictureAsync(int profileId)
+        {
+            // Fetch the profile to get the existing profile picture URL
+            var profile = await _profileRepository.GetProfileByIdAsync(profileId);
+            if (profile == null)
+            {
+                throw new KeyNotFoundException("Profile not found.");
+            }
+
+            // Check if a profile picture exists
+            if (string.IsNullOrEmpty(profile.ProfilePicture))
+            {
+                return false; // No picture to delete
+            }
+
+            // Extract the blob name from the URL (e.g., "guid-picture.jpg")
+            var blobName = new Uri(profile.ProfilePicture).Segments.Last();
+
+            // Delete the picture from Blob Storage
+            var deleted = await _blobStorageHelper.DeleteBlobAsync(blobName);
+
+            if (deleted)
+            {
+                // Update the profile in the database to set ProfilePicture to null
+                profile.ProfilePicture = null;
+                await _profileRepository.UpdateProfileAsync(profile);
+            }
+
+            return deleted;
         }
 
 

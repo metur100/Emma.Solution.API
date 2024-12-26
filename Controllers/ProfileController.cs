@@ -106,6 +106,50 @@ namespace Emma.Api.Controllers
             }
         }
 
+        [HttpGet("Picture/{profileId}")]
+        public async Task<IActionResult> GetProfilePicture(int profileId)
+        {
+            try
+            {
+                var url = await _profileHandler.GetProfilePictureAsync(profileId)
+                    ?? throw new KeyNotFoundException("Profile not found.");
+                return Ok(url);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Error retrieving profile picture: {ex.Message}" });
+            }
+        }
+
+        [HttpDelete("DeleteProfilePicture/{profileId}")]
+        public async Task<IActionResult> DeleteProfilePicture(int profileId)
+        {
+            try
+            {
+                var result = await _profileHandler.DeleteProfilePictureAsync(profileId);
+
+                if (result)
+                {
+                    return Ok(new { message = "Profile picture deleted successfully." });
+                }
+                else
+                {
+                    return NotFound(new { message = "No profile picture found to delete." });
+                }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Error deleting profile picture: {ex.Message}" });
+            }
+        }
 
         [HttpGet("Management/{id}")]
         public async Task<IActionResult> GetUpdateProfileByIdAsync(int id)
