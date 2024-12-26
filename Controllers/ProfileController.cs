@@ -89,13 +89,8 @@ namespace Emma.Api.Controllers
         }
 
         [HttpPut("{profileId}")]
-        public async Task<IActionResult> UpdateProfile(int profileId, [FromBody] UpdateProfileDTO updateProfileDTO)
+        public async Task<IActionResult> UpdateProfile(int profileId, [FromForm] UpdateProfileDTO updateProfileDTO)
         {
-            if (updateProfileDTO == null)
-            {
-                return BadRequest("Profile data is required.");
-            }
-
             try
             {
                 await _profileHandler.UpdateProfileAsync(profileId, updateProfileDTO);
@@ -111,8 +106,9 @@ namespace Emma.Api.Controllers
             }
         }
 
+
         [HttpGet("Management/{id}")]
-        public async Task<IActionResult> GetProfileById(int id)
+        public async Task<IActionResult> GetUpdateProfileByIdAsync(int id)
         {
             try
             {

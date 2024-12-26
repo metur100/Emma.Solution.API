@@ -17,6 +17,7 @@ using Emma.Api.Helpers.EmailServiceHelper;
 using Emma.Api.Handlers.RatingHandler;
 using Emma.Api.Repositories.RatingRepository;
 using Emma.Api.Helpers.EnrichOfferHelper;
+using Emma.Api.Helpers.BlobStorageHelper;
 
 namespace Emma.Api
 {
@@ -39,6 +40,8 @@ namespace Emma.Api
             builder.Services.AddScoped<IEnrichOfferHelper, EnrichOfferHelper>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<Func<IJWTHelper>>(sp => () => sp.GetRequiredService<IJWTHelper>());
+            builder.Services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
+
 
             #endregion
 

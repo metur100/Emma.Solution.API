@@ -1,4 +1,5 @@
-﻿using Emma.Api.Models;
+﻿using Emma.Api.Helpers.BlobStorageHelper;
+using Emma.Api.Models;
 using Emma.Api.Models.DTOs;
 using Emma.Api.Repositories.AddressRepository;
 using Emma.Api.Repositories.ContactRepository;
@@ -11,12 +12,14 @@ namespace Emma.Api.Handlers.ProfileHandler
     public class ProfileHandler(IProfileRepository userRepository,
         IAddressRepository addressRepository,
         IContactRepository contactRepository,
-        IRatingRepository ratingRepository) : IProfileHandler
+        IRatingRepository ratingRepository,
+        IBlobStorageHelper blobStorageHelper) : IProfileHandler
     {
         private readonly IProfileRepository _profileRepository = userRepository;
         private readonly IAddressRepository _addressRepository = addressRepository;
         private readonly IContactRepository _contactRepository = contactRepository;
         private readonly IRatingRepository _ratingRepository = ratingRepository;
+        private readonly IBlobStorageHelper _blobStorageHelper = blobStorageHelper;
 
         public async Task<int> CreateProfileAsync(
             string name,
@@ -214,7 +217,7 @@ namespace Emma.Api.Handlers.ProfileHandler
             }
         }
 
-        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO)
+        public async Task UpdateProfileAsync(int profileId, UpdateProfileDTO updateProfileDTO, IFormFile? profilePicture = null)
         {
             try
             {
@@ -248,6 +251,16 @@ namespace Emma.Api.Handlers.ProfileHandler
                     throw new KeyNotFoundException("Contact not found.");
                 }
 
+                // Upload new profile picture if provided
+                if (profilePicture != null && profilePicture.Length > 0)
+                {
+                    using var stream = profilePicture.OpenReadStream();
+                    var fileName = $"{Guid.NewGuid()}-{profilePicture.FileName}";
+                    var blobUrl = await _blobStorageHelper.UploadProfilePictureAsync(stream, fileName);
+
+                    profile.ProfilePicture = blobUrl;
+                }
+
                 await _profileRepository.UpdateProfileAsync(profile);
             }
             catch (KeyNotFoundException ex)
@@ -259,6 +272,7 @@ namespace Emma.Api.Handlers.ProfileHandler
                 throw new Exception($"Error updating profile with ID {profileId}: {ex.Message}", ex);
             }
         }
+
 
         public async Task<UpdateProfileDTO> GetUpdateProfileByIdAsync(int id)
         {
