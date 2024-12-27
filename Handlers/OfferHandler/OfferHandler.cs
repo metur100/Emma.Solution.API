@@ -755,8 +755,10 @@ namespace Emma.Api.Handlers.OfferHandler
                     <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
                 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
-                
-                    <!-- English Section -->
+
+                    <!-- Force Page Break by Adding Large Space -->
+                    <div style='height: 100px;'></div>
+
                     <h2 style='color: #1abc9c;'><em>Dear {nameOfRecipient},</em></h2>
                     <p><em>Here is the transport report with the details of your shipment:</em></p>
                 
@@ -798,13 +800,13 @@ namespace Emma.Api.Handlers.OfferHandler
                 </div>";
 
 
-                var pdfBytes = await _emailServiceHelper.GeneratePdfFromHtml(emailBody);
+                var pdfBytes = _emailServiceHelper.GeneratePdfFromHtml(emailBody);
                 _emailServiceHelper.SendEmailWithAttachment(
                     new List<string> { email ?? "" },
                     emailSubject,
                     emailBody,
                     pdfBytes,
-                    "TransportDetails.pdf"
+                    "DetaljiTransporta-TransportDetails.pdf"
                 );
             }
             catch (Exception ex)

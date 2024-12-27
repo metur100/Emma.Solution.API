@@ -1,6 +1,7 @@
 ﻿using MailKit.Security;
 using MimeKit;
-using PuppeteerSharp;
+using PdfSharp.Pdf;
+using TheArtOfDev.HtmlRenderer.PdfSharp;
 
 namespace Emma.Api.Helpers.EmailServiceHelper
 {
@@ -100,18 +101,19 @@ namespace Emma.Api.Helpers.EmailServiceHelper
             }
         }
 
-        public async Task<byte[]> GeneratePdfFromHtml(string htmlContent)
+        public byte[] GeneratePdfFromHtml(string htmlContent)
         {
-            await new BrowserFetcher().DownloadAsync();
-            using (var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true }))
-            using (var page = await browser.NewPageAsync())
+            using (var memoryStream = new MemoryStream())
             {
-                await page.SetContentAsync(htmlContent);
-                return await page.PdfDataAsync(new PdfOptions
+                // Create a PDF document
+                using (PdfDocument pdf = PdfGenerator.GeneratePdf(htmlContent, PdfSharp.PageSize.A4))
                 {
-                    Format = PuppeteerSharp.Media.PaperFormat.A4,
-                    PrintBackground = true
-                });
+                    // Save the PDF to MemoryStream
+                    pdf.Save(memoryStream);
+                }
+
+                // Return the generated PDF as byte array
+                return memoryStream.ToArray();
             }
         }
     }

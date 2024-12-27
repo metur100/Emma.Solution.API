@@ -9,6 +9,6 @@
             string body,
             byte[] attachment,
             string attachmentFileName);
-        Task<byte[]> GeneratePdfFromHtml(string htmlContent);
+        byte[] GeneratePdfFromHtml(string htmlContent);
     }
 }
