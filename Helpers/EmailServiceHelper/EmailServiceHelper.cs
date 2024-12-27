@@ -1,5 +1,6 @@
 ﻿using MailKit.Security;
 using MimeKit;
+using PuppeteerSharp;
 
 namespace Emma.Api.Helpers.EmailServiceHelper
 {
@@ -41,6 +42,76 @@ namespace Emma.Api.Helpers.EmailServiceHelper
                 {
                     client.Disconnect(true);
                 }
+            }
+        }
+
+
+        public void SendEmailWithAttachment(
+            List<string> toEmails,
+            string subject,
+            string body,
+            byte[] attachment,
+            string attachmentFileName)
+        {
+            var port = _config.GetValue<int>("SMTP:Port");
+            var host = _config.GetValue<string>("SMTP:Host");
+            var password = _config.GetValue<string>("SMTP:EmailPassword");
+            var fromEmail = _config.GetValue<string>("SMTP:EmailAddress");
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Emma Logistics", fromEmail));
+
+            foreach (var toEmail in toEmails)
+            {
+                message.To.Add(new MailboxAddress("Emma Logistics", toEmail));
+            }
+
+            message.Subject = subject;
+
+            // Create the email body and attachment
+            var bodyBuilder = new BodyBuilder
+            {
+                HtmlBody = body
+            };
+
+            if (attachment != null && attachment.Length > 0)
+            {
+                bodyBuilder.Attachments.Add(attachmentFileName, attachment, ContentType.Parse("application/pdf"));
+            }
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
+            {
+                try
+                {
+                    client.Connect(host, port, SecureSocketOptions.StartTls);
+                    client.Authenticate(fromEmail, password);
+                    client.Send(message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                finally
+                {
+                    client.Disconnect(true);
+                }
+            }
+        }
+
+        public async Task<byte[]> GeneratePdfFromHtml(string htmlContent)
+        {
+            await new BrowserFetcher().DownloadAsync();
+            using (var browser = await Puppeteer.LaunchAsync(new LaunchOptions { Headless = true }))
+            using (var page = await browser.NewPageAsync())
+            {
+                await page.SetContentAsync(htmlContent);
+                return await page.PdfDataAsync(new PdfOptions
+                {
+                    Format = PuppeteerSharp.Media.PaperFormat.A4,
+                    PrintBackground = true
+                });
             }
         }
     }

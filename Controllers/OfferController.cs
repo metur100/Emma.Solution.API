@@ -42,6 +42,27 @@ namespace Emma.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("TransportDetails/{offerId}")]
+        public async Task<IActionResult> SendTransportDetails(int offerId)
+        {
+            if (offerId <= 0)
+                return BadRequest(new { Message = "Invalid offer ID." });
+
+            try
+            {
+                await _offerHandler.SendTransportDetailsAsync(offerId);
+                return Ok(new { Message = "Transport details has been successfully sent." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while sending the details of the offer.", Details = ex.Message });
+            }
+        }
+
         [HttpGet("Received")]
         public async Task<IActionResult> GetReceivedOffersAsync()
         {
