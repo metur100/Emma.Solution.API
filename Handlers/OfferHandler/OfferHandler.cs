@@ -225,6 +225,15 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var offerDetails = await GetOfferDetailsByIdAsync(offer.Id);
 
+                var contactId1 = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+
+                var contactId2 = await _profileRepository.GetContactIdByProfileId(offer.OfferForUserProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+
+                var contactDetails1 = await _contactRepository.GetContactByIdAsync(contactId1);
+                var contactDetails2 = await _contactRepository.GetContactByIdAsync(contactId2);
+
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
                     <h2 style='color: #1abc9c;'>Poštovani,</h2>
@@ -234,6 +243,45 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><strong>Prvobitna cijena transporta:</strong> {offerDetails?.TransportPrice}</li>
                         <li><strong>Predložena nova protuponudna cijena transporta:</strong> {counterOfferDTO.CounterOfferPrice}</li>
                     </ul>
+
+
+                    <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
+                    <ul>
+                        <li><strong>Marka vozila:</strong> {offerDetails?.Brand}</li>
+                        <li><strong>Opis vozila:</strong> {offerDetails?.Description}</li>
+                        <li><strong>Nosivost vozila:</strong> {offerDetails?.PayloadCapacity}</li>
+                        <li><strong>Vrsta karoserije:</strong> {offerDetails?.BodyType}</li>
+                        <li><strong>Volumen teretnog prostora:</strong> {offerDetails?.CargoSpaceVolume}</li>
+                        <li><strong>Težina vozila:</strong> {offerDetails?.Weight}</li>
+                        <li><strong>Dužina vozila:</strong> {offerDetails?.Length}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o robi:</h3>
+                    <ul>
+                        <li><strong>Opis robe:</strong> {offerDetails?.GoodsDescription}</li>
+                        <li><strong>Cijena robe:</strong> {offerDetails?.GoodsPrice}</li>
+                        <li><strong>Težina robe:</strong> {offerDetails?.GoodsWeight}</li>
+                        <li><strong>Dužina robe:</strong> {offerDetails?.GoodsLength}</li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'>Informacije o transportu:</h3>
+                    <ul>
+                        <li><strong>Adresa utovara:</strong> {offerDetails?.LoadingAddress}</li>
+                        <li><strong>Adresa istovara:</strong> {offerDetails?.UnloadingAddress}</li>
+                        <li><strong>Udaljenost:</strong> {offerDetails?.Distance}</li>
+                    </ul>
+
+                   <h3 style='color: #34495e;'>Kontakt podaci:</h3>
+                    <ul>
+                        <li><strong>Email:</strong> {contactDetails1?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {contactDetails1?.PhoneNumber}</li>
+                    </ul>
+
+                    <ul>
+                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                    </ul>
+
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
                     <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
 
@@ -246,6 +294,44 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><em><strong>Original Transport Price:</strong> {offerDetails?.TransportPrice}</em></li>
                         <li><em><strong>Proposed New Counteroffer Transport Price:</strong> {counterOfferDTO.CounterOfferPrice}</em></li>
                     </ul>
+
+                    <h3 style='color: #34495e;'><em>Vehicle Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Vehicle Brand:</strong> {offerDetails?.Brand}</em></li>
+                        <li><em><strong>Vehicle Description:</strong> {offerDetails?.Description}</em></li>
+                        <li><em><strong>Payload Capacity:</strong> {offerDetails?.PayloadCapacity}</em></li>
+                        <li><em><strong>Body Type:</strong> {offerDetails?.BodyType}</em></li>
+                        <li><em><strong>Cargo Space Volume:</strong> {offerDetails?.CargoSpaceVolume}</em></li>
+                        <li><em><strong>Vehicle Weight:</strong> {offerDetails?.Weight}</em></li>
+                        <li><em><strong>Vehicle Length:</strong> {offerDetails?.Length}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Goods Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Goods Description:</strong> {offerDetails?.GoodsDescription}</em></li>
+                        <li><em><strong>Goods Price:</strong> {offerDetails?.GoodsPrice}</em></li>
+                        <li><em><strong>Goods Weight:</strong> {offerDetails?.GoodsWeight}</em></li>
+                        <li><em><strong>Goods Length:</strong> {offerDetails?.GoodsLength}</em></li>
+                    </ul>
+                    
+                    <h3 style='color: #34495e;'><em>Transport Information:</em></h3>
+                    <ul>
+                        <li><em><strong>Loading Address:</strong> {offerDetails?.LoadingAddress}</em></li>
+                        <li><em><strong>Unloading Address:</strong> {offerDetails?.UnloadingAddress}</em></li>
+                        <li><em><strong>Distance:</strong> {offerDetails?.Distance}</em></li>
+                    </ul>
+
+                    <h3 style='color: #34495e;'>Contact details:</h3>
+                    <ul>
+                        <li><strong>E-mail:</strong> {contactDetails1?.Email}</li>
+                        <li><strong>Phone number:</strong> {contactDetails1?.PhoneNumber}</li>
+                    </ul>
+
+                    <ul>
+                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                    </ul>
+
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
                     <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
                 </div>";
