@@ -95,6 +95,27 @@ namespace Emma.Api.Controllers
             }
         }
 
+        [HttpPost("Accept/{offerId}")]
+        public async Task<IActionResult> AddAcceptOffer(int offerId)
+        {
+            if (offerId <= 0)
+                return BadRequest(new { Message = "Invalid offer ID." });
+
+            try
+            {
+                await _offerHandler.AddAcceptOfferAsync(offerId);
+                return Ok(new { Message = "Offer has been successfully accepted." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while declining the offer.", Details = ex.Message });
+            }
+        }
+
         [HttpGet("Count")]
         public async Task<IActionResult> GetAllOffersCount()
         {
