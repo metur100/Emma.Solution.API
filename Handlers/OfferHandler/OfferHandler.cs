@@ -704,7 +704,7 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var emailSubject = "Izvještaj o transportu / Transport report";
                 var emailBody = $@"
-                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                <div style='font-family: ""DejaVu Sans"", Arial, sans-serif; line-height: 1.6; color: #333;'>
                     <h2 style='color: #1abc9c;'>Poštovani {nameOfRecipient},</h2>
                     <p>Pregled podataka o vašem transportu:</p>
                 
@@ -757,7 +757,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
                     <!-- Force Page Break by Adding Large Space -->
-                    <div style='height: 100px;'></div>
+                    <div style='height: 200px;'></div>
 
                     <h2 style='color: #1abc9c;'><em>Dear {nameOfRecipient},</em></h2>
                     <p><em>Here is the transport report with the details of your shipment:</em></p>

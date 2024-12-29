@@ -1,7 +1,6 @@
-﻿using MailKit.Security;
+﻿using DinkToPdf;
+using MailKit.Security;
 using MimeKit;
-using PdfSharp.Pdf;
-using TheArtOfDev.HtmlRenderer.PdfSharp;
 
 namespace Emma.Api.Helpers.EmailServiceHelper
 {
@@ -103,18 +102,24 @@ namespace Emma.Api.Helpers.EmailServiceHelper
 
         public byte[] GeneratePdfFromHtml(string htmlContent)
         {
-            using (var memoryStream = new MemoryStream())
+            var converter = new SynchronizedConverter(new PdfTools());
+            var doc = new HtmlToPdfDocument()
             {
-                // Create a PDF document
-                using (PdfDocument pdf = PdfGenerator.GeneratePdf(htmlContent, PdfSharp.PageSize.A4))
-                {
-                    // Save the PDF to MemoryStream
-                    pdf.Save(memoryStream);
-                }
+                GlobalSettings = {
+                PaperSize = PaperKind.A4,
+            },
+                Objects = {
+                    new ObjectSettings() {
+                    HtmlContent = htmlContent,
+                    WebSettings = {
+                    DefaultEncoding = "utf-8",
+                    UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "customStyles.css") // Reference your CSS file
+                     }
+                 }
+             }
+            };
 
-                // Return the generated PDF as byte array
-                return memoryStream.ToArray();
-            }
+            return converter.Convert(doc);
         }
     }
 }
