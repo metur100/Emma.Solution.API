@@ -1,5 +1,4 @@
-﻿using DinkToPdf;
-using MailKit.Security;
+﻿using MailKit.Security;
 using MimeKit;
 
 namespace Emma.Api.Helpers.EmailServiceHelper
@@ -100,26 +99,5 @@ namespace Emma.Api.Helpers.EmailServiceHelper
             }
         }
 
-        public byte[] GeneratePdfFromHtml(string htmlContent)
-        {
-            var converter = new SynchronizedConverter(new PdfTools());
-            var doc = new HtmlToPdfDocument()
-            {
-                GlobalSettings = {
-                PaperSize = PaperKind.A4,
-            },
-                Objects = {
-                    new ObjectSettings() {
-                    HtmlContent = htmlContent,
-                    WebSettings = {
-                    DefaultEncoding = "utf-8",
-                    UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "customStyles.css") // Reference your CSS file
-                     }
-                 }
-             }
-            };
-
-            return converter.Convert(doc);
-        }
     }
 }

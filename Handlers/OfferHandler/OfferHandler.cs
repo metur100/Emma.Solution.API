@@ -225,14 +225,15 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var offerDetails = await GetOfferDetailsByIdAsync(offer.Id);
 
-                var contactId1 = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var transporterContactId = await _profileRepository.GetContactIdByProfileId(offer.TransporterProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified transporter profile ID was not found.");
 
-                var contactId2 = await _profileRepository.GetContactIdByProfileId(offer.OfferForUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var nonTransporterProfileId = offer.OfferForUserProfileId == offer.TransporterProfileId
+                    ? offer.OfferFromUserProfileId
+                    : offer.OfferForUserProfileId;
 
-                var contactDetails1 = await _contactRepository.GetContactByIdAsync(contactId1);
-                var contactDetails2 = await _contactRepository.GetContactByIdAsync(contactId2);
+                var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
 
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
@@ -271,15 +272,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><strong>Udaljenost:</strong> {offerDetails?.Distance}</li>
                     </ul>
 
-                   <h3 style='color: #34495e;'>Kontakt podaci:</h3>
+                    <h3 style='color: #34495e;'>Kontakt podaci transportera:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Kontakt podaci pošiljalca robe:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
 
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
@@ -321,15 +323,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><em><strong>Distance:</strong> {offerDetails?.Distance}</em></li>
                     </ul>
 
-                    <h3 style='color: #34495e;'>Contact details:</h3>
+                    <h3 style='color: #34495e;'>Contact details of transporter:</h3>
                     <ul>
-                        <li><strong>E-mail:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Phone number:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Contact details of cargo sender:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
 
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
@@ -377,14 +380,15 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(recipientProfileId);
 
-                var contactId1 = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var transporterContactId = await _profileRepository.GetContactIdByProfileId(offer.TransporterProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified transporter profile ID was not found.");
 
-                var contactId2 = await _profileRepository.GetContactIdByProfileId(offer.OfferForUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var nonTransporterProfileId = offer.OfferForUserProfileId == offer.TransporterProfileId
+                    ? offer.OfferFromUserProfileId
+                    : offer.OfferForUserProfileId;
 
-                var contactDetails1 = await _contactRepository.GetContactByIdAsync(contactId1);
-                var contactDetails2 = await _contactRepository.GetContactByIdAsync(contactId2);
+                var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
 
                 var emailSubject = "Ponuda odbijena / Offer rejected";
                 var emailBody = $@"
@@ -426,15 +430,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
                     </ul>
 
-                   <h3 style='color: #34495e;'>Kontakt podaci:</h3>
+                    <h3 style='color: #34495e;'>Kontakt podaci transportera:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Kontakt podaci pošiljalca robe:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
@@ -479,15 +484,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
                     </ul>
 
-                    <h3 style='color: #34495e;'>Contact details:</h3>
+                    <h3 style='color: #34495e;'>Contact details of transporter:</h3>
                     <ul>
-                        <li><strong>E-mail:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Phone number:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Contact details of cargo sender:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
@@ -534,14 +540,15 @@ namespace Emma.Api.Handlers.OfferHandler
 
                 var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(recipientProfileId);
 
-                var contactId1 = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var transporterContactId = await _profileRepository.GetContactIdByProfileId(offer.TransporterProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified transporter profile ID was not found.");
 
-                var contactId2 = await _profileRepository.GetContactIdByProfileId(offer.OfferForUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var nonTransporterProfileId = offer.OfferForUserProfileId == offer.TransporterProfileId
+                    ? offer.OfferFromUserProfileId
+                    : offer.OfferForUserProfileId;
 
-                var contactDetails1 = await _contactRepository.GetContactByIdAsync(contactId1);
-                var contactDetails2 = await _contactRepository.GetContactByIdAsync(contactId2);
+                var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
 
                 var emailSubject = "Ponuda prihvaćena / Offer accepted";
                 var emailBody = $@"
@@ -582,15 +589,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
                     </ul>
 
-                    <h3 style='color: #34495e;'>Kontakt podaci:</h3>
+                    <h3 style='color: #34495e;'>Kontakt podaci transportera:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Kontakt podaci pošiljalca robe:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p>Za više informacija i daljnje korake, prijavite se na svoj nalog.</p>
@@ -634,15 +642,16 @@ namespace Emma.Api.Handlers.OfferHandler
                         <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
                     </ul>
 
-                    <h3 style='color: #34495e;'>Contact details:</h3>
+                    <h3 style='color: #34495e;'>Contact details of transporter:</h3>
                     <ul>
-                        <li><strong>E-mail:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Phone number:</strong> {contactDetails1?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {transporterDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {transporterDetails?.PhoneNumber}</li>
                     </ul>
 
+                    <h3 style='color: #34495e;'>Contact details of cargo sender:</h3>
                     <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
+                        <li><strong>Email:</strong> {cargoSenderDetails?.Email}</li>
+                        <li><strong>Broj telefona:</strong> {cargoSenderDetails?.PhoneNumber}</li>
                     </ul>
                     
                     <p><em>For more information and next steps, please log in to your account.</em></p>
@@ -693,120 +702,134 @@ namespace Emma.Api.Handlers.OfferHandler
                 var email = await _profileRepository.GetEmailByProfileId(matchingProfileId);
                 var nameOfRecipient = await _profileRepository.GetProfileNameByProfileIdAsync(matchingProfileId);
 
-                var contactId1 = await _profileRepository.GetContactIdByProfileId(offer.OfferFromUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var transporterContactId = await _profileRepository.GetContactIdByProfileId(offer.TransporterProfileId)
+                    ?? throw new InvalidOperationException("ContactId for the specified transporter profile ID was not found.");
 
-                var contactId2 = await _profileRepository.GetContactIdByProfileId(offer.OfferForUserProfileId)
-                    ?? throw new InvalidOperationException("ContactId for the specified profile ID was not found.");
+                var nonTransporterProfileId = offer.OfferForUserProfileId == offer.TransporterProfileId
+                    ? offer.OfferFromUserProfileId
+                    : offer.OfferForUserProfileId;
 
-                var contactDetails1 = await _contactRepository.GetContactByIdAsync(contactId1);
-                var contactDetails2 = await _contactRepository.GetContactByIdAsync(contactId2);
+                var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
 
                 var emailSubject = "Izvještaj o transportu / Transport report";
                 var emailBody = $@"
                 <div style='font-family: ""DejaVu Sans"", Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h1 style='text-align: center; color: #1abc9c;'>Izvještaj o Transportu</h1>
+                    <p style='text-align: center;'>Referentni broj: {offerDetails.Id}</p>
+                    <hr style='margin: 20px 0; border: none; border-top: 2px solid #1abc9c;'>
+                    
                     <h2 style='color: #1abc9c;'>Poštovani {nameOfRecipient},</h2>
-                    <p>Pregled podataka o vašem transportu:</p>
-                
-                    <h3 style='color: #34495e;'>Detalji ponude:</h3>
-                    <ul>
-                        <li><strong>Početna cijena transporta:</strong> {offerDetails.TransportPrice}</li>
-                        <li><strong>Prihvaćena cijena transporta:</strong> {offerDetails.NewTransportPrice}</li>
-                        <li><strong>Komentar:</strong> {offerDetails.Comment}</li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'>Informacije o vozilu:</h3>
-                    <ul>
-                        <li><strong>Marka vozila:</strong> {offerDetails.Brand}</li>
-                        <li><strong>Opis vozila:</strong> {offerDetails.Description}</li>
-                        <li><strong>Nosivost vozila:</strong> {offerDetails.PayloadCapacity}</li>
-                        <li><strong>Vrsta karoserije:</strong> {offerDetails.BodyType}</li>
-                        <li><strong>Volumen teretnog prostora:</strong> {offerDetails.CargoSpaceVolume}</li>
-                        <li><strong>Težina vozila:</strong> {offerDetails.Weight}</li>
-                        <li><strong>Dužina vozila:</strong> {offerDetails.Length}</li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'>Informacije o robi:</h3>
-                    <ul>
-                        <li><strong>Opis robe:</strong> {offerDetails.GoodsDescription}</li>
-                        <li><strong>Cijena robe:</strong> {offerDetails.GoodsPrice}</li>
-                        <li><strong>Težina robe:</strong> {offerDetails.GoodsWeight}</li>
-                        <li><strong>Dužina robe:</strong> {offerDetails.GoodsLength}</li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'>Informacije o transportu:</h3>
-                    <ul>
-                        <li><strong>Adresa utovara:</strong> {offerDetails.LoadingAddress}</li>
-                        <li><strong>Adresa istovara:</strong> {offerDetails.UnloadingAddress}</li>
-                        <li><strong>Udaljenost:</strong> {offerDetails.Distance}</li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'>Kontakt podaci:</h3>
-                    <ul>
-                        <li><strong>Email:</strong> {contactDetails1?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails1?.PhoneNumber}</li>
-                    </ul>
-                    <ul>
-                        <li><strong>Email:</strong> {contactDetails2?.Email}</li>
-                        <li><strong>Broj telefona:</strong> {contactDetails2?.PhoneNumber}</li>
-                    </ul>
-                
-                    <p>Za više informacija i daljnje korake, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
-                
-                    <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
+                    <p>U nastavku su detalji vašeg transporta:</p>
+                    
+                    <h3 style='color: #34495e;'>Detalji Ponude</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Početna cijena transporta:</strong></td><td>{offerDetails.TransportPrice}</td></tr>
+                        <tr><td><strong>Prihvaćena cijena transporta:</strong></td><td>{offerDetails.NewTransportPrice}</td></tr>
+                        <tr><td><strong>Komentar:</strong></td><td>{offerDetails.Comment}</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Informacije o Vozilu</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Marka vozila:</strong></td><td>{offerDetails.Brand}</td></tr>
+                        <tr><td><strong>Opis vozila:</strong></td><td>{offerDetails.Description}</td></tr>
+                        <tr><td><strong>Nosivost:</strong></td><td>{offerDetails.PayloadCapacity} kg</td></tr>
+                        <tr><td><strong>Vrsta karoserije:</strong></td><td>{offerDetails.BodyType}</td></tr>
+                        <tr><td><strong>Volumen teretnog prostora:</strong></td><td>{offerDetails.CargoSpaceVolume} m³</td></tr>
+                        <tr><td><strong>Težina vozila:</strong></td><td>{offerDetails.Weight} kg</td></tr>
+                        <tr><td><strong>Dužina vozila:</strong></td><td>{offerDetails.Length} m</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Informacije o Robi</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Opis robe:</strong></td><td>{offerDetails.GoodsDescription}</td></tr>
+                        <tr><td><strong>Cijena robe:</strong></td><td>{offerDetails.GoodsPrice} EUR</td></tr>
+                        <tr><td><strong>Težina robe:</strong></td><td>{offerDetails.GoodsWeight} kg</td></tr>
+                        <tr><td><strong>Dužina robe:</strong></td><td>{offerDetails.GoodsLength} m</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Detalji Transporta</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Adresa utovara:</strong></td><td>{offerDetails.LoadingAddress}</td></tr>
+                        <tr><td><strong>Adresa istovara:</strong></td><td>{offerDetails.UnloadingAddress}</td></tr>
+                        <tr><td><strong>Udaljenost:</strong></td><td>{offerDetails.Distance} km</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Kontakt Podaci</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td colspan='2' style='padding: 0px 0; font-weight: bold; color: #34495e;'>Transporter</td></tr>
+                        <tr><td style='width: 50%;'><strong>Email:</strong></td><td>{transporterDetails?.Email}</td></tr>
+                        <tr><td><strong>Telefon:</strong></td><td>{transporterDetails?.PhoneNumber}</td></tr>
 
-                    <!-- Force Page Break by Adding Large Space -->
-                    <div style='height: 200px;'></div>
+                        <tr><td colspan='2' style='padding: 10px 0 0px; font-weight: bold; color: #34495e;'>Pošiljalac robe</td></tr>
+                        <tr><td><strong>Email:</strong></td><td>{cargoSenderDetails?.Email}</td></tr>
+                        <tr><td><strong>Telefon:</strong></td><td>{cargoSenderDetails?.PhoneNumber}</td></tr>
+                    </table>
+                    
+                    <p style='margin-top: 20px;'>Za više informacija, prijavite se na vaš nalog. </p>
+                    <p>Lijep pozdrav,<br><strong>Vaš Emma Logistics tim</strong></p>
+                    
+                    <hr style='margin: 40px 0; border: none; border-top: 2px solid #ddd;'>
 
-                    <h2 style='color: #1abc9c;'><em>Dear {nameOfRecipient},</em></h2>
-                    <p><em>Here is the transport report with the details of your shipment:</em></p>
-                
-                    <h3 style='color: #34495e;'><em>Offer Details:</em></h3>
-                    <ul>
-                        <li><em><strong>Initial Transport Price:</strong> {offerDetails.TransportPrice}</em></li>
-                        <li><em><strong>Accepted Transport Price:</strong> {offerDetails.NewTransportPrice}</em></li>
-                        <li><em><strong>Comment:</strong> {offerDetails.Comment}</em></li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'><em>Vehicle Information:</em></h3>
-                    <ul>
-                        <li><em><strong>Vehicle Brand:</strong> {offerDetails.Brand}</em></li>
-                        <li><em><strong>Vehicle Description:</strong> {offerDetails.Description}</em></li>
-                        <li><em><strong>Payload Capacity:</strong> {offerDetails.PayloadCapacity}</em></li>
-                        <li><em><strong>Body Type:</strong> {offerDetails.BodyType}</em></li>
-                        <li><em><strong>Cargo Space Volume:</strong> {offerDetails.CargoSpaceVolume}</em></li>
-                        <li><em><strong>Vehicle Weight:</strong> {offerDetails.Weight}</em></li>
-                        <li><em><strong>Vehicle Length:</strong> {offerDetails.Length}</em></li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'><em>Goods Information:</em></h3>
-                    <ul>
-                        <li><em><strong>Goods Description:</strong> {offerDetails.GoodsDescription}</em></li>
-                        <li><em><strong>Goods Price:</strong> {offerDetails.GoodsPrice}</em></li>
-                        <li><em><strong>Goods Weight:</strong> {offerDetails.GoodsWeight}</em></li>
-                        <li><em><strong>Goods Length:</strong> {offerDetails.GoodsLength}</em></li>
-                    </ul>
-                
-                    <h3 style='color: #34495e;'><em>Transport Information:</em></h3>
-                    <ul>
-                        <li><em><strong>Loading Address:</strong> {offerDetails.LoadingAddress}</em></li>
-                        <li><em><strong>Unloading Address:</strong> {offerDetails.UnloadingAddress}</em></li>
-                        <li><em><strong>Distance:</strong> {offerDetails.Distance}</em></li>
-                    </ul>
-                
-                    <p><em>For more information and next steps, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
-                </div>";
+                    <h1 style='text-align: center; color: #1abc9c;'>Transport Report</h1>
+                    <p style='text-align: center;'>Reference Number: {offerDetails.Id}</p>
+                    <hr style='margin: 20px 0; border: none; border-top: 2px solid #1abc9c;'>
+                    
+                    <h2 style='color: #1abc9c;'>Dear {nameOfRecipient},</h2>
+                    <p>Below are the details of your transport:</p>
+                    
+                    <h3 style='color: #34495e;'>Offer Details</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Initial Transport Price:</strong></td><td>{offerDetails.TransportPrice}</td></tr>
+                        <tr><td><strong>Accepted Transport Price:</strong></td><td>{offerDetails.NewTransportPrice}</td></tr>
+                        <tr><td><strong>Comment:</strong></td><td>{offerDetails.Comment}</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Vehicle Information</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Vehicle Brand:</strong></td><td>{offerDetails.Brand}</td></tr>
+                        <tr><td><strong>Vehicle Description:</strong></td><td>{offerDetails.Description}</td></tr>
+                        <tr><td><strong>Payload Capacity:</strong></td><td>{offerDetails.PayloadCapacity} kg</td></tr>
+                        <tr><td><strong>Body Type:</strong></td><td>{offerDetails.BodyType}</td></tr>
+                        <tr><td><strong>Cargo Space Volume:</strong></td><td>{offerDetails.CargoSpaceVolume} m³</td></tr>
+                        <tr><td><strong>Vehicle Weight:</strong></td><td>{offerDetails.Weight} kg</td></tr>
+                        <tr><td><strong>Vehicle Length:</strong></td><td>{offerDetails.Length} m</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Goods Information</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Goods Description:</strong></td><td>{offerDetails.GoodsDescription}</td></tr>
+                        <tr><td><strong>Goods Price:</strong></td><td>{offerDetails.GoodsPrice} EUR</td></tr>
+                        <tr><td><strong>Goods Weight:</strong></td><td>{offerDetails.GoodsWeight} kg</td></tr>
+                        <tr><td><strong>Goods Length:</strong></td><td>{offerDetails.GoodsLength} m</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Transport Details</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='width: 50%;'><strong>Loading Address:</strong></td><td>{offerDetails.LoadingAddress}</td></tr>
+                        <tr><td><strong>Unloading Address:</strong></td><td>{offerDetails.UnloadingAddress}</td></tr>
+                        <tr><td><strong>Distance:</strong></td><td>{offerDetails.Distance} km</td></tr>
+                    </table>
+                    
+                    <h3 style='color: #34495e;'>Contact Information</h3>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td colspan='2' style='padding: 0px 0; font-weight: bold; color: #34495e;'>Transporter</td></tr>
+                        <tr><td style='width: 50%;'><strong>Email:</strong></td><td>{transporterDetails?.Email}</td></tr>
+                        <tr><td><strong>Phone:</strong></td><td>{transporterDetails?.PhoneNumber}</td></tr>  
+                        
+                        <tr><td colspan='2' style='padding: 10px 0 0; font-weight: bold; color: #34495e;'>Cargo sender</td></tr>
 
+                        <tr><td><strong>Email:</strong></td><td>{cargoSenderDetails?.Email}</td></tr>
+                        <tr><td><strong>Phone:</strong></td><td>{cargoSenderDetails?.PhoneNumber}</td></tr>
+                    </table>
+                    
+                    <p style='margin-top: 20px;'>For more information, please log in to your account.</p>
+                    <p>Best regards,<br><strong>Your Emma Logistics Team</strong></p>";
 
-                var pdfBytes = _emailServiceHelper.GeneratePdfFromHtml(emailBody);
-                _emailServiceHelper.SendEmailWithAttachment(
+                _emailServiceHelper.SendEmail(
                     new List<string> { email ?? "" },
                     emailSubject,
-                    emailBody,
-                    pdfBytes,
-                    "DetaljiTransporta-TransportDetails.pdf"
+                    emailBody
                 );
             }
             catch (Exception ex)

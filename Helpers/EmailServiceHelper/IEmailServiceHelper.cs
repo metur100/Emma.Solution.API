@@ -9,6 +9,5 @@
             string body,
             byte[] attachment,
             string attachmentFileName);
-        byte[] GeneratePdfFromHtml(string htmlContent);
     }
 }
