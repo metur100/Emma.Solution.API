@@ -7,6 +7,7 @@
         public string? ProfilePicture { get; set; }
         public required string ProfileName { get; set; }
         public required string LoadingAddress { get; set; }
+        public required string UnloadingAddress { get; set; }
         public DateTime AvailabilityDate { get; set; }
     }
 }

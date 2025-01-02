@@ -7,5 +7,6 @@ namespace Emma.Api.Helpers.JWTHelper
         int GetUserId();
         Task<string> GenerateJwtTokenAsync(User user);
         string HashPassword(string password);
+        string GenerateRefreshToken();
     }
 }

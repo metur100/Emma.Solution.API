@@ -153,6 +153,7 @@ namespace Emma.Api.Handlers.VehicleHandler
                 Brand = v.Brand,
                 BodyType = v.BodyType,
                 PayloadCapacity = v.PayloadCapacity,
+                PlateNumber = v.PlateNumber,
                 IsActive = v.IsActive,
             }).ToList();
 
@@ -301,7 +302,8 @@ namespace Emma.Api.Handlers.VehicleHandler
                 Id = v.Id,
                 Brand = v.Brand,
                 BodyType = v.BodyType,
-                PayloadCapacity = v.PayloadCapacity
+                PayloadCapacity = v.PayloadCapacity,
+                PlateNumber = v.PlateNumber
             }).ToList();
 
             return vehicleDtos;

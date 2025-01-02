@@ -1,6 +1,5 @@
 using Emma.Api;
 using Emma.Api.Models;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
 Startup.ConfigureServices(builder);
 ConfigureDatabaseContext(builder);
 ConfigureApiExplorerAndSwagger(builder);
@@ -25,13 +23,15 @@ void ConfigureMiddleware(WebApplication app)
     app.UseSwaggerUI();
 
     app.UseCors(builder => builder
-        .AllowAnyOrigin()
+        .WithOrigins("http://localhost:5173", "https://emma-logistics-git-master-metur100s-projects.vercel.app", "https://emma-logistics-i8069jgoe-metur100s-projects.vercel.app")
         .AllowAnyMethod()
-        .AllowAnyHeader());
+        .AllowAnyHeader()
+        .AllowCredentials()
+    );
 
     app.UseHttpsRedirection();
 
-    app.UseAuthentication(); 
+    app.UseAuthentication();
 
     app.UseAuthorization();
 
@@ -85,24 +85,23 @@ void ConfigureApiExplorerAndSwagger(WebApplicationBuilder builder)
     });
 }
 
-
 void ConfigureBasicAuthentication(WebApplicationBuilder builder)
 {
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = "EmmaLogistics",
-                ValidAudience = "EmmaLogisticsUser",
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa"))
-            };
-        });
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "EmmaLogistics",
+            ValidAudience = "EmmaLogisticsUser",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("vIgkS94GZw9Pxuoeoefiwlp4vOmj5fQa"))
+        };
+    });
 
-        builder.Services.AddAuthorization();
-        builder.Services.AddControllers();
- }
+    builder.Services.AddAuthorization();
+    builder.Services.AddControllers();
+}

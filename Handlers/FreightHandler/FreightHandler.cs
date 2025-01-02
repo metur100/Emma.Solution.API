@@ -89,6 +89,7 @@ namespace Emma.Api.Handlers.FreightHandler
                         ProfileName = profileName,
                         ProfilePicture = profilePicture,
                         LoadingAddress = freight.LoadingAddress,
+                        UnloadingAddress = freight.UnloadingAddress,
                         AvailabilityDate = freight.AvailabilityDate
                     });
                 }

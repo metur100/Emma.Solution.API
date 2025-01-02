@@ -44,5 +44,12 @@ namespace Emma.Api.Repositories.UserRepository
         {
             return await _dbContext.Users.FirstOrDefaultAsync(u => u.ResetPasswordToken == token);
         }
+
+        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+        {
+            return await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        }
+
     }
 }

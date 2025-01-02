@@ -22,5 +22,6 @@ namespace Emma.Api.Handlers.OfferHandler
         Task<IEnumerable<OfferListDTO>> SearchTransitOffersAsync(int userId, string searchTerm);
         Task AddAcceptOfferAsync(int offerId);
         Task SendTransportDetailsAsync(int offerId);
+        Task AddDeliveredOfferAsync(int offerId);
     }
 }

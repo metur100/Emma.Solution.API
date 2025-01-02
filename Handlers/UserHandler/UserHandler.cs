@@ -23,7 +23,7 @@ namespace Emma.Api.Handlers.UserHandler
         private readonly IProfileRepository _profileRepository = profileRepository;
         private readonly IEmailServiceHelper _emailServiceHelper = emailServiceHelper;
 
-        public async Task<string> LoginAsync(string email, string password)
+        public async Task<string> LoginAsync(string email, string password, HttpResponse response)
         {
             if (string.IsNullOrWhiteSpace(email))
                 throw new ArgumentException("Email cannot be null or empty.");
@@ -33,8 +33,8 @@ namespace Emma.Api.Handlers.UserHandler
             try
             {
                 var hashedPassword = _jWTHelper.HashPassword(password);
-
                 var user = await _userRepository.GetProfileByEmailAndPasswordAsync(email, hashedPassword);
+
                 if (user == null)
                 {
                     return "Invalid email or password.";
@@ -45,7 +45,22 @@ namespace Emma.Api.Handlers.UserHandler
                     return "NotConfirmed";
                 }
 
-                return await _jWTHelper.GenerateJwtTokenAsync(user);
+                var accessToken = await _jWTHelper.GenerateJwtTokenAsync(user);
+                var refreshToken = _jWTHelper.GenerateRefreshToken();
+
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                await _userRepository.UpdateAsync(user);
+
+                response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                });
+
+                return accessToken;
             }
             catch (Exception ex)
             {
@@ -172,7 +187,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _userRepository.UpdateAsync(user);
 
-                var resetUrl = $"http://localhost:5173/reset-password/{resetToken}";
+                var resetUrl = $"https://emma-logistics-git-master-metur100s-projects.vercel.app/{resetToken}";
                 var emailSubject = "Resetuj lozinku / Reset your password";
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
@@ -231,6 +246,33 @@ namespace Emma.Api.Handlers.UserHandler
             {
                 throw new InvalidOperationException("An error occurred during password reset.", ex);
             }
+        }
+
+        public async Task<string?> RefreshTokenAsync(string refreshToken, HttpResponse response)
+        {
+            var user = await _userRepository.GetUserByRefreshTokenAsync(refreshToken);
+
+            if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
+            {
+                return null;
+            }
+
+            var newAccessToken = await _jWTHelper.GenerateJwtTokenAsync(user);
+            var newRefreshToken = _jWTHelper.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            await _userRepository.UpdateAsync(user);
+
+            response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            return newAccessToken;
         }
     }
 }

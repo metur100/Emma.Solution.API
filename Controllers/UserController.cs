@@ -22,22 +22,23 @@ namespace Emma.Api.Controllers
         {
             if (string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.Password))
             {
-                return BadRequest("Email and password are required.");
+                return BadRequest(new { message = "Email and password are required." });
             }
 
-            var result = await _userHandler.LoginAsync(dto.Email, dto.Password);
+            var result = await _userHandler.LoginAsync(dto.Email, dto.Password, Response);
 
             if (result == "Invalid email or password.")
             {
-                return Unauthorized(new { message = result });
+                return Unauthorized(new { message = "Invalid email or password." });
             }
             else if (result == "NotConfirmed")
             {
-                return Unauthorized(new { message = result });
+                return Unauthorized(new { message = "NotConfirmed" });
             }
 
-            return Ok(new { Token = result });
+            return Ok(new { token = result });
         }
+
 
         [AllowAnonymous]
         [HttpPost("Register")]
@@ -100,6 +101,33 @@ namespace Emma.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            try
+            {
+                var refreshToken = HttpContext.Request.Cookies["refreshToken"];
+
+                if (string.IsNullOrEmpty(refreshToken))
+                {
+                    return Unauthorized(new { message = "Refresh token is missing." });
+                }
+
+                var newAccessToken = await _userHandler.RefreshTokenAsync(refreshToken, Response);
+
+                if (newAccessToken == null)
+                {
+                    return Unauthorized(new { message = "Invalid or expired refresh token." });
+                }
+
+                return Ok(new { Token = newAccessToken });
+            }
+            catch (Exception)
+            {
+                return Unauthorized(new { message = "Token refresh failed." });
             }
         }
     }

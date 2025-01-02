@@ -11,5 +11,6 @@ namespace Emma.Api.Repositories.UserRepository
         Task UpdateAsync(User user);
         Task<User?> GetUserByEmailAsync(string email);
         Task<User?> GetUserByResetTokenAsync(string token);
+        Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
     }
 }
