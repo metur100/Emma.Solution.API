@@ -122,7 +122,7 @@ namespace Emma.Api.Handlers.UserHandler
                         <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Potvrdi registraciju</a>
                     </p>
                     <p>Ako imate bilo kakvih pitanja ili vam je potrebna pomoć, slobodno nas kontaktirajte.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -132,7 +132,7 @@ namespace Emma.Api.Handlers.UserHandler
                         <a href='{confirmationUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'><em>Confirm Registration</em></a>
                     </p>
                     <p><em>If you have any questions or need assistance, feel free to contact us.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);
@@ -197,7 +197,7 @@ namespace Emma.Api.Handlers.UserHandler
                         <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Resetuj Lozinku</a>
                     </p>
                     <p>Ovaj link će isteći za 1 sat. Ako niste zatražili resetovanje lozinke, zanemarite ovaj email.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -207,7 +207,7 @@ namespace Emma.Api.Handlers.UserHandler
                         <a href='{resetUrl}' style='background-color: #1abc9c; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px;'><em>Reset Password</em></a>
                     </p>
                     <p><em>This link will expire in 1 hour. If you did not request a password reset, please ignore this email.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { user.Email }, emailSubject, emailBody);

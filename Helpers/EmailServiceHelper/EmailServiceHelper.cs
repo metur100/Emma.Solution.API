@@ -15,11 +15,11 @@ namespace Emma.Api.Helpers.EmailServiceHelper
             var fromEmail = _config.GetValue<string>("SMTP:EmailAddress");
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Emma Logistics", fromEmail));
+            message.From.Add(new MailboxAddress("EMMA SOLUTION", fromEmail));
 
             foreach (var toEmail in toEmails)
             {
-                message.To.Add(new MailboxAddress("Emma Logistics", toEmail));
+                message.To.Add(new MailboxAddress("EMMA SOLUTION", toEmail));
             }
 
             message.Subject = subject;
@@ -58,11 +58,11 @@ namespace Emma.Api.Helpers.EmailServiceHelper
             var fromEmail = _config.GetValue<string>("SMTP:EmailAddress");
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Emma Logistics", fromEmail));
+            message.From.Add(new MailboxAddress("EMMA SOLUTION", fromEmail));
 
             foreach (var toEmail in toEmails)
             {
-                message.To.Add(new MailboxAddress("Emma Logistics", toEmail));
+                message.To.Add(new MailboxAddress("EMMA SOLUTION", toEmail));
             }
 
             message.Subject = subject;

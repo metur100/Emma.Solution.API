@@ -111,7 +111,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -158,7 +158,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 var email = await _profileRepository.GetEmailByProfileId(offer.OfferForUserProfileId)
@@ -285,7 +285,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
 
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -336,7 +336,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
 
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { email }, "Nova protuponuda / New counteroffer", emailBody);
@@ -773,7 +773,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -827,7 +827,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { email }, emailSubject, emailBody);
@@ -936,7 +936,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p>Za više informacija i daljnje korake, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
                 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
                 
@@ -989,7 +989,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p><em>For more information and next steps, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { email }, emailSubject, emailBody);
@@ -1096,7 +1096,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p>Za više informacija i upravljanje ponudama, prijavite se na svoj nalog.</p>
-                    <p>Lijep pozdrav,<br>Vaš Emma Logistics tim</p>
+                    <p>Lijep pozdrav,<br>Vaš EMMA SOLUTION tim</p>
 
                     <hr style='margin: 30px 0; border: none; border-top: 1px solid #ddd;'>
 
@@ -1149,7 +1149,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </ul>
                     
                     <p><em>For more information and to manage offers, please log in to your account.</em></p>
-                    <p><em>Best regards,<br>Your Emma Logistics Team</em></p>
+                    <p><em>Best regards,<br>Your EMMA SOLUTION Team</em></p>
                 </div>";
 
                 _emailServiceHelper.SendEmail(new List<string> { email1, email2 }, emailSubject, emailBody);
@@ -1264,7 +1264,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </table>
                     
                     <p style='margin-top: 20px;'>Za više informacija, prijavite se na vaš nalog. </p>
-                    <p>Lijep pozdrav,<br><strong>Vaš Emma Logistics tim</strong></p>
+                    <p>Lijep pozdrav,<br><strong>Vaš EMMA SOLUTION tim</strong></p>
                     
                     <hr style='margin: 40px 0; border: none; border-top: 2px solid #ddd;'>
 
@@ -1321,7 +1321,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     </table>
                     
                     <p style='margin-top: 20px;'>For more information, please log in to your account.</p>
-                    <p>Best regards,<br><strong>Your Emma Logistics Team</strong></p>";
+                    <p>Best regards,<br><strong>Your EMMA SOLUTION Team</strong></p>";
 
                 _emailServiceHelper.SendEmail(
                     new List<string> { email ?? "" },
