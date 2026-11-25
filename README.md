@@ -1,62 +1,36 @@
-# emma-api
+# EMMA Solution – API
 
-Table Users {
-  Id integer [primary key]
-  Name varchar
-  ProfilePicture varchar [note: 'Can be NULL']
-  AddressId integer [ref: > Addresses.Id]
-  ContactId integer [ref: > Contacts.Id]
-  Ratings float [note: 'Can be NULL']
-}
+ASP.NET Core 8 Web API + EF Core (SQL Server). It also serves the built web app from `wwwroot`,
+so production is a single site: https://emmasolution.runasp.net (API under `/api`, Swagger at `/swagger`).
 
-Table Addresses {
-  Id integer [primary key]
-  StreetAndNumber varchar
-  PostalCode varchar
-  City varchar
-}
+## Configuration
 
-Table Contacts {
-  Id integer [primary key]
-  Email varchar
-  PhoneNumber varchar
-}
+`appsettings.json` holds non-secret settings. Secrets live in `appsettings.Production.json`
+(git-ignored, deployed with the app):
 
-Table Vehicles {
-  Id integer [primary key]
-  UserId integer [ref: > Users.Id]
-  Brand varchar
-  PlateNumber varchar
-  Description text [note: 'Can be NULL']
-  BodyType varchar
-  PayloadCapacity varchar
-  CargoSpaceVolume varchar
-  Length varchar
-  Weight varchar
-}
+| Key | Purpose |
+| --- | --- |
+| `ConnectionStrings:Default` | SQL Server connection string |
+| `SMTP:EmailAddress` / `SMTP:EmailPassword` | Gmail account used for notification emails |
+| `Imgbb:ApiKey` | imgbb key for company logos |
+| `Jwt:Key` | JWT signing key |
+| `AppUrl` | Public URL used in email links |
+| `AllowedCountries` | Address country suffixes accepted for loads (launch: `BiH`) |
+| `Cors:Origins` | Extra frontend origins (e.g. Vercel) |
 
-Table Freights {
-  Id integer [primary key]
-  UserId integer [ref: > Users.Id]
-  LoadingAddressId varchar
-  UnloadingAddressId varchar 
-  TransportPrice varchar
-  Status varchar
-  Distance varchar
-  GoodsDescription text
-  GoodsType varchar
-  GoodsWeight varchar
-  GoodsLength varchar
-  GoodsPrice varchar
-  AvailabilityDate date
-}
+The database schema is created/updated automatically on startup (EF Core migrations in `Migrations/`).
+From outside the hosting network use `db82714.public.databaseasp.net` as server name.
 
+## Run locally
 
-Table Offers {
-  Id integer [primary key]
-  VehicleId integer [ref: > Vehicles.Id]
-  FreightId integer [ref: > Freights.Id]
-  Status varchar
-  NewTransportPrice varchar
-  Comment varchar
-}
+```bash
+ConnectionStrings__Default="Server=db82714.public.databaseasp.net;..." ASPNETCORE_URLS=http://localhost:5099 dotnet run
+```
+
+## Deploy
+
+1. `npm run build` in `Emma.Solution.App`, copy `dist/*` to `wwwroot/`
+2. `dotnet publish -c Release -o publish`
+3. Publish the folder with the Web Deploy profile (`*.publishSettings`, git-ignored)
+
+New schema changes: `dotnet ef migrations add <Name>`; they are applied on the next start.

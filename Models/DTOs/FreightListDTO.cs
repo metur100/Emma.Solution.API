@@ -9,5 +9,9 @@
         public required string LoadingAddress { get; set; }
         public required string UnloadingAddress { get; set; }
         public DateTime AvailabilityDate { get; set; }
+        public string? TransportPrice { get; set; }
+        public string? GoodsType { get; set; }
+        public string? GoodsWeight { get; set; }
+        public string? Distance { get; set; }
     }
 }

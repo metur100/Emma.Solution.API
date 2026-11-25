@@ -33,5 +33,7 @@
         public string? GoodsLength { get; set; }
         public string? GoodsPrice { get; set; }
         public DateTime AvailabilityDate { get; set; }
+        public int TransporterProfileId { get; set; }
+        public int StatusType { get; set; }
     }
 }

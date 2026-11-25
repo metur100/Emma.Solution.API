@@ -294,8 +294,9 @@ namespace Emma.Api.Handlers.ProfileHandler
                 return false; // No picture to delete
             }
 
-            // Extract the blob name from the URL (e.g., "guid-picture.jpg")
-            var blobName = new Uri(profile.ProfilePicture).Segments.Last();
+            var blobName = Uri.TryCreate(profile.ProfilePicture, UriKind.Absolute, out var pictureUri)
+                ? pictureUri.Segments.Last()
+                : profile.ProfilePicture;
 
             // Delete the picture from Blob Storage
             var deleted = await _blobStorageHelper.DeleteBlobAsync(blobName);

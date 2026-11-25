@@ -80,7 +80,7 @@ namespace Emma.Api.Handlers.FreightHandler
                 {
                     var profile = await _profileRepository.GetProfileByIdAsync(freight.ProfileId);
                     var profileName = profile?.Name ?? "Unknown User";
-                    var profilePicture = profile?.ProfilePicture ?? "Unknown Picture";
+                    var profilePicture = profile?.ProfilePicture;
 
                     freightListDTOs.Add(new FreightListDTO
                     {
@@ -90,7 +90,11 @@ namespace Emma.Api.Handlers.FreightHandler
                         ProfilePicture = profilePicture,
                         LoadingAddress = freight.LoadingAddress,
                         UnloadingAddress = freight.UnloadingAddress,
-                        AvailabilityDate = freight.AvailabilityDate
+                        AvailabilityDate = freight.AvailabilityDate,
+                        TransportPrice = freight.TransportPrice,
+                        GoodsType = freight.GoodsType,
+                        GoodsWeight = freight.GoodsWeight,
+                        Distance = freight.Distance
                     });
                 }
 

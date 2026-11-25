@@ -1,7 +1,6 @@
 ﻿using Emma.Api.Models;
 using Emma.Api.Models.Enum;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 
 namespace Emma.Api.Repositories.OfferRepository
 {

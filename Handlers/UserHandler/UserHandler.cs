@@ -14,8 +14,20 @@ namespace Emma.Api.Handlers.UserHandler
         IContactRepository contactRepository,
         IAddressRepository addressRepository,
         IProfileRepository profileRepository,
-        IEmailServiceHelper emailServiceHelper) : IUserHandler
+        IEmailServiceHelper emailServiceHelper,
+        IConfiguration configuration) : IUserHandler
     {
+        private string AppUrl => (configuration["AppUrl"] ?? "https://emmasolution.runasp.net").TrimEnd('/');
+
+        private static CookieOptions RefreshCookieOptions() => new()
+        {
+            HttpOnly = true,
+            Secure = true,
+            // None so the cookie also works when the frontend is hosted on another domain (e.g. Vercel).
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.UtcNow.AddDays(30)
+        };
+
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IJWTHelper _jWTHelper = jWTHelper;
         private readonly IContactRepository _contactRepository = contactRepository;
@@ -32,10 +44,9 @@ namespace Emma.Api.Handlers.UserHandler
 
             try
             {
-                var hashedPassword = _jWTHelper.HashPassword(password);
-                var user = await _userRepository.GetProfileByEmailAndPasswordAsync(email, hashedPassword);
+                var user = await _userRepository.GetUserByEmailAsync(email.Trim());
 
-                if (user == null)
+                if (user == null || !_jWTHelper.VerifyPassword(password, user.Password))
                 {
                     return "Invalid email or password.";
                 }
@@ -48,17 +59,14 @@ namespace Emma.Api.Handlers.UserHandler
                 var accessToken = await _jWTHelper.GenerateJwtTokenAsync(user);
                 var refreshToken = _jWTHelper.GenerateRefreshToken();
 
+                if (JWTHelper.IsLegacyHash(user.Password))
+                    user.Password = _jWTHelper.HashPassword(password);
+
                 user.RefreshToken = refreshToken;
-                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
                 await _userRepository.UpdateAsync(user);
 
-                response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(7)
-                });
+                response.Cookies.Append("refreshToken", refreshToken, RefreshCookieOptions());
 
                 return accessToken;
             }
@@ -72,9 +80,12 @@ namespace Emma.Api.Handlers.UserHandler
         {
             if (registerUserDto == null)
                 throw new ArgumentNullException(nameof(registerUserDto));
+            registerUserDto.Email = registerUserDto.Email.Trim();
+            if (await _userRepository.GetUserByEmailAsync(registerUserDto.Email) != null)
+                throw new InvalidOperationException("EmailAlreadyExists");
+
             try
             {
-
                 var hashedPassword = _jWTHelper.HashPassword(registerUserDto.Password);
 
                 var user = new User
@@ -112,7 +123,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _profileRepository.CreateProfileAsync(profile, user.Id);
 
-                var confirmationUrl = $"https://emma-logistics-git-master-metur100s-projects.vercel.app/confirm/{user.ConfirmationToken}";
+                var confirmationUrl = $"{AppUrl}/confirm/{user.ConfirmationToken}";
                 var emailSubject = "Potvrdite vašu registraciju / Confirm your registration";
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
@@ -187,7 +198,7 @@ namespace Emma.Api.Handlers.UserHandler
 
                 await _userRepository.UpdateAsync(user);
 
-                var resetUrl = $"https://emma-logistics-git-master-metur100s-projects.vercel.app/{resetToken}";
+                var resetUrl = $"{AppUrl}/reset-password/{resetToken}";
                 var emailSubject = "Resetuj lozinku / Reset your password";
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
@@ -261,16 +272,10 @@ namespace Emma.Api.Handlers.UserHandler
             var newRefreshToken = _jWTHelper.GenerateRefreshToken();
 
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(30);
             await _userRepository.UpdateAsync(user);
 
-            response.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddDays(7)
-            });
+            response.Cookies.Append("refreshToken", newRefreshToken, RefreshCookieOptions());
 
             return newAccessToken;
         }

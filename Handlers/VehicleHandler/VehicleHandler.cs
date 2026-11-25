@@ -55,7 +55,7 @@ namespace Emma.Api.Handlers.VehicleHandler
                 {
                     var profile = await _profileRepository.GetProfileByIdAsync(vehicle.ProfileId);
                     var profileName = profile?.Name ?? "Unknown User";
-                    var profilePicture = profile?.ProfilePicture ?? "Unknown Picture";
+                    var profilePicture = profile?.ProfilePicture;
 
                     var vehicleDto = new VehicleListDTO
                     {
@@ -64,7 +64,10 @@ namespace Emma.Api.Handlers.VehicleHandler
                         ProfileName = profileName,
                         ProfilePicture = profilePicture,
                         BodyType = vehicle.BodyType,
-                        PayloadCapacity = vehicle.PayloadCapacity ?? "Not Specified"
+                        PayloadCapacity = vehicle.PayloadCapacity ?? "",
+                        Brand = vehicle.Brand,
+                        Length = vehicle.Length,
+                        CargoSpaceVolume = vehicle.CargoSpaceVolume
                     };
 
                     vehicleList.Add(vehicleDto);

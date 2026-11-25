@@ -482,3 +482,14 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Secrets (connection string, SMTP, imgbb, JWT key)
+appsettings.Production.json
+appsettings.Local.json
+# Built frontend copied in at publish time
+wwwroot/
+# Web Deploy publish profiles (contain deploy credentials)
+*.publishSettings
+*.PublishSettings
+emmasolution.runasp.net-WebDeploy.publishSettings
+Properties/PublishProfiles/

@@ -52,6 +52,10 @@ namespace Emma.Api.Controllers
                 var result = await _userHandler.RegisterUserWithConfirmationAsync(registerUserDto);
                 return Ok(result);
             }
+            catch (InvalidOperationException ex) when (ex.Message == "EmailAlreadyExists")
+            {
+                return Conflict(new { message = "EmailAlreadyExists" });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
@@ -102,6 +106,14 @@ namespace Emma.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [AllowAnonymous]
+        [HttpPost("Logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("refreshToken", new CookieOptions { Secure = true, SameSite = SameSiteMode.None });
+            return Ok();
         }
 
         [HttpPost("RefreshToken")]

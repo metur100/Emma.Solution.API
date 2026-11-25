@@ -40,6 +40,7 @@ namespace Emma.Api
             builder.Services.AddScoped<IEnrichOfferHelper, EnrichOfferHelper>();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<Func<IJWTHelper>>(sp => () => sp.GetRequiredService<IJWTHelper>());
+            builder.Services.AddHttpClient("imgbb", client => client.Timeout = TimeSpan.FromSeconds(60));
             builder.Services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
 
 

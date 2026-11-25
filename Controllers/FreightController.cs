@@ -8,15 +8,30 @@ namespace Emma.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-    public class FreightController(IFreightHandler freightHandler) : ControllerBase
+    public class FreightController(IFreightHandler freightHandler, IConfiguration configuration) : ControllerBase
     {
         private readonly IFreightHandler _freightHandler = freightHandler;
+
+        /// <summary>Only countries listed in "AllowedCountries" (address suffix, e.g. "BiH") can be used. At launch: BiH only.</summary>
+        private string? ValidateCountries(Freight freight)
+        {
+            var allowed = configuration.GetSection("AllowedCountries").Get<string[]>() ?? ["BiH"];
+            bool IsAllowed(string address) => allowed.Any(country =>
+                address.TrimEnd().EndsWith(", " + country, StringComparison.OrdinalIgnoreCase));
+
+            return IsAllowed(freight.LoadingAddress) && IsAllowed(freight.UnloadingAddress)
+                ? null
+                : $"Only these countries are available: {string.Join(", ", allowed)}.";
+        }
 
         [HttpPost]
         public async Task<IActionResult> CreateFreightAsync([FromBody] Freight freight)
         {
             try
             {
+                if (ValidateCountries(freight) is { } countryError)
+                    return BadRequest(new { message = countryError });
+
                 var profileId = freight.ProfileId;
                 await _freightHandler.CreateFreightAsync(freight, profileId);
                 return Ok("Freight created successfully");
@@ -90,6 +105,9 @@ namespace Emma.Api.Controllers
             {
                 if (id != freight.Id)
                     return BadRequest("Freight ID mismatch.");
+
+                if (ValidateCountries(freight) is { } countryError)
+                    return BadRequest(new { message = countryError });
 
                 await _freightHandler.UpdateFreightAsync(freight);
                 return Ok("Freight updated successfully.");

@@ -41,6 +41,14 @@ namespace Emma.Api.Handlers.OfferHandler
             if (userId <= 0)
                 throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
 
+            var existingOffers = await _offerRepository.GetOffersByFreightIdAsync(offer.FreightId);
+            foreach (var existing in existingOffers.Where(o => o.VehicleId == offer.VehicleId))
+            {
+                var latest = await _statusRepository.GetStatusTypeByOfferId(existing.Id);
+                if (latest != (int)StatusType.Declined && latest != (int)StatusType.Arrived && latest != (int)StatusType.DidNotArrive)
+                    throw new InvalidOperationException("An open offer for this vehicle and freight already exists.");
+            }
+
             try
             {
                 await _offerRepository.CreateOfferAsync(offer, userId);
@@ -233,7 +241,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     : offer.OfferForUserProfileId;
 
                 var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
-                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(await _profileRepository.GetContactIdByProfileId(nonTransporterProfileId) ?? 0);
 
                 var emailBody = $@"
                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
@@ -357,37 +365,13 @@ namespace Emma.Api.Handlers.OfferHandler
             if (offer == null)
                 return null;
 
-            string offerForStuff = string.Empty;
-            if (offer.VehicleId == offer.OfferForStuffId)
-            {
-                var vehicleForStuff = await _vehicleRepository.GetVehicleByIdAsync(offer.OfferForStuffId);
-                offerForStuff = vehicleForStuff != null
-                    ? $"{vehicleForStuff.Brand} {vehicleForStuff.BodyType}"
-                    : "Unknown Vehicle";
-            }
-            else if (offer.FreightId == offer.OfferForStuffId)
-            {
-                var freightForStuff = await _freightRepository.GetFreightByIdAsync(offer.OfferForStuffId);
-                offerForStuff = freightForStuff != null
-                    ? $"{freightForStuff.GoodsType} - {freightForStuff.GoodsDescription}"
-                    : "Unknown Freight";
-            }
-
-            string offerFromStuff = string.Empty;
-            if (offer.VehicleId == offer.OfferFromStuffId)
-            {
-                var vehicleFromStuff = await _vehicleRepository.GetVehicleByIdAsync(offer.OfferFromStuffId);
-                offerFromStuff = vehicleFromStuff != null
-                    ? $"{vehicleFromStuff.Brand} {vehicleFromStuff.BodyType}"
-                    : "Unknown Vehicle";
-            }
-            else if (offer.FreightId == offer.OfferFromStuffId)
-            {
-                var freightFromStuff = await _freightRepository.GetFreightByIdAsync(offer.OfferFromStuffId);
-                offerFromStuff = freightFromStuff != null
-                    ? $"{freightFromStuff.GoodsType} - {freightFromStuff.GoodsDescription}"
-                    : "Unknown Freight";
-            }
+            var vehicleStuff = await _vehicleRepository.GetVehicleByIdAsync(offer.VehicleId);
+            var freightStuff = await _freightRepository.GetFreightByIdAsync(offer.FreightId);
+            var vehicleStuffName = vehicleStuff != null ? $"{vehicleStuff.Brand} {vehicleStuff.BodyType}" : "Unknown Vehicle";
+            var freightStuffName = freightStuff != null ? $"{freightStuff.GoodsType} - {freightStuff.GoodsDescription}" : "Unknown Freight";
+            var fromTransporter = Helpers.EnrichOfferHelper.EnrichOfferHelper.IsOfferFromTransporter(offer);
+            string offerForStuff = fromTransporter ? freightStuffName : vehicleStuffName;
+            string offerFromStuff = fromTransporter ? vehicleStuffName : freightStuffName;
 
             var offerFromUser = await _profileRepository.GetProfileNameByProfileIdAsync(offer.OfferFromUserProfileId)
                                 ?? "Unknown User";
@@ -453,7 +437,9 @@ namespace Emma.Api.Handlers.OfferHandler
                 GoodsWeight = offerFreight.GoodsWeight,
                 GoodsLength = offerFreight.GoodsLength,
                 GoodsPrice = offerFreight.GoodsPrice,
-                AvailabilityDate = offerFreight.AvailabilityDate
+                AvailabilityDate = offerFreight.AvailabilityDate,
+                TransporterProfileId = offer.TransporterProfileId,
+                StatusType = await _statusRepository.GetStatusTypeByOfferId(offer.Id)
             };
         }
 
@@ -701,7 +687,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (offerDetails == null)
                     throw new InvalidOperationException("Failed to retrieve offer details.");
 
-                var recipientProfileId = offer.OfferFromUserProfileId == _jWTHelper.GetUserId()
+                var recipientProfileId = (await _profileRepository.GetProfileIdsByUserIdAsync(_jWTHelper.GetUserId())).Contains(offer.OfferFromUserProfileId)
                     ? offer.OfferForUserProfileId
                     : offer.OfferFromUserProfileId;
 
@@ -718,7 +704,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     : offer.OfferForUserProfileId;
 
                 var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
-                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(await _profileRepository.GetContactIdByProfileId(nonTransporterProfileId) ?? 0);
 
                 var emailSubject = "Ponuda odbijena / Offer rejected";
                 var emailBody = $@"
@@ -861,7 +847,7 @@ namespace Emma.Api.Handlers.OfferHandler
                 if (offerDetails == null)
                     throw new InvalidOperationException("Failed to retrieve offer details.");
 
-                var recipientProfileId = offer.OfferFromUserProfileId == _jWTHelper.GetUserId()
+                var recipientProfileId = (await _profileRepository.GetProfileIdsByUserIdAsync(_jWTHelper.GetUserId())).Contains(offer.OfferFromUserProfileId)
                     ? offer.OfferForUserProfileId
                     : offer.OfferFromUserProfileId;
 
@@ -878,7 +864,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     : offer.OfferForUserProfileId;
 
                 var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
-                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(await _profileRepository.GetContactIdByProfileId(nonTransporterProfileId) ?? 0);
 
                 var endPrice = !string.IsNullOrEmpty(offerDetails.CounterOfferTransportPrice)
                     ? offerDetails.CounterOfferTransportPrice
@@ -1038,7 +1024,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     : offer.OfferForUserProfileId;
 
                 var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
-                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(await _profileRepository.GetContactIdByProfileId(nonTransporterProfileId) ?? 0);
 
                 var endPrice = !string.IsNullOrEmpty(offerDetails.CounterOfferTransportPrice)
                 ? offerDetails.CounterOfferTransportPrice
@@ -1203,7 +1189,7 @@ namespace Emma.Api.Handlers.OfferHandler
                     : offer.OfferForUserProfileId;
 
                 var transporterDetails = await _contactRepository.GetContactByIdAsync(transporterContactId);
-                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(nonTransporterProfileId);
+                var cargoSenderDetails = await _contactRepository.GetContactByIdAsync(await _profileRepository.GetContactIdByProfileId(nonTransporterProfileId) ?? 0);
 
                 var endPrice = !string.IsNullOrEmpty(offerDetails.CounterOfferTransportPrice)
                     ? offerDetails.CounterOfferTransportPrice

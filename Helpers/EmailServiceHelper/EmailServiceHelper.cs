@@ -7,7 +7,14 @@ namespace Emma.Api.Helpers.EmailServiceHelper
     {
         private readonly IConfiguration _config = configuration;
 
+        // Emails are sent in the background so API requests are not blocked by SMTP latency.
         public void SendEmail(List<string> toEmails, string subject, string body)
+            => _ = Task.Run(() => SendEmailNow(toEmails, subject, body));
+
+        public void SendEmailWithAttachment(List<string> toEmails, string subject, string body, byte[] attachment, string attachmentFileName)
+            => _ = Task.Run(() => SendEmailWithAttachmentNow(toEmails, subject, body, attachment, attachmentFileName));
+
+        private void SendEmailNow(List<string> toEmails, string subject, string body)
         {
             var port = _config.GetValue<int>("SMTP:Port");
             var host = _config.GetValue<string>("SMTP:Host");
@@ -45,7 +52,7 @@ namespace Emma.Api.Helpers.EmailServiceHelper
         }
 
 
-        public void SendEmailWithAttachment(
+        private void SendEmailWithAttachmentNow(
             List<string> toEmails,
             string subject,
             string body,
